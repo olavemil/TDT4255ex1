@@ -109,7 +109,7 @@ architecture Behavioral of processor is
 	end component;
 	
 	--program counter and incrementer output
-	signal program_counter	: STD_LOGIC_VECTOR (31 downto 0);
+	signal pc_out			: STD_LOGIC_VECTOR (31 downto 0);
 	signal pc_incrementer	: STD_LOGIC_VECTOR (31 downto 0);
 	--register destination multiplexer output
 	signal reg_dst_mux		: STD_LOGIC_VECTOR (31 downto 0);
@@ -153,14 +153,14 @@ begin
 	dmem_address 			<= alu_result; 	--read address
 	dmem_address_wr 		<= alu_result; 	--write address
 	dmem_write_enable		<= mem_w;		--write enable
-	imem_address			<= program_counter;
+	imem_address			<= pc_out;
 	ONE						<= '1';
 
 	PC : program_counter port map (
 		reset		 	=> RESET,
 		pc_w			=> PC_CON,
 		jump_mux		=> PC_IN,
-		program_counter	=> PC_OUT
+		pc_out	=> PC_OUT
 	);
 	
 	SR : status_register port map (
@@ -171,7 +171,7 @@ begin
 	);
 	
 	PC_INC : adder port map(
-		program_counter 	=> X,
+		pc_out 	=> X,
 		ONE 				=> Y,
 		pc_incrementer		=> R
 	);

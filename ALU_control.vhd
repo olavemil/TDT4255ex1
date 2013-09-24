@@ -30,23 +30,26 @@ begin
 	ALU_FUNC.Op2 <=	alu_f(2);
 	ALU_FUNC.Op3 <= alu_f(3);
 	
-	case alu_op is
-		when "000" =>	--LW, SW, LDI
-			alu_f <= "0010";
-		when "001" =>	--BEQ
-			alu_f <= "0110";
-		when "010" =>	--Function dependent
-			case FUNC is
-				when "100000" =>	--ADD
-					alu_f <= "0010";
-				when "100010" =>	--SUB
-					alu_f <=	"0110";
-				when "101010" =>	--SLT
-					alu_f <= "0111";
-				when "100100" =>	--AND
-					alu_f => "0000";
-				when "100101" =>	--OR
-					alu_f <= "0001";
-			end case;
-	end case;
+	alu_op_state_machine : process (alu_op)
+	begin
+		case alu_op is
+			when "000" =>	--LW, SW, LDI
+				alu_f <= "0010";
+			when "001" =>	--BEQ
+				alu_f <= "0110";
+			when "010" =>	--Function dependent
+				case FUNC is
+					when "100000" =>	--ADD
+						alu_f <= "0010";
+					when "100010" =>	--SUB
+						alu_f <=	"0110";
+					when "101010" =>	--SLT
+						alu_f <= "0111";
+					when "100100" =>	--AND
+						alu_f <= "0000";
+					when "100101" =>	--OR
+						alu_f <= "0001";
+				end case;
+		end case;
+	end process;
 end Behavioral; 
