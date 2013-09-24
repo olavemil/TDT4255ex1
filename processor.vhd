@@ -88,23 +88,24 @@ architecture Behavioral of processor is
 			R		: out	STD_LOGIC_VECTOR(N-1 downto 0)
 		);
 	end component;
-	
+	--program counter and incrementer output
 	signal program_counter	: STD_LOGIC_VECTOR (31 downto 0);
 	signal pc_incrementer	: STD_LOGIC_VECTOR (31 downto 0);
-
+	--register destination multiplexer output
 	signal reg_dst_mux		: STD_LOGIC_VECTOR (31 downto 0);
-	
+	--register file outputs
 	signal reg_read_a		: STD_LOGIC_VECTOR (31 downto 0);
 	signal reg_read_b		: STD_LOGIC_VECTOR (31 downto 0);
-	
+	--branch and jump multiplexer inputs
 	signal sign_ext_instr	: SXT (imem_data_in (15 downto 0), 31);
 	signal branch_add		: STD_LOGIC_VECTOR (31 downto 0);
-	
+	--branch and jump multiplexer outputs
 	signal branch_mux		: STD_LOGIC_VECTOR (31 downto 0);
 	signal jump_mux			: STD_LOGIC_VECTOR (31 downto 0);
-	
+	--alu output
 	signal alu_flags		: ALU_FLAGS;
 	signal alu_result		: STD_LOGIC_VECTOR (31 downto 0);
+	
 	--control signals
 	signal alu_op			: ALU_OP_INPUT;
 	signal alu_src			: STD_LOGIC;
@@ -145,41 +146,6 @@ begin
 		branch_add			=> R
 	);
 	
-	BRANCH_MUX : process (branch, alu_flags)
-	begin
-		if branch (2) then
-			if branch (1 downto 0) = "00" and alu_flags.Zero = '0' then
-				branch_mux <= branch_add;
-			elsif branch (1 downto 0) = "01" and alu_flags.Negative = '0' then
-				branch_mux <= branch_add;
-			elsif branch (1 downto 0) = "10" and alu_flags.Negative = '1' then
-				branch_mux <= branch_add;
-			elsif branch (1 downto 0) = "11" and alu_flags.Zero = '1' then
-				branch_mux <= branch_add;
-			else
-				branch_mux <= pc_incrementer;
-			end if;
-		end if;
-	end process;
-	
-	JUMP_MUX : process (jump_control)
-	begin
-		if jump_control = '0' then
-			jump_mux 		<= branch_mux;
-		else
-			jump_mux 		<= pc_incrementer (31 downto 26) & imem_data_in (25 downto 0);
-		end if;
-	end process;
-	
-	REG_DST_MUX : process (reg_dst)
-	begin
-		if reg_dst = '1' then
-			reg_dst_mux <= imem_data_in (15 downto 11);
-		else
-			reg_dst_mux <= imem_data_in (20 downto 16);
-		end if;
-	end process;
-	
 	REG_FILE : register_file port map(
 		clk 						=> clk,
 		reset						=> reset,
@@ -192,15 +158,6 @@ begin
 		reg_read_b					=> rt
 	);
 	
-	ALU_SOURCE_MUX : process (alu_src)
-	begin
-		if alu_src = '1' then
-			alu_src_mux <= sign_ext_instr;
-		else
-			alu_src_mux <= reg_read_b;
-		end if;
-	end process;
-	
 	ALU : alu port map (
 		reg_read_a			=> X,
 		reg_read_b			=> Y,
@@ -208,15 +165,6 @@ begin
 		alu_result			=> R,
 		alu_flags			=> FLAGS
 	);
-	
-	ALU_MEM_MUX : process (mem_to_reg)
-	begin
-		if mem_to_reg = '1' then
-			alu_mem_mux <= dmem_data_in;
-		else
-			alu_mem_mux <= alu_result;
-		end if;
-	end process;
 	
 	ALU_CONTROL : ALU_control port map (
 		clk			=> CLK,
@@ -246,4 +194,50 @@ begin
 	pc_w		=> PCWriteEnb,
 	sr_w		=> SRWriteEnb
 	);
+	
+	BRANCH_MUX : process (branch, alu_flags)
+	begin
+		if branch and alu_flags.Zero then
+			branch_mux <= branch_add;
+		else
+			branch_mux <= pc_incrementer;
+		end if;
+	end process;
+	
+	JUMP_MUX : process (jump_control)
+	begin
+		if jump_control = '0' then
+			jump_mux 		<= branch_mux;
+		else
+			jump_mux 		<= pc_incrementer (31 downto 26) & imem_data_in (25 downto 0);
+		end if;
+	end process;
+	
+	REG_DST_MUX : process (reg_dst)
+	begin
+		if reg_dst = '1' then
+			reg_dst_mux <= imem_data_in (15 downto 11);
+		else
+			reg_dst_mux <= imem_data_in (20 downto 16);
+		end if;
+	end process;
+	
+	ALU_SOURCE_MUX : process (alu_src)
+	begin
+		if alu_src = '1' then
+			alu_src_mux <= sign_ext_instr;
+		else
+			alu_src_mux <= reg_read_b;
+		end if;
+	end process;
+	
+	ALU_MEM_MUX : process (mem_to_reg)
+	begin
+		if mem_to_reg = '1' then
+			alu_mem_mux <= dmem_data_in;
+		else
+			alu_mem_mux <= alu_result;
+		end if;
+	end process;
+	
 end Behavioral;
