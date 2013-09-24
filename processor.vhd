@@ -87,7 +87,7 @@ architecture Behavioral of processor is
 			COUT	: out	STD_LOGIC;
 			R		: out	STD_LOGIC_VECTOR(N-1 downto 0)
 		);
-	end component
+	end component;
 	
 	component program_counter
 		port (
@@ -157,16 +157,16 @@ begin
 	ONE						<= '1';
 
 	PC : program_counter port map (
-		reset		 	=> RESET;
-		pc_w			=> PC_CON;
-		jump_mux		=> PC_IN;
+		reset		 	=> RESET,
+		pc_w			=> PC_CON,
+		jump_mux		=> PC_IN,
 		program_counter	=> PC_OUT
 	);
 	
 	SR : status_register port map (
-		reset		 	=> RESET;
-		sr_w			=> sr_w;
-		alu_flags		=> alu_flags;
+		reset		 	=> RESET,
+		sr_w			=> sr_w,
+		alu_flags		=> alu_flags,
 		alu_zero		=> alu_zero
 	);
 	
