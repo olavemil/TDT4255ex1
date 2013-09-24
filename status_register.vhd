@@ -1,4 +1,4 @@
-﻿library IEEE;
+library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
@@ -8,12 +8,12 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 
 entity status_register is
 	port (
-			RESET		: in	STD_LOGIC;
-			sr_w 		: in	STD_LOGIC;
+			RESET			: in	STD_LOGIC;
+			sr_w 			: in	STD_LOGIC;
 			alu_flags	: in	ALU_FLAGS;
-			alu_zero	: out	STD_LOGIC
+			alu_zero		: out	STD_LOGIC
 		);
-end program_counter;
+end status_register;
 
 architecture Behavioral of status_register is
 	
@@ -24,7 +24,6 @@ begin
 	
 	UPDATE_SR: process(sr_w)
 	begin
-		--some reset code...
 		if rising_edge(sr_w) then
 			REG <= alu_flags.Zero;
 		end if;
