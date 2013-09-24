@@ -120,7 +120,6 @@ architecture Behavioral of processor is
 	
 	component program_counter
 		port (
-			CLK 	: in 	STD_LOGIC;
 			RESET	: in 	STD_LOGIC;
 			PC_CON	: in 	STD_LOGIC;
 			PC_IN	: in 	STD_LOGIC_VECTOR (N-1 downto 0);
@@ -154,6 +153,10 @@ architecture Behavioral of processor is
 	--alu output
 	signal alu_flags		: ALU_FLAGS;
 	signal alu_result		: STD_LOGIC_VECTOR (31 downto 0);
+	--alu source multiplexer output
+	signal alu_src_mux		: STD_LOGIC_VECTOR (31 downto 0);
+	--alu memory multiplexer output
+	signal alu_mem_mux		: STD_LOGIC_VECTOR (31 downto 0);
 	--status register output
 	signal alu_zero			:STD_LOGIC;
 	
@@ -174,7 +177,7 @@ architecture Behavioral of processor is
 	signal pc_w				: STD_LOGIC;
 	signal sr_w				: STD_LOGIC;
 	--ALU control signals
-	signal alu_ctrl		: ALU_INPUT;
+	signal alu_ctrl			: ALU_INPUT;
 	--constant value inputs
 	
 begin
@@ -187,99 +190,101 @@ begin
 	sign_ext_instr			<= SXT(imem_data_in (15 downto 0), 31);
 
 	PC : program_counter port map (
-		reset		 	=> RESET,
-		pc_w			=> PC_CON,
-		jump_mux		=> PC_IN,
-		pc_out			=> PC_OUT
+		RESET		 	=> reset,
+		PC_CON			=> pc_w,
+		PC_IN			=> jump_mux,
+		PC_OUT			=> pc_out
 	);
 	
 	SR : status_register port map (
-		reset		 	=> RESET,
+		RESET		 	=> reset,
 		sr_w			=> sr_w,
 		alu_flags		=> alu_flags,
 		alu_zero		=> alu_zero
 	);
 	
 	PC_INC : adder port map(
-		pc_out 				=> X,
-		ONE 				=> Y,
-		pc_incrementer		=> R
+		X 				=> pc_out,
+		Y	 			=> ZERO32b,
+		CIN				=> '1',
+		R				=> pc_incrementer
 	);
 	
-	BRANCH_ADD : adder port map(
-		pc_incrementer 		=> X,
-		sign_ext_instr		=> Y,
-		branch_add			=> R
+	B_ADD : adder port map(
+		X 				=> pc_incrementer,
+		Y				=> sign_ext_instr,
+		CIN				=> '0',
+		R				=> branch_add
 	);
 	
 	REG_FILE : register_file port map(
-		clk 						=> clk,
-		reset						=> reset,
-		reg_w						=> rw,
-		imem_data_in (25 downto 21)	=> rs_addr,
-		imem_data_in (20 downto 20)	=> rt_addr,
-		reg_dst_mux					=> rd_addr,
-		alu_mem_mux					=> write_data,
-		reg_read_a					=> rs,
-		reg_read_b					=> rt
+		clk 			=> clk,
+		reset			=> reset,
+		rw				=> reg_w,
+		rs_addr			=> imem_data_in (25 downto 21),
+		rt_addr			=> imem_data_in (20 downto 20),
+		rd_addr			=> reg_dst_mux,
+		write_data		=> alu_mem_mux,
+		rs				=> reg_read_a,
+		rt				=> reg_read_b
 	);
 	
-	ALU : alu port map (
-		reg_read_a			=> X,
-		reg_read_b			=> Y,
-		alu_ctrl			=> ALU_IN,
-		alu_result			=> R,
-		alu_flags			=> FLAGS
+	ALU_UNIT : alu port map (
+		X				=> reg_read_a,
+		Y				=> reg_read_b,
+		ALU_IN			=> alu_ctrl,
+		r				=> alu_result,
+		FLAGS			=> alu_flags
 	);
 	
 	ALU_C : ALU_control port map (
-		clk			=> CLK,
-		reset		=> RESET,
-		func		=> FUNC,
-		alu_op		=> ALUOp,
-		alu_ctrl	=> ALU_FUNC
+		CLK			=> clk,
+		RESET		=> reset,
+		FUNC		=> imem_data_in (5 downto 0),
+		ALUOp		=> alu_op,
+		ALU_FUNC	=> alu_ctrl
 	);
 	
-	CONTROL_UNIT : control_unit port map(
-	clk			=> CLK,
-	reset		=> RESET,
-	imem_data_in (31 downto 26)	=> OpCode,
-	alu_op		=> ALUOp,
-	alu_src		=> ALUSrc,
-	
-	branch		=> Branch,
-	jump		=> Jump,
-	
-	mem_w		=> MemWrite,
-	mem_r		=> MemRead,
-	mem_to_reg	=> MemtoReg,
-	
-	reg_w		=> RegWrite,
-	reg_dst		=> RegDst,
-	
-	pc_w		=> PCWriteEnb,
-	sr_w		=> SRWriteEnb
+	CTRL : control_unit port map(
+		CLK			=> clk,
+		RESET		=> reset,
+		OpCode		=> imem_data_in (31 downto 26),
+		ALUOp		=> alu_op,
+		ALUSrc		=> alu_src,
+		
+		Branch		=> branch,
+		Jump		=> jump,
+		
+		MemWrite	=> mem_w,
+		MemRead		=> mem_r,
+		MemtoReg	=> mem_to_reg,
+		
+		RegWrite	=> reg_w,
+		RegDst		=> reg_dst,
+		
+		PCWriteEnb	=> pc_w,
+		SRWriteEnb	=> sr_w
 	);
 	
-	BRANCH_MUX : process (branch, alu_zero)
+	B_MUX : process (branch, alu_zero)
 	begin
-		if branch and alu_zero then
+		if branch = '1' and alu_zero = '1' then
 			branch_mux <= branch_add;
 		else
 			branch_mux <= pc_incrementer;
 		end if;
 	end process;
 	
-	JUMP_MUX : process (jump_control)
+	J_MUX : process (jump)
 	begin
-		if jump_control = '0' then
+		if jump = '0' then
 			jump_mux 		<= branch_mux;
 		else
 			jump_mux 		<= pc_incrementer (31 downto 26) & imem_data_in (25 downto 0);
 		end if;
 	end process;
 	
-	REG_DST_MUX : process (reg_dst)
+	RDST_MUX : process (reg_dst)
 	begin
 		if reg_dst = '1' then
 			reg_dst_mux <= imem_data_in (15 downto 11);
@@ -297,7 +302,7 @@ begin
 		end if;
 	end process;
 	
-	ALU_MEM_MUX : process (mem_to_reg)
+	ALU_MEMORY_MUX : process (mem_to_reg)
 	begin
 		if mem_to_reg = '1' then
 			alu_mem_mux <= dmem_data_in;
