@@ -36,20 +36,20 @@ entity processor is
 	generic (
 		MEM_ADDR_BUS	: integer	:= 32;
 		MEM_DATA_BUS	: integer	:= 32;
-		N					: integer	:= 32;
+		N				: integer	:= 32;
 		ONE				: integer	:= 1
 	);
 	Port ( 
-		clk 					: in 		STD_LOGIC;
-		reset					: in 		STD_LOGIC;
-		processor_enable	: in  	STD_LOGIC;
-		imem_address 		: out  	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
-		imem_data_in 		: in  	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
-		dmem_data_in 		: in  	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
-		dmem_address 		: out  	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
-		dmem_address_wr	: out  	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
-		dmem_data_out		: out  	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
-		dmem_write_enable	: out  	STD_LOGIC
+		clk 				: in	STD_LOGIC;
+		reset				: in	STD_LOGIC;
+		processor_enable	: in	STD_LOGIC;
+		imem_address 		: out	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
+		imem_data_in 		: in	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
+		dmem_data_in 		: in	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
+		dmem_address 		: out	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
+		dmem_address_wr		: out	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
+		dmem_data_out		: out	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
+		dmem_write_enable	: out	STD_LOGIC
 	);
 end processor;
 
@@ -57,25 +57,25 @@ architecture Behavioral of processor is
 
 	component regfile
 		port (
-			clk 			:	in		STD_LOGIC;				
-			reset			:	in		STD_LOGIC;				
-			rw				:	in		STD_LOGIC;				
-			rs_addr		:	in		STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
-			rt_addr 		:	in		STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
-			rd_addr 		:	in		STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
-			write_data	:	in		STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0); 
-			rs				:	out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
-			rt				:	out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0)
+			clk 		: in	STD_LOGIC;				
+			reset		: in	STD_LOGIC;				
+			rw			: in	STD_LOGIC;				
+			rs_addr		: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
+			rt_addr 	: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
+			rd_addr 	: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
+			write_data	: in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0); 
+			rs			: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+			rt			: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0)
 		);
 	end component;
 	
 	component alu
 		port (
-			X			: in STD_LOGIC_VECTOR(N-1 downto 0);
-			Y			: in STD_LOGIC_VECTOR(N-1 downto 0);
-			ALU_IN	: in ALU_INPUT;
-			R			: out STD_LOGIC_VECTOR(N-1 downto 0);
-			FLAGS		: out ALU_FLAGS
+			X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			ALU_IN	: in	ALU_INPUT;
+			R		: out	STD_LOGIC_VECTOR(N-1 downto 0);
+			FLAGS	: out	ALU_FLAGS
 		);
 	end component;
 	
@@ -83,54 +83,64 @@ architecture Behavioral of processor is
 		port (
 			X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 			Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			CIN	: in	STD_LOGIC;
+			CIN		: in	STD_LOGIC;
 			COUT	: out	STD_LOGIC;
 			R		: out	STD_LOGIC_VECTOR(N-1 downto 0)
 		);
 	end component;
 	
-	signal program_counter		: STD_LOGIC_VECTOR (31 downto 0);
-	signal pc_incrementer		: STD_LOGIC_VECTOR (31 downto 0);
+	signal program_counter	: STD_LOGIC_VECTOR (31 downto 0);
+	signal pc_incrementer	: STD_LOGIC_VECTOR (31 downto 0);
 
-	signal reg_dst_mux			: STD_LOGIC_VECTOR (31 downto 0);
+	signal reg_dst_mux		: STD_LOGIC_VECTOR (31 downto 0);
 	
-	signal reg_read_a				: STD_LOGIC_VECTOR (31 downto 0);
-	signal reg_read_b				: STD_LOGIC_VECTOR (31 downto 0);
+	signal reg_read_a		: STD_LOGIC_VECTOR (31 downto 0);
+	signal reg_read_b		: STD_LOGIC_VECTOR (31 downto 0);
 	
-	signal sign_ext_instr		: SXT (imem_data_in (15 downto 0), 31);
-	signal branch_add				: STD_LOGIC_VECTOR (31 downto 0);
+	signal sign_ext_instr	: SXT (imem_data_in (15 downto 0), 31);
+	signal branch_add		: STD_LOGIC_VECTOR (31 downto 0);
 	
-	signal branch_mux				: STD_LOGIC_VECTOR (31 downto 0);
-	signal jump_mux				: STD_LOGIC_VECTOR (31 downto 0);
+	signal branch_mux		: STD_LOGIC_VECTOR (31 downto 0);
+	signal jump_mux			: STD_LOGIC_VECTOR (31 downto 0);
 	
-	signal alu_flags				: ALU_FLAGS;
-	signal alu_result				: STD_LOGIC_VECTOR (31 downto 0);
+	signal alu_flags		: ALU_FLAGS;
+	signal alu_result		: STD_LOGIC_VECTOR (31 downto 0);
+	--control signals
+	signal alu_op			: ALU_OP_INPUT;
+	signal alu_src			: STD_LOGIC;
 	
-	signal alu_op					: STD_LOGIC;
-	signal alu_src					: STD_LOGIC;
-	signal branch					: STD_LOGIC_VECTOR ( 2 downto 0);
-	signal jump						: STD_LOGIC;
-	signal mem_w					: STD_LOGIC;
-	signal mem_to_reg				: STD_LOGIC;
-	signal reg_dst					: STD_LOGIC;
-	signal reg_w					: STD_LOGIC;
+	signal branch			: STD_LOGIC;
+	signal jump				: STD_LOGIC;
+	
+	signal mem_r			: STD_LOGIC;
+	signal mem_w			: STD_LOGIC;
+	signal mem_to_reg		: STD_LOGIC;
+	
+	signal reg_dst			: STD_LOGIC;
+	signal reg_w			: STD_LOGIC;
+	
+	signal pc_w				: STD_LOGIC;
+	signal sr_w				: STD_LOGIC;
+	--ALU control signals
+	signal alu_control		: ALU_INPUT;
 	
 begin
 	
-	dmem_data_out 			<= reg_read_b;
-	dmem_address 			<= alu_result;
-	dmem_address_wr 		<= alu_result;
-	dmem_write_enable		<= mem_w;
+	dmem_data_out 			<= reg_read_b; 	--write data
+	dmem_address 			<= alu_result; 	--read address
+	dmem_address_wr 		<= alu_result; 	--write address
+	dmem_write_enable		<= mem_w;		--write enable
 	imem_address			<= program_counter;
+	ONE						<= '1';
 
 	PC_INC : adder port map(
 		program_counter 	=> X,
-		ONE 					=> Y,
+		ONE 				=> Y,
 		pc_incrementer		=> R
 	);
 	
 	BRANCH_ADD : adder port map(
-		pc_incrementer 	=> X,
+		pc_incrementer 		=> X,
 		sign_ext_instr		=> Y,
 		branch_add			=> R
 	);
@@ -154,7 +164,7 @@ begin
 	
 	JUMP_MUX : process (jump_control)
 	begin
-		if jump_control = '1' then
+		if jump_control = '0' then
 			jump_mux 		<= branch_mux;
 		else
 			jump_mux 		<= pc_incrementer (31 downto 26) & imem_data_in (25 downto 0);
@@ -171,15 +181,15 @@ begin
 	end process;
 	
 	REG_FILE : register_file port map(
-		clk 									=> clk,
-		reset									=> reset,
-		reg_w									=> rw,
+		clk 						=> clk,
+		reset						=> reset,
+		reg_w						=> rw,
 		imem_data_in (25 downto 21)	=> rs_addr,
 		imem_data_in (20 downto 20)	=> rt_addr,
 		reg_dst_mux					=> rd_addr,
-		alu_mem_mux							=> write_data,
-		reg_read_a							=> rs,
-		reg_read_b							=> rt
+		alu_mem_mux					=> write_data,
+		reg_read_a					=> rs,
+		reg_read_b					=> rt
 	);
 	
 	ALU_SOURCE_MUX : process (alu_src)
@@ -208,24 +218,32 @@ begin
 		end if;
 	end process;
 	
-	ALU_CONTROL : process (imem_data_in, alu_op)
-	begin
-		
-	end process;
+	ALU_CONTROL : ALU_control port map (
+		clk			=> CLK,
+		reset		=> RESET,
+		func		=> FUNC,
+		alu_op		=> ALUOp,
+		alu_control	=> ALU_FUNC
+	);
 	
-	CONTROL_UNIT : control port map(
-		imem_data_in (31 downto 26)	=> opcode,
-		processor_enable => enabled,
-		clk				=> clk,
-		
-		alu_op 			=> control(10),
-		alu_src 			=> control(9),
-		branch			=> control(8 downto 6),
-		jump				=> control(5),
-		mem_w				=> control(4),
-		mem_r				=> control(3),
-		mem_to_reg		=> control(2),
-		reg_dst			=> control(1),
-		reg_w				=> control(0)
+	CONTROL_UNIT : control_unit port map(
+	clk			=> CLK,
+	reset		=> RESET,
+	imem_data_in (31 downto 26)	=> OpCode,
+	alu_op		=> ALUOp,
+	alu_src		=> ALUSrc,
+	
+	branch		=> Branch,
+	jump		=> Jump,
+	
+	mem_w		=> MemWrite,
+	mem_r		=> MemRead,
+	mem_to_reg	=> MemtoReg,
+	
+	reg_w		=> RegWrite,
+	reg_dst		=> RegDst,
+	
+	pc_w		=> PCWriteEnb,
+	sr_w		=> SRWriteEnb
 	);
 end Behavioral;
