@@ -55,7 +55,7 @@ end processor;
 
 architecture Behavioral of processor is
 
-	component regfile
+	component register_file
 		port (
 			clk 		: in	STD_LOGIC;				
 			reset		: in	STD_LOGIC;				
@@ -89,6 +89,35 @@ architecture Behavioral of processor is
 		);
 	end component;
 	
+	component ALU_control
+		port(
+			CLK			: in	STD_LOGIC;
+			RESET		: in	STD_LOGIC;
+			FUNC		: in	STD_LOGIC_VECTOR (5 downto 0);
+			ALUOp		: in	ALU_OP_INPUT;
+			ALU_FUNC	: out	ALU_INPUT
+		);
+	end component;
+	
+	component control_unit
+		port(
+			CLK 		: in 	STD_LOGIC;
+			RESET		: in 	STD_LOGIC;
+			OpCode		: in	STD_LOGIC_VECTOR (5 downto 0);
+			ALUOp		: out	ALU_OP_INPUT;
+			RegDst		: out 	STD_LOGIC;
+			Branch		: out 	STD_LOGIC;
+			MemRead		: out 	STD_LOGIC;
+			MemtoReg	: out 	STD_LOGIC;
+			MemWrite	: out 	STD_LOGIC;
+			ALUSrc		: out 	STD_LOGIC;
+			RegWrite	: out 	STD_LOGIC;
+			Jump		: out 	STD_LOGIC;
+			PCWriteEnb	: out 	STD_LOGIC;
+			SRWriteEnb	: out 	STD_LOGIC
+		);
+	end component;
+	
 	component program_counter
 		port (
 			CLK 	: in 	STD_LOGIC;
@@ -117,7 +146,7 @@ architecture Behavioral of processor is
 	signal reg_read_a		: STD_LOGIC_VECTOR (31 downto 0);
 	signal reg_read_b		: STD_LOGIC_VECTOR (31 downto 0);
 	--branch and jump multiplexer inputs
-	signal sign_ext_instr	: SXT (imem_data_in (15 downto 0), 31);
+	signal sign_ext_instr	: STD_LOGIC_VECTOR (31 downto 0);
 	signal branch_add		: STD_LOGIC_VECTOR (31 downto 0);
 	--branch and jump multiplexer outputs
 	signal branch_mux		: STD_LOGIC_VECTOR (31 downto 0);
@@ -145,7 +174,8 @@ architecture Behavioral of processor is
 	signal pc_w				: STD_LOGIC;
 	signal sr_w				: STD_LOGIC;
 	--ALU control signals
-	signal alu_control		: ALU_INPUT;
+	signal alu_ctrl		: ALU_INPUT;
+	--constant value inputs
 	
 begin
 	
@@ -154,13 +184,13 @@ begin
 	dmem_address_wr 		<= alu_result; 	--write address
 	dmem_write_enable		<= mem_w;		--write enable
 	imem_address			<= pc_out;
-	ONE						<= '1';
+	sign_ext_instr			<= SXT(imem_data_in (15 downto 0), 31);
 
 	PC : program_counter port map (
 		reset		 	=> RESET,
 		pc_w			=> PC_CON,
 		jump_mux		=> PC_IN,
-		pc_out	=> PC_OUT
+		pc_out			=> PC_OUT
 	);
 	
 	SR : status_register port map (
@@ -171,7 +201,7 @@ begin
 	);
 	
 	PC_INC : adder port map(
-		pc_out 	=> X,
+		pc_out 				=> X,
 		ONE 				=> Y,
 		pc_incrementer		=> R
 	);
@@ -197,17 +227,17 @@ begin
 	ALU : alu port map (
 		reg_read_a			=> X,
 		reg_read_b			=> Y,
-		alu_control			=> ALU_IN,
+		alu_ctrl			=> ALU_IN,
 		alu_result			=> R,
 		alu_flags			=> FLAGS
 	);
 	
-	ALU_CONTROL : ALU_control port map (
+	ALU_C : ALU_control port map (
 		clk			=> CLK,
 		reset		=> RESET,
 		func		=> FUNC,
 		alu_op		=> ALUOp,
-		alu_control	=> ALU_FUNC
+		alu_ctrl	=> ALU_FUNC
 	);
 	
 	CONTROL_UNIT : control_unit port map(
