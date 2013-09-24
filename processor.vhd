@@ -87,7 +87,27 @@ architecture Behavioral of processor is
 			COUT	: out	STD_LOGIC;
 			R		: out	STD_LOGIC_VECTOR(N-1 downto 0)
 		);
+	end component
+	
+	component program_counter
+		port (
+			CLK 	: in 	STD_LOGIC;
+			RESET	: in 	STD_LOGIC;
+			PC_CON	: in 	STD_LOGIC;
+			PC_IN	: in 	STD_LOGIC_VECTOR (N-1 downto 0);
+			PC_OUT	: out 	STD_LOGIC_VECTOR (N-1 downto 0)
+		);
 	end component;
+	
+	component status_register
+		port (
+			RESET		: in	STD_LOGIC;
+			sr_w 		: in	STD_LOGIC;
+			alu_flags	: in	ALU_FLAGS;
+			alu_zero	: out	STD_LOGIC
+		);
+	end component;
+	
 	--program counter and incrementer output
 	signal program_counter	: STD_LOGIC_VECTOR (31 downto 0);
 	signal pc_incrementer	: STD_LOGIC_VECTOR (31 downto 0);
@@ -105,6 +125,8 @@ architecture Behavioral of processor is
 	--alu output
 	signal alu_flags		: ALU_FLAGS;
 	signal alu_result		: STD_LOGIC_VECTOR (31 downto 0);
+	--status register output
+	signal alu_zero			:STD_LOGIC;
 	
 	--control signals
 	signal alu_op			: ALU_OP_INPUT;
@@ -134,6 +156,20 @@ begin
 	imem_address			<= program_counter;
 	ONE						<= '1';
 
+	PC : program_counter port map (
+		reset		 	=> RESET;
+		pc_w			=> PC_CON;
+		jump_mux		=> PC_IN;
+		program_counter	=> PC_OUT
+	);
+	
+	SR : status_register port map (
+		reset		 	=> RESET;
+		sr_w			=> sr_w;
+		alu_flags		=> alu_flags;
+		alu_zero		=> alu_zero
+	);
+	
 	PC_INC : adder port map(
 		program_counter 	=> X,
 		ONE 				=> Y,
@@ -195,9 +231,9 @@ begin
 	sr_w		=> SRWriteEnb
 	);
 	
-	BRANCH_MUX : process (branch, alu_flags)
+	BRANCH_MUX : process (branch, alu_zero)
 	begin
-		if branch and alu_flags.Zero then
+		if branch and alu_zero then
 			branch_mux <= branch_add;
 		else
 			branch_mux <= pc_incrementer;
