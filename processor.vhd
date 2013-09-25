@@ -36,18 +36,18 @@ entity processor is
 	generic (
 		MEM_ADDR_BUS	: integer	:= 32;
 		MEM_DATA_BUS	: integer	:= 32;
-		N				: integer	:= 32;
-		ONE				: integer	:= 1
+		N					: integer	:= 32;
+		ONE				: integer	:= 1	--bruker vi denne lenger?
 	);
 	Port ( 
-		clk 				: in	STD_LOGIC;
-		reset				: in	STD_LOGIC;
+		clk 					: in	STD_LOGIC;
+		reset					: in	STD_LOGIC;
 		processor_enable	: in	STD_LOGIC;
 		imem_address 		: out	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
 		imem_data_in 		: in	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
 		dmem_data_in 		: in	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
 		dmem_address 		: out	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
-		dmem_address_wr		: out	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
+		dmem_address_wr	: out	STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
 		dmem_data_out		: out	STD_LOGIC_VECTOR (MEM_DATA_BUS-1 downto 0);
 		dmem_write_enable	: out	STD_LOGIC
 	);
@@ -60,7 +60,7 @@ architecture Behavioral of processor is
 			clk 		: in	STD_LOGIC;				
 			reset		: in	STD_LOGIC;				
 			rw			: in	STD_LOGIC;				
-			rs_addr		: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
+			rs_addr	: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
 			rt_addr 	: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
 			rd_addr 	: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
 			write_data	: in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0); 
@@ -70,6 +70,7 @@ architecture Behavioral of processor is
 	end component;
 	
 	component alu
+		generic (N : natural);
 		port (
 			X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 			Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
@@ -80,6 +81,7 @@ architecture Behavioral of processor is
 	end component;
 	
 	component adder
+		generic (N : natural);
 		port (
 			X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 			Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
@@ -187,7 +189,7 @@ begin
 	dmem_address_wr 		<= alu_result; 	--write address
 	dmem_write_enable		<= mem_w;		--write enable
 	imem_address			<= pc_out;
-	sign_ext_instr			<= SXT(imem_data_in (15 downto 0), 31);
+	sign_ext_instr			<= SXT(imem_data_in (15 downto 0), 32);
 
 	PC : program_counter port map (
 		RESET		 	=> reset,
@@ -203,19 +205,23 @@ begin
 		alu_zero		=> alu_zero
 	);
 	
-	PC_INC : adder port map(
-		X 				=> pc_out,
-		Y	 			=> ZERO32b,
-		CIN				=> '1',
-		R				=> pc_incrementer
-	);
+	PC_INC : adder
+		generic map (N => 32)
+		port map(
+			X 				=> pc_out,
+			Y	 			=> ZERO32b,
+			CIN				=> '1',
+			R				=> pc_incrementer
+		);
 	
-	B_ADD : adder port map(
-		X 				=> pc_incrementer,
-		Y				=> sign_ext_instr,
-		CIN				=> '0',
-		R				=> branch_add
-	);
+	B_ADD : adder 
+		generic map (N => 32)
+		port map(
+			X 				=> pc_incrementer,
+			Y				=> sign_ext_instr,
+			CIN				=> '0',
+			R				=> branch_add
+		);
 	
 	REG_FILE : register_file port map(
 		clk 			=> clk,
@@ -229,13 +235,15 @@ begin
 		rt				=> reg_read_b
 	);
 	
-	ALU_UNIT : alu port map (
-		X				=> reg_read_a,
-		Y				=> reg_read_b,
-		ALU_IN			=> alu_ctrl,
-		r				=> alu_result,
-		FLAGS			=> alu_flags
-	);
+	ALU_UNIT : alu
+		generic map (N => 32)
+		port map (
+			X				=> reg_read_a,
+			Y				=> reg_read_b,
+			ALU_IN			=> alu_ctrl,
+			r				=> alu_result,
+			FLAGS			=> alu_flags
+		);
 	
 	ALU_C : ALU_control port map (
 		CLK			=> clk,
