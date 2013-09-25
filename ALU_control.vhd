@@ -49,7 +49,11 @@ begin
 						alu_f <= "0000";
 					when "100101" =>	--OR
 						alu_f <= "0001";
+					when others =>
+						null;	-- case stament needed to cover all choices. 
 				end case;
+			when others =>
+				null;	-- case stament needed to cover all choices. 
 		end case;
 	end process;
 end Behavioral; 

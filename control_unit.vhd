@@ -159,6 +159,8 @@ begin
 								SRWriteEnb	<= '0';	
 
 								state 		<= ALU_FETCH;
+							when others =>
+								null;
 						end case;
 					when READ_STALL =>
 						RegWrite 	<= '1';
