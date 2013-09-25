@@ -142,7 +142,7 @@ architecture Behavioral of processor is
 	signal pc_out			: STD_LOGIC_VECTOR (31 downto 0);
 	signal pc_incrementer	: STD_LOGIC_VECTOR (31 downto 0);
 	--register destination multiplexer output
-	signal reg_dst_mux		: STD_LOGIC_VECTOR (31 downto 0);
+	signal reg_dst_mux		: STD_LOGIC_VECTOR (4 downto 0);
 	--register file outputs
 	signal reg_read_a		: STD_LOGIC_VECTOR (31 downto 0);
 	signal reg_read_b		: STD_LOGIC_VECTOR (31 downto 0);
@@ -228,7 +228,7 @@ begin
 		reset			=> reset,
 		rw				=> reg_w,
 		rs_addr			=> imem_data_in (25 downto 21),
-		rt_addr			=> imem_data_in (20 downto 20),
+		rt_addr			=> imem_data_in (20 downto 16),
 		rd_addr			=> reg_dst_mux,
 		write_data		=> alu_mem_mux,
 		rs				=> reg_read_a,
