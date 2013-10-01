@@ -22,7 +22,7 @@ architecture Behavioral of program_counter is
 
 begin
 	PC_OUT <= REG;
-	
+
 	UPDATE_PC: process(PC_CON, PC_ENABLE, RESET)
 	begin
 		if RESET = '1' then
