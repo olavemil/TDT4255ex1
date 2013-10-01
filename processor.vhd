@@ -57,104 +57,105 @@ architecture Behavioral of processor is
 
 	component register_file
 		port (
-			clk 		: in	STD_LOGIC;				
-			reset		: in	STD_LOGIC;				
-			rw			: in	STD_LOGIC;				
-			rs_addr	: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
-			rt_addr 	: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
-			rd_addr 	: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
+			clk 			: in	STD_LOGIC;				
+			reset			: in	STD_LOGIC;				
+			rw				: in	STD_LOGIC;				
+			rs_addr		: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
+			rt_addr 		: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
+			rd_addr 		: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
 			write_data	: in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0); 
-			rs			: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
-			rt			: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0)
+			rs				: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+			rt				: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0)
 		);
 	end component;
 	
 	component alu
 		generic (N : natural);
 		port (
-			X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			ALU_IN	: in	ALU_INPUT;
-			R		: out	STD_LOGIC_VECTOR(N-1 downto 0);
-			FLAGS	: out	ALU_FLAGS
+			X				: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			Y				: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			ALU_IN		: in	ALU_INPUT;
+			R				: out	STD_LOGIC_VECTOR(N-1 downto 0);
+			FLAGS			: out	ALU_FLAGS
 		);
 	end component;
 	
 	component adder
 		generic (N : natural);
 		port (
-			X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			CIN		: in	STD_LOGIC;
-			COUT	: out	STD_LOGIC;
-			R		: out	STD_LOGIC_VECTOR(N-1 downto 0)
+			X				: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			Y				: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			CIN			: in	STD_LOGIC;
+			COUT			: out	STD_LOGIC;
+			R				: out	STD_LOGIC_VECTOR(N-1 downto 0)
 		);
 	end component;
 	
 	component ALU_control
 		port(
 			CLK			: in	STD_LOGIC;
-			RESET		: in	STD_LOGIC;
-			FUNC		: in	STD_LOGIC_VECTOR (5 downto 0);
-			ALUOp		: in	ALU_OP_INPUT;
-			ALU_FUNC	: out	ALU_INPUT
+			RESET			: in	STD_LOGIC;
+			FUNC			: in	STD_LOGIC_VECTOR (5 downto 0);
+			ALUOp			: in	ALU_OP_INPUT;
+			ALU_FUNC		: out	ALU_INPUT
 		);
 	end component;
 	
 	component control_unit
 		port(
-			CLK 		: in 	STD_LOGIC;
-			RESET		: in 	STD_LOGIC;
+			CLK 			: in 	STD_LOGIC;
+			RESET			: in 	STD_LOGIC;
 			OpCode		: in	STD_LOGIC_VECTOR (5 downto 0);
-			ALUOp		: out	ALU_OP_INPUT;
-			RegDst		: out 	STD_LOGIC;
-			Branch		: out 	STD_LOGIC;
-			MemRead		: out 	STD_LOGIC;
-			MemtoReg	: out 	STD_LOGIC;
-			MemWrite	: out 	STD_LOGIC;
-			ALUSrc		: out 	STD_LOGIC;
-			RegWrite	: out 	STD_LOGIC;
-			Jump		: out 	STD_LOGIC;
-			PCWriteEnb	: out 	STD_LOGIC;
-			SRWriteEnb	: out 	STD_LOGIC
+			ALUOp			: out	ALU_OP_INPUT;
+			RegDst		: out STD_LOGIC;
+			Branch		: out STD_LOGIC;
+			MemRead		: out STD_LOGIC;
+			MemtoReg		: out STD_LOGIC;
+			MemWrite		: out STD_LOGIC;
+			ALUSrc		: out STD_LOGIC;
+			RegWrite		: out STD_LOGIC;
+			Jump			: out STD_LOGIC;
+			PCWriteEnb	: out STD_LOGIC;
+			SRWriteEnb	: out STD_LOGIC
 		);
 	end component;
 	
 	component program_counter
 		port (
-			RESET	: in 	STD_LOGIC;
-			PC_CON	: in 	STD_LOGIC;
-			PC_IN	: in 	STD_LOGIC_VECTOR (N-1 downto 0);
-			PC_OUT	: out 	STD_LOGIC_VECTOR (N-1 downto 0)
+			PC_ENABLE	: in	STD_LOGIC;
+			RESET			: in 	STD_LOGIC;
+			PC_CON		: in 	STD_LOGIC;
+			PC_IN			: in 	STD_LOGIC_VECTOR (N-1 downto 0);
+			PC_OUT		: out STD_LOGIC_VECTOR (N-1 downto 0)
 		);
 	end component;
 	
 	component status_register
 		port (
-			RESET		: in	STD_LOGIC;
-			sr_w 		: in	STD_LOGIC;
+			RESET			: in	STD_LOGIC;
+			sr_w 			: in	STD_LOGIC;
 			alu_flags	: in	ALU_FLAGS;
-			alu_zero	: out	STD_LOGIC
+			alu_zero		: out	STD_LOGIC
 		);
 	end component;
 	
 	--program counter and incrementer output
-	signal pc_out			: STD_LOGIC_VECTOR (31 downto 0);
+	signal pc_out				: STD_LOGIC_VECTOR (31 downto 0);
 	signal pc_incrementer	: STD_LOGIC_VECTOR (31 downto 0);
 	--register destination multiplexer output
 	signal reg_dst_mux		: STD_LOGIC_VECTOR (4 downto 0);
 	--register file outputs
-	signal reg_read_a		: STD_LOGIC_VECTOR (31 downto 0);
-	signal reg_read_b		: STD_LOGIC_VECTOR (31 downto 0);
+	signal reg_read_a			: STD_LOGIC_VECTOR (31 downto 0);
+	signal reg_read_b			: STD_LOGIC_VECTOR (31 downto 0);
 	--branch and jump multiplexer inputs
-	signal sign_ext_instr	: STD_LOGIC_VECTOR (31 downto 0);
-	signal branch_add		: STD_LOGIC_VECTOR (31 downto 0);
+	signal sign_ext_instr	: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+	signal branch_add			: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
 	--branch and jump multiplexer outputs
-	signal branch_mux		: STD_LOGIC_VECTOR (31 downto 0);
-	signal jump_mux			: STD_LOGIC_VECTOR (31 downto 0);
+	signal branch_mux			: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+	signal jump_mux			: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
 	--alu output
-	signal alu_flags		: ALU_FLAGS;
-	signal alu_result		: STD_LOGIC_VECTOR (31 downto 0);
+	signal alu_flags			: ALU_FLAGS;
+	signal alu_result			: STD_LOGIC_VECTOR (31 downto 0);
 	--alu source multiplexer output
 	signal alu_src_mux		: STD_LOGIC_VECTOR (31 downto 0);
 	--alu memory multiplexer output
@@ -192,45 +193,46 @@ begin
 	sign_ext_instr			<= SXT(imem_data_in (15 downto 0), 32);
 
 	PC : program_counter port map (
+		PC_ENABLE	=> processor_enable,
 		RESET		 	=> reset,
-		PC_CON			=> pc_w,
+		PC_CON		=> pc_w,
 		PC_IN			=> jump_mux,
-		PC_OUT			=> pc_out
+		PC_OUT		=> pc_out
 	);
 	
 	SR : status_register port map (
 		RESET		 	=> reset,
 		sr_w			=> sr_w,
-		alu_flags		=> alu_flags,
+		alu_flags	=> alu_flags,
 		alu_zero		=> alu_zero
 	);
 	
 	PC_INC : adder
 		generic map (N => 32)
 		port map(
-			X 				=> pc_out,
-			Y	 			=> ZERO32b,
-			CIN				=> '1',
-			R				=> pc_incrementer
+			X 			=> pc_out,
+			Y	 		=> ZERO32b,
+			CIN		=> '1',
+			R			=> pc_incrementer
 		);
 	
 	B_ADD : adder 
 		generic map (N => 32)
 		port map(
-			X 				=> pc_incrementer,
-			Y				=> sign_ext_instr,
-			CIN				=> '0',
-			R				=> branch_add
+			X 			=> pc_incrementer,
+			Y			=> sign_ext_instr,
+			CIN		=> '0',
+			R			=> branch_add
 		);
 	
 	REG_FILE : register_file port map(
 		clk 			=> clk,
 		reset			=> reset,
 		rw				=> reg_w,
-		rs_addr			=> imem_data_in (25 downto 21),
-		rt_addr			=> imem_data_in (20 downto 16),
-		rd_addr			=> reg_dst_mux,
-		write_data		=> alu_mem_mux,
+		rs_addr		=> imem_data_in (25 downto 21),
+		rt_addr		=> imem_data_in (20 downto 16),
+		rd_addr		=> reg_dst_mux,
+		write_data	=> alu_mem_mux,
 		rs				=> reg_read_a,
 		rt				=> reg_read_b
 	);
@@ -238,43 +240,43 @@ begin
 	ALU_UNIT : alu
 		generic map (N => 32)
 		port map (
-			X				=> reg_read_a,
-			Y				=> reg_read_b,
-			ALU_IN			=> alu_ctrl,
-			r				=> alu_result,
-			FLAGS			=> alu_flags
+			X			=> reg_read_a,
+			Y			=> alu_src_mux,
+			ALU_IN	=> alu_ctrl,
+			r			=> alu_result,
+			FLAGS		=> alu_flags
 		);
 	
 	ALU_C : ALU_control port map (
 		CLK			=> clk,
-		RESET		=> reset,
-		FUNC		=> imem_data_in (5 downto 0),
-		ALUOp		=> alu_op,
-		ALU_FUNC	=> alu_ctrl
+		RESET			=> reset,
+		FUNC			=> imem_data_in (5 downto 0),
+		ALUOp			=> alu_op,
+		ALU_FUNC		=> alu_ctrl
 	);
 	
 	CTRL : control_unit port map(
 		CLK			=> clk,
-		RESET		=> reset,
+		RESET			=> reset,
 		OpCode		=> imem_data_in (31 downto 26),
-		ALUOp		=> alu_op,
+		ALUOp			=> alu_op,
 		ALUSrc		=> alu_src,
 		
 		Branch		=> branch,
-		Jump		=> jump,
+		Jump			=> jump,
 		
-		MemWrite	=> mem_w,
+		MemWrite		=> mem_w,
 		MemRead		=> mem_r,
-		MemtoReg	=> mem_to_reg,
+		MemtoReg		=> mem_to_reg,
 		
-		RegWrite	=> reg_w,
+		RegWrite		=> reg_w,
 		RegDst		=> reg_dst,
 		
 		PCWriteEnb	=> pc_w,
 		SRWriteEnb	=> sr_w
 	);
 	
-	B_MUX : process (branch, alu_zero)
+	B_MUX : process (branch, alu_zero, branch_add, pc_incrementer)
 	begin
 		if branch = '1' and alu_zero = '1' then
 			branch_mux <= branch_add;
@@ -283,7 +285,7 @@ begin
 		end if;
 	end process;
 	
-	J_MUX : process (jump)
+	J_MUX : process (jump, branch_mux, pc_incrementer, imem_data_in)
 	begin
 		if jump = '0' then
 			jump_mux 		<= branch_mux;
@@ -292,7 +294,7 @@ begin
 		end if;
 	end process;
 	
-	RDST_MUX : process (reg_dst)
+	RDST_MUX : process (reg_dst, imem_data_in)
 	begin
 		if reg_dst = '1' then
 			reg_dst_mux <= imem_data_in (15 downto 11);
@@ -301,7 +303,7 @@ begin
 		end if;
 	end process;
 	
-	ALU_SOURCE_MUX : process (alu_src)
+	ALU_SOURCE_MUX : process (alu_src, sign_ext_instr, reg_read_b)
 	begin
 		if alu_src = '1' then
 			alu_src_mux <= sign_ext_instr;
@@ -310,7 +312,7 @@ begin
 		end if;
 	end process;
 	
-	ALU_MEMORY_MUX : process (mem_to_reg)
+	ALU_MEMORY_MUX : process (mem_to_reg, dmem_data_in, alu_result)
 	begin
 		if mem_to_reg = '1' then
 			alu_mem_mux <= dmem_data_in;
