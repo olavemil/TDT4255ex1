@@ -8,11 +8,10 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 
 entity program_counter is
 	port(
-			PC_ENABLE	: in	STD_LOGIC;
-			RESET			: in 	STD_LOGIC;
-			PC_CON		: in 	STD_LOGIC;
-			PC_IN			: in 	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
-			PC_OUT		: out STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0)
+			RESET		: in 	STD_LOGIC;
+			PC_W		: in 	STD_LOGIC;
+			PC_IN		: in 	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+			PC_OUT		: out 	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0)
 	);
 end program_counter;
 
@@ -23,16 +22,13 @@ architecture Behavioral of program_counter is
 begin
 	PC_OUT <= REG;
 
-	UPDATE_PC: process(PC_CON, PC_ENABLE, RESET)
+	UPDATE_PC: process(PC_W, RESET)
 	begin
 		if RESET = '1' then
 			reg <= (others => '0');
-		--Assume PC should be reset to 0?
 		end if;
-		if rising_edge(PC_CON) then
-			if PC_ENABLE = '1' then
-				REG <= PC_IN;
-			end if;
+		if rising_edge(PC_W) then
+			REG <= PC_IN;
 		end if;
 	end process;
 

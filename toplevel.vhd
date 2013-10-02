@@ -73,7 +73,7 @@ architecture Behavioral of toplevel is
 
 	component processor is
 	Port (
-		clk				: in STD_LOGIC;
+		clk					: in STD_LOGIC;
 		reset				: in STD_LOGIC;
 		processor_enable	: in STD_LOGIC;
 		imem_address 		: out STD_LOGIC_VECTOR (MEM_ADDR_BUS-1 downto 0);
@@ -189,7 +189,7 @@ begin
 
 	MIPS_SC_PROCESSOR: processor
 	port map(
-		clk 				=> clk,
+		CLK 				=> clk,
 		reset				=> reset,
 		processor_enable	=> proc_enable,
 		imem_data_in		=> instr_data,
