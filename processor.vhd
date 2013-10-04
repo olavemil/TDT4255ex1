@@ -95,7 +95,7 @@ architecture Behavioral of processor is
 		port(
 			CLK				: in	STD_LOGIC;
 			FUNC			: in	STD_LOGIC_VECTOR (5 downto 0);
-			ALUOp			: in	ALU_OP_INPUT;
+			alu_op			: in	ALU_OP;
 			ALU_FUNC		: out	ALU_INPUT
 		);
 	end component;
@@ -104,18 +104,18 @@ architecture Behavioral of processor is
 		port(
 			CLK 			: in 	STD_LOGIC;
 			RESET			: in 	STD_LOGIC;
+			proc_enable		: in	STD_LOGIC;
 			OpCode			: in	STD_LOGIC_VECTOR (5 downto 0);
-			ALUOp			: out	ALU_OP_INPUT;
-			RegDst			: out STD_LOGIC;
-			Branch			: out STD_LOGIC;
-			MemRead			: out STD_LOGIC;
-			MemtoReg		: out STD_LOGIC;
-			MemWrite		: out STD_LOGIC;
-			ALUSrc			: out STD_LOGIC;
-			RegWrite		: out STD_LOGIC;
-			Jump			: out STD_LOGIC;
-			PCWriteEnb		: out STD_LOGIC;
-			SRWriteEnb		: out STD_LOGIC
+			ALUOp			: out	ALU_OP;
+			RegDst			: out	STD_LOGIC;
+			Branch			: out	STD_LOGIC;
+			MemtoReg		: out	STD_LOGIC;
+			MemWrite		: out	STD_LOGIC;
+			ALUSrc			: out	STD_LOGIC;
+			RegWrite		: out	STD_LOGIC;
+			Jump			: out	STD_LOGIC;
+			PCWriteEnb		: out	STD_LOGIC;
+			SRWriteEnb		: out	STD_LOGIC
 		);
 	end component;
 	
@@ -124,7 +124,7 @@ architecture Behavioral of processor is
 			RESET			: in 	STD_LOGIC;
 			PC_W			: in 	STD_LOGIC;
 			PC_IN			: in 	STD_LOGIC_VECTOR (N-1 downto 0);
-			PC_OUT			: out STD_LOGIC_VECTOR (N-1 downto 0)
+			PC_OUT			: out	STD_LOGIC_VECTOR (N-1 downto 0)
 		);
 	end component;
 	
@@ -138,37 +138,36 @@ architecture Behavioral of processor is
 	end component;
 	
 	--program counter and incrementer output
-	signal pc_out				: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
-	signal pc_incrementer		: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+	signal pc_out			: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+	signal pc_incrementer	: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
 	--register destination multiplexer output
-	signal reg_dst_mux			: STD_LOGIC_VECTOR (4 downto 0);
+	signal reg_dst_mux		: STD_LOGIC_VECTOR (4 downto 0);
 	--register file outputs
-	signal reg_read_a			: STD_LOGIC_VECTOR (31 downto 0);
-	signal reg_read_b			: STD_LOGIC_VECTOR (31 downto 0);
+	signal reg_read_a		: STD_LOGIC_VECTOR (31 downto 0);
+	signal reg_read_b		: STD_LOGIC_VECTOR (31 downto 0);
 	--branch and jump multiplexer inputs
-	signal sign_ext_instr		: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
-	signal branch_add			: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+	signal sign_ext_instr	: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+	signal branch_add		: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
 	--branch and jump multiplexer outputs
-	signal branch_mux			: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
-	signal jump_mux				: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+	signal branch_mux		: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+	signal jump_mux			: STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
 	--alu output
-	signal alu_flags			: ALU_FLAGS;
-	signal alu_result			: STD_LOGIC_VECTOR (31 downto 0);
+	signal alu_flags		: ALU_FLAGS;
+	signal alu_result		: STD_LOGIC_VECTOR (31 downto 0);
 	--alu source multiplexer output
-	signal alu_src_mux			: STD_LOGIC_VECTOR (31 downto 0);
+	signal alu_src_mux		: STD_LOGIC_VECTOR (31 downto 0);
 	--alu memory multiplexer output
-	signal alu_mem_mux			: STD_LOGIC_VECTOR (31 downto 0);
+	signal alu_mem_mux		: STD_LOGIC_VECTOR (31 downto 0);
 	--status register output
-	signal alu_zero				:STD_LOGIC;
+	signal alu_zero			:STD_LOGIC;
 	
 	--control signals
-	signal alu_op			: ALU_OP_INPUT;
+	signal alu_op			: ALU_OP;
 	signal alu_src			: STD_LOGIC;
 	
 	signal branch			: STD_LOGIC;
 	signal jump				: STD_LOGIC;
 	
-	signal mem_r			: STD_LOGIC;
 	signal mem_w			: STD_LOGIC;
 	signal mem_to_reg		: STD_LOGIC;
 	
@@ -190,19 +189,13 @@ begin
 	imem_address			<= pc_out;
 	sign_ext_instr			<= SXT(imem_data_in (15 downto 0), 32);
 	pc_w_enable 			<= pc_w and processor_enable;
+	alu_zero				<= alu_flags.Zero;
 
 	PC : program_counter port map (
 		RESET		 	=> reset,
 		PC_W			=> pc_w_enable,
 		PC_IN			=> jump_mux,
 		PC_OUT			=> pc_out
-	);
-	
-	SR : status_register port map (
-		RESET		 	=> reset,
-		sr_w			=> sr_w,
-		alu_flags		=> alu_flags,
-		alu_zero		=> alu_zero
 	);
 	
 	PC_INC : adder
@@ -248,13 +241,14 @@ begin
 	ALU_C : ALU_control port map (
 		CLK				=> clk,
 		FUNC			=> imem_data_in (5 downto 0),
-		ALUOp			=> alu_op,
+		alu_op			=> alu_op,
 		ALU_FUNC		=> alu_ctrl
 	);
 	
 	CTRL : control_unit port map(
 		CLK				=> clk,
 		RESET			=> reset,
+		proc_enable		=> processor_enable,
 		OpCode			=> imem_data_in (31 downto 26),
 		ALUOp			=> alu_op,
 		ALUSrc			=> alu_src,
@@ -263,7 +257,6 @@ begin
 		Jump			=> jump,
 		
 		MemWrite		=> mem_w,
-		MemRead			=> mem_r,
 		MemtoReg		=> mem_to_reg,
 		
 		RegWrite		=> reg_w,

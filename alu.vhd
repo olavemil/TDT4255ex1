@@ -38,7 +38,7 @@ entity alu is
 	port(
 		X			: in STD_LOGIC_VECTOR(N-1 downto 0);
 		Y			: in STD_LOGIC_VECTOR(N-1 downto 0);
-		ALU_IN	: in ALU_INPUT;
+		ALU_IN		: in ALU_INPUT;
 		R			: out STD_LOGIC_VECTOR(N-1 downto 0);
 		FLAGS		: out ALU_FLAGS
 	);
@@ -52,12 +52,12 @@ architecture Behavioral of alu is
 			Y		: in STD_LOGIC;
 			LESS	: in STD_LOGIC;
 			BINVERT : in STD_LOGIC;
-			CIN	: in STD_LOGIC;
-			OP1	: in STD_LOGIC;
-			OP0	: in STD_LOGIC;
-			RES	: out STD_LOGIC;
+			CIN		: in STD_LOGIC;
+			OP1		: in STD_LOGIC;
+			OP0		: in STD_LOGIC;
+			RES		: out STD_LOGIC;
 			COUT	: out STD_LOGIC;
-			SET	: out STD_LOGIC
+			SET		: out STD_LOGIC
 		);
 	end component ALU_1BIT;
 

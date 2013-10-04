@@ -79,6 +79,14 @@ ARCHITECTURE behavior OF tb_toplevel IS
 	constant addr15: std_logic_vector(0 to 31) := "00000000000000000000000000001111";
 	constant addr16: std_logic_vector(0 to 31) := "00000000000000000000000000010000";
 	constant addr17: std_logic_vector(0 to 31) := "00000000000000000000000000010001";
+	constant addr18: std_logic_vector(0 to 31) := "00000000000000000000000000010010";
+	constant addr19: std_logic_vector(0 to 31) := "00000000000000000000000000010011";
+	constant addr20: std_logic_vector(0 to 31) := "00000000000000000000000000010100";
+	constant addr21: std_logic_vector(0 to 31) := "00000000000000000000000000010101";
+	constant addr22: std_logic_vector(0 to 31) := "00000000000000000000000000010110";
+	constant addr23: std_logic_vector(0 to 31) := "00000000000000000000000000010111";
+	
+
 
 	-- This is written to memory initially
 	constant data1 : std_logic_vector(0 to 31):= "00000000000000000000000000000010";
@@ -102,6 +110,12 @@ ARCHITECTURE behavior OF tb_toplevel IS
 	constant ins13 : std_logic_vector(0 to 31) := X"AC030009";
 	constant ins14 : std_logic_vector(0 to 31) := X"1000FFFD";
 	constant ins15 : std_logic_vector(0 to 31) := X"AC03000A";
+	constant ins16 : std_logic_vector(0 to 31) := X"00611822";--SUB
+	constant ins17 : std_logic_vector(0 to 31) := X"0023102A";--SLT
+	constant ins18 : std_logic_vector(0 to 31) := X"00232025";--OR
+	constant ins19 : std_logic_vector(0 to 31) := X"00242024";--AND
+	constant ins20 : std_logic_vector(0 to 31) := X"20040011";--LDI
+	constant ins21 : std_logic_vector(0 to 31) := X"08000010";--JMP
 	   
 	-- Used to control the COM-module
 	constant CMD_IDLE	: std_logic_vector(0 to 31) := "00000000000000000000000000000000";
@@ -319,9 +333,20 @@ BEGIN
 		bus_data_in <= zero;
 		wait for clk_period*3;
 
-		-- Add instruction 14
+		-- Add instruction 21
 		command <= CMD_WI;          
 		bus_address_in <= addr14;
+		bus_data_in <= ins21;
+		wait for clk_period*3;
+
+		command <= CMD_IDLE;          
+		bus_address_in <= zero;
+		bus_data_in <= zero;
+		wait for clk_period*3;
+		
+		-- Add instruction 14
+		command <= CMD_WI;          
+		bus_address_in <= addr15;
 		bus_data_in <= ins14;
 		wait for clk_period*3;
 
@@ -332,7 +357,7 @@ BEGIN
 
 		-- Add instruction 15
 		command <= CMD_WI;          
-		bus_address_in <= addr15;
+		bus_address_in <= addr16;
 		bus_data_in <= ins15;
 		wait for clk_period*3;
 
@@ -340,7 +365,62 @@ BEGIN
 		bus_address_in <= zero;
 		bus_data_in <= zero;
 		wait for clk_period*3;
+		
+		-- Add instruction 16
+		command <= CMD_WI;          
+		bus_address_in <= addr17;
+		bus_data_in <= ins16;
+		wait for clk_period*3;
+
+		command <= CMD_IDLE;          
+		bus_address_in <= zero;
+		bus_data_in <= zero;
+		wait for clk_period*3;
+		
+		-- Add instruction 17
+		command <= CMD_WI;          
+		bus_address_in <= addr18;
+		bus_data_in <= ins17;
+		wait for clk_period*3;
+
+		command <= CMD_IDLE;          
+		bus_address_in <= zero;
+		bus_data_in <= zero;
+		wait for clk_period*3;
 				
+		-- Add instruction 18
+		command <= CMD_WI;          
+		bus_address_in <= addr19;
+		bus_data_in <= ins18;
+		wait for clk_period*3;
+
+		command <= CMD_IDLE;          
+		bus_address_in <= zero;
+		bus_data_in <= zero;
+		wait for clk_period*3;
+			
+		-- Add instruction 19
+		command <= CMD_WI;          
+		bus_address_in <= addr20;
+		bus_data_in <= ins19;
+		wait for clk_period*3;
+
+		command <= CMD_IDLE;          
+		bus_address_in <= zero;
+		bus_data_in <= zero;
+		wait for clk_period*3;
+			
+		-- Add instruction 20
+		command <= CMD_WI;          
+		bus_address_in <= addr21;
+		bus_data_in <= ins20;
+		wait for clk_period*3;
+
+		command <= CMD_IDLE;          
+		bus_address_in <= zero;
+		bus_data_in <= zero;
+		wait for clk_period*3;
+							
 		-- Run CPU!
 		command <= CMD_RUN;	
 		bus_address_in <= zero;
