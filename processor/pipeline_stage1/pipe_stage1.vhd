@@ -88,6 +88,8 @@ architecture behave of pipe_stage1 is
 		);
 	end component;
 
+	--SPAAAAACE SPACCE SPACE SPACE SPACE !!!!  (Qoute from Portal 2)
+
 	component if_id_pipe_reg
 		port(
 			clk			: in	STD_LOGIC;
