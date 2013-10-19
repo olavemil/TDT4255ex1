@@ -38,6 +38,7 @@ entity if_id_pipe_reg is
 		clk			: in	STD_LOGIC;
 		reset		: in	STD_LOGIC;
 		if_flush	: in	STD_LOGIC; --Dunno what this is for yet, need to be found out
+		haz_cntrl	: in	STD_LOGIC; --Same as above comment
 		pc_in		: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 		pc_out		: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 		instr_in	: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0):
@@ -51,7 +52,7 @@ architecture behave of if_id_pipe_reg is
 	signal CC2		: STD_LOGIC_VECTOR(63 downto 0);
 
 begin
-	process(clk, reset, if_flush)
+	process(clk, reset)
 	begin
 		if (reset = '1') then
 			CC1 <= (others => '0');
