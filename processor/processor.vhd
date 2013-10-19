@@ -34,6 +34,15 @@ end processor;
 
 architecture behave of processor is
 
+--	Connect port map of pipe_stage1 
+
+--	Connect port map of pipe_stage2 
+
+--	Connect port map of pipe_stage3 
+
+--	Connect port map of pipe_stage1 
+
+
 begin
 
 
