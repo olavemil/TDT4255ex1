@@ -41,7 +41,7 @@ entity if_id_pipe_reg is
 		haz_cntrl	: in	STD_LOGIC; --Same as above comment
 		pc_in		: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 		pc_out		: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-		instr_in	: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0):
+		instr_in	: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0);
 		instr_out	: out	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0)
 		);
 	end if_id_pipe_reg;

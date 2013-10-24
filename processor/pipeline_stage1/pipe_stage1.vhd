@@ -75,18 +75,20 @@ architecture behave of pipe_stage1 is
 		);
 	end component;
 
-	component if_id_pipe_reg
+	--Instruction memory signals
+	signal InstrMemInpt	: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal InstrMemOupt	: STD_LOGIC_VECTOR(N-1 downto 0);
+
+	component instruction_memory_module --is lacking from the ISE project for the time being?
 		port(
-			clk			: in	STD_LOGIC;
-			reset		: in	STD_LOGIC;
-			if_flush	: in	STD_LOGIC;
-			haz_cntrl	: in	STD_LOGIC;
-			pc_in		: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-			pc_out		: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-			instr_in	: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0):
-			instr_out	: out	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0)
+			clk		: in	STD_LOGIC;
+			inpt	: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+			outpt	: out	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0)
+			--++ more I would guess
 		);
 	end component;
+
+	--SPAAAAACE SPACCE SPACE SPACE SPACE !!!!  (Qoute from Portal 2)
 
 begin
 
