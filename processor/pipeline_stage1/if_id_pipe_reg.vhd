@@ -47,31 +47,18 @@ entity if_id_pipe_reg is
 	end if_id_pipe_reg;
 
 architecture behave of if_id_pipe_reg is
-	signal switch	: STD_LOGIC := '0';
-	signal CC1		: STD_LOGIC_VECTOR(63 downto 0);
-	signal CC2		: STD_LOGIC_VECTOR(63 downto 0);
 
 begin
 	process(clk, reset)
 	begin
-		if (reset = '1') then
-			CC1 <= (others => '0');
-			CC2 <= (others => '0');
-		elsif (rising_edge(clk)) then --Here's an assumption that the clock cycle starts with first halfperiod as positive, and not negative.
-			switch <= switch nand switch;
-			if (switch = '1') then
-				pc_out				<= CC1(63 downto 32);
-				instr_out			<= CC1(31 downto 0);
-				CC2(63 downto 32)	<= pc_in;
-				CC2(31 downto 0)	<= instr_in;
+		if (rising_edge(clk)) then --Here's an assumption that the clock cycle starts with first halfperiod as positive, and not negative.
+			if (reset = '1') then
+				pc_out		<= (others => '0');
+				instr_out	<= (others => '0');
 			else
-				pc_out				<= CC2(63 downto 32);
-				instr_out			<= CC2(31 downto 0);
-				CC1(63 downto 32)	<= pc_in;
-				CC1(31 downto 0)	<= instr_in;
+				pc_out		<=	pc_in;
+				instr_out	<=	instr_in;
 			end if;
-		else
-
 		end if;
 
 	end process;
