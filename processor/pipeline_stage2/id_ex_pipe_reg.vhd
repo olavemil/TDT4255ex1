@@ -30,6 +30,27 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity id_ex_pipe_reg is
+	port(
+		wb_in 		:in STD_LOGIC;
+		m_in 		:in STD_LOGIC;
+		ex_in 		:in --some kind of bus thingy
+		new_pc_in 	:in STD_LOGIC_VECTOR(15 downto 0);
+		reg_d_1_in	:in STD_LOGIC_VECTOR(15 downto 0);
+		reg_d_2_in 	:in STD_LOGIC_VECTOR(15 downto 0);
+		imm_in		:in STD_LOGIC_VECTOR(31 downto 0);
+		reg_rt_in 	:in STD_LOGIC_VECTOR(4 downto 0);
+		reg_rd_in 	:in STD_LOGIC_VECTOR(4 downto 0);
+
+		wb_out 		:out STD_LOGIC;
+		m_out 		:out STD_LOGIC;
+		ex_out 		:out --some kind of bus thingy, aluop
+		new_pc_out 	:out STD_LOGIC_VECTOR(15 downto 0);
+		reg_d_1_out :out STD_LOGIC_VECTOR(15 downto 0);
+		reg_d_2_out :out STD_LOGIC_VECTOR(15 downto 0);
+		imm_out		:out STD_LOGIC_VECTOR(31 downto 0);
+		reg_rt_out 	:out STD_LOGIC_VECTOR(4 downto 0);
+		reg_rd_out 	:out STD_LOGIC_VECTOR(4 downto 0)
+	);
 end id_ex_pipe_reg;
 
 architecture behave of id_ex_pipe_reg is
@@ -38,4 +59,20 @@ begin
 
 
 end behave;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
