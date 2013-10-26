@@ -75,14 +75,16 @@ architecture behave of processor is
 --	Connect port map of pipe_stage1
 	component pipe_stage1
 		port(
-			clk				: in	STD_LOGIC;
-			pc_wr_enb		: in	STD_LOGIC;
-			pc_src			: in	STD_LOGIC;
-			haz_contrl_sig	: in	STD_LOGIC;
-			if_flush_sig	: in	STD_LOGIC;
-			pc_alu_src		: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-			instr_mem_outpt	: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-			pc_alu_outpt	: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0)
+			clk					: in	STD_LOGIC;
+			pc_src				: in	STD_LOGIC;
+			pc_wr_enb			: in	STD_LOGIC;
+			if_flush_sig		: in	STD_LOGIC;
+			haz_contrl_sig		: in	STD_LOGIC;
+			pc_alu_src			: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+			imem_data_in		: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0);
+			imem_address		: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+			pc_buffer_outpt		: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+			imem_buffer_outpt	: out	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0)
 		);
 	end component;
 
