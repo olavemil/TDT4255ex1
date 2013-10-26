@@ -34,17 +34,20 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 --use UNISIM.VComponents.all;
 
 entity pipe_stage1 is
+	generic(
+		N	: integer := 32
+	);
 	port(
 		clk					: in	STD_LOGIC;
 		pc_src				: in	STD_LOGIC;
 		pc_wr_enb			: in	STD_LOGIC;
 		if_flush_sig		: in	STD_LOGIC;
 		haz_contrl_sig		: in	STD_LOGIC;
-		pc_alu_src			: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-		imem_data_in		: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0);
-		imem_address		: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-		pc_buffer_outpt		: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-		imem_buffer_outpt	: out	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0)
+		pc_alu_src			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+		imem_data_in		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+		imem_address		: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+		pc_buffer_outpt		: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+		imem_buffer_outpt	: out	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0)
 	);
 end pipe_stage1;
 
@@ -91,11 +94,12 @@ begin
 		);
 
 	PC_INCR : adder
-		generic port map (N => 32)
+		generic map (N => 32)
 		port map(
 			X	=> pc_outpt,
 			Y 	=> ZERO32b,
 			CIN	=> '1',
+			COUT=> open,
 			R 	=> pc_incr_outpt
 		);
 
