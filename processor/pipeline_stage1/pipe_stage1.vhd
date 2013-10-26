@@ -34,9 +34,6 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 --use UNISIM.VComponents.all;
 
 entity pipe_stage1 is
-	generic(
-		N	: integer := 32
-	);
 	port(
 		clk					: in	STD_LOGIC;
 		pc_src				: in	STD_LOGIC;
@@ -88,7 +85,7 @@ begin
 
 	PC : program_counter
 		port map(
-			CLK 		=> clk,
+			CLK			=> clk,
 			RESET		=> pc_reset,
 			PC_WR_EN	=> pc_wr_enb,
 			PC_IN		=> pc_inpt,
