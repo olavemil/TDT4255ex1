@@ -77,7 +77,6 @@ architecture behave of processor is
 		port(
 			clk					: in	STD_LOGIC;
 			pc_src				: in	STD_LOGIC;
-			pc_wr_enb			: in	STD_LOGIC;
 			if_flush_sig		: in	STD_LOGIC;
 			haz_contrl_sig		: in	STD_LOGIC;
 			pc_alu_src			: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);

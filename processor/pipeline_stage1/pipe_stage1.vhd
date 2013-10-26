@@ -38,7 +38,6 @@ entity pipe_stage1 is
 		clk					: in	STD_LOGIC;
 		pc_src				: in	STD_LOGIC;
 		pc_reset			: in	STD_LOGIC;
-		pc_wr_enb			: in	STD_LOGIC;
 		if_flush_sig		: in	STD_LOGIC;
 		haz_contrl_sig		: in	STD_LOGIC;
 		pc_alu_src			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -59,7 +58,6 @@ architecture behave of pipe_stage1 is
 		port(
 			CLK 		: in	STD_LOGIC;
 			RESET		: in	STD_LOGIC;
-			PC_WR_EN	: in	STD_LOGIC; --ProgramCounter Write Enable pin
 			PC_IN		: in	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
 			PC_OUT		: out	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0)
 		);
@@ -87,7 +85,6 @@ begin
 		port map(
 			CLK			=> clk,
 			RESET		=> pc_reset,
-			PC_WR_EN	=> pc_wr_enb,
 			PC_IN		=> pc_inpt,
 			PC_OUT		=> pc_outpt
 		);
