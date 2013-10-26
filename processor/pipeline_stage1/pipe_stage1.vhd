@@ -40,6 +40,7 @@ entity pipe_stage1 is
 	port(
 		clk					: in	STD_LOGIC;
 		pc_src				: in	STD_LOGIC;
+		pc_reset			: in	STD_LOGIC;
 		pc_wr_enb			: in	STD_LOGIC;
 		if_flush_sig		: in	STD_LOGIC;
 		haz_contrl_sig		: in	STD_LOGIC;
@@ -54,16 +55,16 @@ end pipe_stage1;
 architecture behave of pipe_stage1 is
 
 	-- Program counter signals
-	signal pc_reset		: STD_LOGIC; -- Unused for the moment
 	signal pc_inpt		: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal pc_outpt		: STD_LOGIC_VECTOR(N-1 downto 0);
 
 	component program_counter
 		port(
-			RESET	: in	STD_LOGIC;
-			PC_W	: in	STD_LOGIC;
-			PC_IN	: in	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
-			PC_OUT	: out	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0)
+			CLK 		: in	STD_LOGIC;
+			RESET		: in	STD_LOGIC;
+			PC_WR_EN	: in	STD_LOGIC; --ProgramCounter Write Enable pin
+			PC_IN		: in	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+			PC_OUT		: out	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0)
 		);
 	end component;
 
@@ -87,10 +88,11 @@ begin
 
 	PC : program_counter
 		port map(
-			RESET	=> pc_reset,
-			PC_W	=> pc_wr_enb,
-			PC_IN	=> pc_inpt,
-			PC_OUT	=> pc_outpt
+			CLK 		=> clk,
+			RESET		=> pc_reset,
+			PC_WR_EN	=> pc_wr_enb,
+			PC_IN		=> pc_inpt,
+			PC_OUT		=> pc_outpt
 		);
 
 	PC_INCR : adder
