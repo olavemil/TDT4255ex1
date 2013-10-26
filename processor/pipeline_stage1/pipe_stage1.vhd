@@ -105,7 +105,7 @@ begin
 			R 	=> pc_incr_outpt
 		);
 
-	PC_MUX : process(pc_src)
+	PC_MUX : process(pc_src, clk, pc_incr_outpt, pc_alu_src)
 	begin
 		if (pc_src = '1') then
 			pc_inpt <= pc_alu_src;
@@ -114,7 +114,7 @@ begin
 		end if;
 	end process;
 
-	CTRL : process(clk)
+	CTRL : process(clk, pc_outpt)
 	begin
 		if (rising_edge(clk)) then
 			pc_buffer_outpt		<= pc_buffr;

@@ -22,7 +22,7 @@ begin
 	begin
 	
 	-- Here's were we decide what input (if any) to utilize
-	if (falling_edge(CLK)) then
+	if (rising_edge(CLK)) then
 		if (RESET = '1') then
 			PC_OUT <= X"00000000"; --Hardcoded reset value
 		elsif (PC_WR_EN = '1') then
