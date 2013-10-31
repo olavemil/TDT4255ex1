@@ -87,8 +87,8 @@ architecture behave of processor is
 		);
 	end component;
 
-	signal stage_1_out_pc			: 
-	signal stage_1_out_instruction	: 
+	signal stage_1_out_pc			: STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+	signal stage_1_out_instruction	: STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0);
 
 --	Definition and signals for pipe_stage2
 	component pipe_stage2
@@ -99,14 +99,14 @@ architecture behave of processor is
 			pc_in			: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 			--in from stage 4/5
 			wb_in			: in	STD_LOGIC;
-			reg_r_in		: in	STD_LOGIC_VECTOR(31 downto 0);
-			data_in			: in	STD_LOGIC_VECTOR(31 downto 0);--alu_result/dmem_out
+			reg_r_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			data_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);--alu_result/dmem_out
 			--out to stage 1
 			pc_out			: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 			flush_out		: out	STD_LOGIC;
 			branch_val_out	: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 			--out to stage 3
-			function_out	: out	STD_LOGIC_VECTOR(5 downto 0);
+			function_out	: out	STD_LOGIC_VECTOR(  5 downto 0);
 			alu_op_out		: out	ALU_OP_INPUT;
 			
 			m_we_out		: out	STD_LOGIC;
@@ -115,34 +115,34 @@ architecture behave of processor is
 			reg_dst_out		: out	STD_LOGIC;
 			alu_src_out		: out	STD_LOGIC;
 			
-			alu_reg_1_out	: out	STD_LOGIC_VECTOR(31 downto 0);
-			alu_reg_2_out	: out	STD_LOGIC_VECTOR(31 downto 0);
+			alu_reg_1_out	: out	STD_LOGIC_VECTOR(N-1 downto 0);
+			alu_reg_2_out	: out	STD_LOGIC_VECTOR(N-1 downto 0);
 			
-			imm_val_out 		: out	STD_LOGIC_VECTOR(31 downto 0);
+			imm_val_out 		: out	STD_LOGIC_VECTOR(N-1 downto 0);
 			
-			reg_rt_out 		: out	STD_LOGIC_VECTOR(4 downto 0);
-			reg_rd_out 		: out	STD_LOGIC_VECTOR(4 downto 0);
+			reg_rt_out 		: out	STD_LOGIC_VECTOR(  4 downto 0);
+			reg_rd_out 		: out	STD_LOGIC_VECTOR(  4 downto 0);
 			--out to forwarding unit
-			reg_rs_out 		: out	STD_LOGIC_VECTOR(4 downto 0);
-			reg_rt_out 		: out	STD_LOGIC_VECTOR(4 downto 0)
+			reg_rs_out 		: out	STD_LOGIC_VECTOR(  4 downto 0);
+			reg_rt_out 		: out	STD_LOGIC_VECTOR(  4 downto 0)
 		);
 	end component;
 	signal stage_2_out_pc			: STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 	signal stage_2_out_flush		: STD_LOGIC;
 	signal stage_2_out_branch_val	: STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-	signal stage_2_out_func			: STD_LOGIC_VECTOR( 5 downto 0);
+	signal stage_2_out_func			: STD_LOGIC_VECTOR(  5 downto 0);
 	signal stage_2_out_alu_op		: ALU_OP_INPUT;
 	signal stage_2_out_m_we			: STD_LOGIC;
 	signal stage_2_out_wb			: STD_LOGIC;
 	signal stage_2_out_reg_dst		: STD_LOGIC;
 	signal stage_2_out_alu_src		: STD_LOGIC;
-	signal stage_2_out_alu_reg_1	: STD_LOGIC_VECTOR(31 downto 0);
-	signal stage_2_out_alu_reg_2	: STD_LOGIC_VECTOR(31 downto 0);
-	signal stage_2_out_imm_val		: STD_LOGIC_VECTOR(31 downto 0);
-	signal stage_2_out_reg_rt		: STD_LOGIC_VECTOR( 4 downto 0);
-	signal stage_2_out_reg_rd		: STD_LOGIC_VECTOR( 4 downto 0);
-	signal stage_2_out_fwd_rs		: STD_LOGIC_VECTOR( 4 downto 0);
-	signal stage_2_out_fwd_rt		: STD_LOGIC_VECTOR( 4 downto 0);
+	signal stage_2_out_alu_reg_1	: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal stage_2_out_alu_reg_2	: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal stage_2_out_imm_val		: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal stage_2_out_reg_rt		: STD_LOGIC_VECTOR(  4 downto 0);
+	signal stage_2_out_reg_rd		: STD_LOGIC_VECTOR(  4 downto 0);
+	signal stage_2_out_fwd_rs		: STD_LOGIC_VECTOR(  4 downto 0);
+	signal stage_2_out_fwd_rt		: STD_LOGIC_VECTOR(  4 downto 0);
 	
 --	Definition and signals for pipe_stage3
 	component pipe_stage3
@@ -157,21 +157,21 @@ architecture behave of processor is
 			wb_in				: in	STD_LOGIC;
 			wb_out				: out	STD_LOGIC;
 			
-			alu_reg_in_1		: in	STD_LOGIC_VECTOR(31 downto 0);
-			alu_reg_in_2		: in	STD_LOGIC_VECTOR(31 downto 0);
-			alu_result_out		: out	STD_LOGIC_VECTOR(31 downto 0);
+			alu_reg_in_1		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			alu_reg_in_2		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			alu_result_out		: out	STD_LOGIC_VECTOR(N-1 downto 0);
 			
-			dmem_address		: out	STD_LOGIC_VECTOR(31 downto 0);
+			dmem_address		: out	STD_LOGIC_VECTOR(N-1 downto 0);
 			
-			reg_rt_in			: in	STD_LOGIC_VECTOR(31 downto 0);
-			reg_rd_in			: in	STD_LOGIC_VECTOR(31 downto 0);
-			reg_r_out			: out	STD_LOGIC_VECTOR(31 downto 0)
+			reg_rt_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			reg_rd_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			reg_r_out			: out	STD_LOGIC_VECTOR(N-1 downto 0)
 		);
 	end component;
 	signal stage_3_out_m_we			: STD_LOGIC;
 	signal stage_3_out_wb			: STD_LOGIC;
-	signal stage_3_out_alu_result	: STD_LOGIC_VECTOR(31 downto 0);
-	signal stage_3_out_reg_r		: STD_LOGIC_VECTOR( 4 downto 0);
+	signal stage_3_out_alu_result	: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal stage_3_out_reg_r		: STD_LOGIC_VECTOR(  4 downto 0);
 
 --	Definition and signals for pipe_stage4
 	component pipe_stage4
@@ -179,16 +179,16 @@ architecture behave of processor is
 			wb_in				: in	STD_LOGIC;
 			wb_out				: out	STD_LOGIC;
 			
-			alu_result_in		: in	STD_LOGIC_VECTOR(31 downto 0);
-			alu_result_out		: out	STD_LOGIC_VECTOR(31 downto 0);
+			alu_result_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			alu_result_out		: out	STD_LOGIC_VECTOR(N-1 downto 0);
 			
-			reg_r_in			: in	STD_LOGIC_VECTOR(31 downto 0);
-			reg_r_out			: out	STD_LOGIC_VECTOR(31 downto 0)
+			reg_r_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			reg_r_out			: out	STD_LOGIC_VECTOR(N-1 downto 0)
 		);
 	end component;
 	signal stage_4_out_wb			: STD_LOGIC;
-	signal stage_4_out_alu_result	: STD_LOGIC_VECTOR(31 downto 0);
-	signal stage_4_out_reg_r		: STD_LOGIC_VECTOR( 4 downto 0);
+	signal stage_4_out_alu_result	: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal stage_4_out_reg_r		: STD_LOGIC_VECTOR(  4 downto 0);
 
 --	Definition and signals for pipe_stage5
 	component pipe_stage5
