@@ -31,26 +31,38 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity pipe_stage2 is
 	port(
-		new_pc		: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-		instruction	: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0);
-		reg_w_enb	: in 	STD_LOGIC; --from mem/wb stage
-		wb_in		: in 	STD_LOGIC; --from control unit to pipe register
-		m_in		: in 	STD_LOGIC; --from control unit to pipe register
-		ex_in		: in 	STD_LOGIC; --from control unit to pipe register
-
-		opcode		: out	STD_LOGIC_VECTOR(5 downto 0); --to control unit
-		wb_out		: out 	STD_LOGIC; --control signals
-		m_out 		: out 	STD_LOGIC;
-		aluop		: out 	ALU_OP_INPUT;
-		reg_dst		: out 	STD_LOGIC;
-		alu_src		: out 	STD_LOGIC; --control signals
+		clk				: in	STD_LOGIC;
+		--in from stage 1
+		instruction_in	: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0);
+		pc_in			: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+		--in from stage 4/5
+		wb_in			: in	STD_LOGIC;
+		reg_r_in		: in	STD_LOGIC_VECTOR(31 downto 0);
+		data_in			: in	STD_LOGIC_VECTOR(31 downto 0);--alu_result/dmem_out
+		--out to stage 1
+		pc_out			: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+		flush_out		: out	STD_LOGIC;
+		branch_val_out	: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+		--out to stage 3
+		func_out		: out	STD_LOGIC_VECTOR(5 downto 0);
+		alu_op_out		: out	ALU_OP_INPUT;
 		
-		new_pc_out	: out 	STD_LOGIC(15 downto 0);
-		reg_d_1 	: out 	STD_LOGIC;
-		reg_d_2 	: out 	STD_LOGIC;
-		imm_value 	: out 	STD_LOGIC_VECTOR(31 downto 0);
-		reg_rt_adr 	: out 	STD_LOGIC_VECTOR(4 downto 0);
-		reg_rd_adr 	: out 	STD_LOGIC_VECTOR(4 downto 0)
+		m_we_out		: out	STD_LOGIC;
+		wb_out			: out	STD_LOGIC;
+		
+		reg_dst_out		: out	STD_LOGIC;
+		alu_src_out		: out	STD_LOGIC;
+		
+		alu_reg_1_out	: out	STD_LOGIC_VECTOR(31 downto 0);
+		alu_reg_2_out	: out	STD_LOGIC_VECTOR(31 downto 0);
+		
+		imm_val_out 	: out	STD_LOGIC_VECTOR(31 downto 0);
+		
+		reg_rt_out 		: out	STD_LOGIC_VECTOR(4 downto 0);
+		reg_rd_out 		: out	STD_LOGIC_VECTOR(4 downto 0);
+		--out to forwarding unit
+		reg_rs_out 		: out	STD_LOGIC_VECTOR(4 downto 0);
+		reg_rt_out 		: out	STD_LOGIC_VECTOR(4 downto 0)
 	);
 end pipe_stage2;
 
