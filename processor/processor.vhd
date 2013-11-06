@@ -147,25 +147,46 @@ architecture behave of processor is
 --	Definition and signals for pipe_stage3
 	component pipe_stage3
 		port(
-			func_in				: in	STD_LOGIC_VECTOR( 5 downto 0);
-			
-			alu_op_in			: in	ALU_OP_INPUT;
-			
-			m_we_in				: in	STD_LOGIC;
-			m_we_out			: out	STD_LOGIC;
-			
-			wb_in				: in	STD_LOGIC;
-			wb_out				: out	STD_LOGIC;
-			
-			alu_reg_in_1		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			alu_reg_in_2		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			alu_result_out		: out	STD_LOGIC_VECTOR(N-1 downto 0);
-			
-			dmem_address		: out	STD_LOGIC_VECTOR(N-1 downto 0);
-			
-			reg_rt_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			reg_rd_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			reg_r_out			: out	STD_LOGIC_VECTOR(N-1 downto 0)
+			--In from stage 2
+            func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
+            alu_op_in			: in	ALU_OP_INPUT;
+            
+            m_we_in,
+            wb_in				: in	STD_LOGIC;
+            
+            reg_dst_in          : in    STD_LOGIC;
+            alu_src_in          : in    STD_LOGIC;
+            
+            reg_data_1_in,
+            reg_data_2_in       : in    STD_LOGIC_VECTOR(N-1 downto 0);
+            
+            im_val_in           : in    STD_LOGIC_VECTOR(N-1 downto 0);
+            
+            reg_rt_in,
+            reg_rd_in			: in	STD_LOGIC_VECTOR(4 downto 0);
+            
+            --In from stage 4
+            alu_data_1_in,
+            alu_data_2_in       : in    STD_LOGIC_VECTOR(N-1 downto 0);
+            
+            --In from stage 5
+            mem_data_1_in,
+            mem_data_2_in       : in    STD_LOGIC_VECTOR(N-1 downto 0);
+            
+            --From forwarding unit
+            mux_reg_1_in        : in	STD_LOGIC_VECTOR(1 downto 0);
+            mux_reg_2_in        : in	STD_LOGIC_VECTOR(1 downto 0);
+            
+            --Out to stage 4
+            alu_result_out,
+            dmem_address		: out	STD_LOGIC_VECTOR(N-1 downto 0);
+            
+            alu_flags_out       : out   ALU_FLAGS;
+            
+            wb_out,
+            m_we_out			: out	STD_LOGIC;
+            
+            reg_r_out			: out	STD_LOGIC_VECTOR(4 downto 0)
 		);
 	end component;
 	signal stage_3_out_m_we			: STD_LOGIC;
@@ -189,11 +210,6 @@ architecture behave of processor is
 	signal stage_4_out_wb			: STD_LOGIC;
 	signal stage_4_out_alu_result	: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal stage_4_out_reg_r		: STD_LOGIC_VECTOR(  4 downto 0);
-
---	Definition and signals for pipe_stage5
-	component pipe_stage5
-
-	end component;
 
 
 --  Definition and signals for hazard detection unit
@@ -219,8 +235,6 @@ architecture behave of processor is
 	end component;
     signal fw_reg_1_mux_control : std_logic_vector(1 downto 0);
     signal fw_reg_2_mux_control : std_logic_vector(1 downto 0);
-
-
 begin
 	--STAGE 1
 	stage_1: pipe_stage1
@@ -287,22 +301,34 @@ begin
         reg_dst_in		=> stage_2_out_reg_dst,
         alu_src_in		=> stage_2_out_alu_src,
         
-        alu_reg_in_1	=> stage_2_out_alu_reg_1,
-        alu_reg_in_2	=> stage_2_out_alu_reg_2,
+        reg_data_1_in	=> stage_2_out_alu_reg_1,
+        reg_data_2_in	=> stage_2_out_alu_reg_2,
         
         imm_val_in		=> stage_2_out_imm_val,
         
         reg_rt_in		=> stage_2_out_reg_rt,
         reg_rd_in		=> stage_2_out_reg_rd,
+        
+        --in from stage 4
+        alu_data_1_in	=> stage_2_out_alu_reg_1,
+        alu_data_2_in	=> stage_2_out_alu_reg_2,
+        
+        --in from stage 5
+        mem_data_1_in	=> stage_2_out_alu_reg_1,
+        mem_data_2_in	=> stage_2_out_alu_reg_2,
+        
         --in from forwarding unit
         mux_reg_1_in    => fw_reg_1_mux_control,
         mux_reg_2_in    => fw_reg_2_mux_control,
+        
         --out to stage 4
         m_we_out		=> stage_3_out_m_we,
         wb_out			=> stage_3_out_wb,
         
         dmem_address	=> dmem_address,
         alu_result_out	=> stage_3_out_alu_result,
+        
+        alu_flags       => stage_3_out_alu_flags,
         
         reg_r_out		=> stage_3_out_reg_r
     );
