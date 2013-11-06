@@ -196,118 +196,145 @@ architecture behave of processor is
 	end component;
 
 
--- Connect port map of hazard detection unit
+--  Definition and signals for hazard detection unit
 	component hazard_detection_unit
 
 	end component;
 
 
--- Connect port map of forwarding unit
+--  Definition and signals for forwarding unit
 	component forwarding_unit
-
+    port(
+        ex_reg_addr_in_1,
+        ex_reg_addr_in_2,
+        mem_reg_addr_in,
+        wb_reg_addr_in          : in std_logic_vector(N-1 downto 0);
+        
+        mem_reg_we,
+        wb_reg_we               : in std_logic;
+        
+        reg_1_mux_control_out,
+        reg_2_mux_control_out   : out std_logic_vector(1 downto 0)
+    );
 	end component;
+    signal fw_reg_1_mux_control : std_logic_vector(1 downto 0);
+    signal fw_reg_2_mux_control : std_logic_vector(1 downto 0);
 
 
 begin
 	--STAGE 1
 	stage_1: pipe_stage1
-		port map(
-			clk					=> clk,
-			--in from stage 2
-			pc_src				=> stage_2_out_pc,
-			if_flush_sig		=> stage_2_out_flush,
-			haz_contrl_sig		=> hazard_out,
-			pc_alu_src			=> stage_2_out_branch_val,
-			--out to stage 2
-			imem_address		=> imem_address,
-			pc_buffer_outpt		=> stage_1_out_pc
-		);
-		stage_1_out_instruction <= imem_data_in;
+    port map(
+        clk					=> clk,
+        --in from stage 2
+        pc_src				=> stage_2_out_pc,
+        if_flush_sig		=> stage_2_out_flush,
+        haz_contrl_sig		=> hazard_out,
+        pc_alu_src			=> stage_2_out_branch_val,
+        --out to stage 2
+        imem_address		=> imem_address,
+        pc_buffer_outpt		=> stage_1_out_pc
+    );
+    stage_1_out_instruction <= imem_data_in;
 		
 	--STAGE 2
 	stage_2: pipe_stage2
-		port map(
-			clk				=> clk,
-			--in from stage 1
-			instruction_in	=> stage_1_out_instruction,
-			pc_in			=> stage_1_out_pc,
-			--in from stage 4/5
-			wb_in			=> stage_4_out_wb,
-			reg_r_in		=> stage_4_out_reg_r,
-			data_in			=> alu_mem_mux_out,
-			--out to stage 1
-			pc_out			=> stage_2_out_pc,
-			flush_out		=> stage_2_out_flush,
-			branch_val_out	=> stage_2_out_branch_val,
-			--out to stage 3
-			func_out		=> stage_2_out_func,
-			alu_op_out		=> stage_2_out_alu_op,
-			
-			m_we_out		=> stage_2_out_m_we,
-			wb_out			=> stage_2_out_wb,
-			
-			reg_dst_out		=> stage_2_out_reg_dst,
-			alu_src_out		=> stage_2_out_alu_src,
-			
-			alu_reg_1_out	=> stage_2_out_alu_reg_1,
-			alu_reg_2_out	=> stage_2_out_alu_reg_2,
-			
-			imm_val_out		=> stage_2_out_imm_val,
-			
-			reg_rt_out		=> stage_2_out_reg_rt,
-			reg_rd_out		=> stage_2_out_reg_rd,
-			--out to forwarding unit
-			reg_rs_out		=> stage_2_out_fwd_rs,
-			reg_rt_out		=> stage_2_out_fwd_rt
-		);
+    port map(
+        clk				=> clk,
+        --in from stage 1
+        instruction_in	=> stage_1_out_instruction,
+        pc_in			=> stage_1_out_pc,
+        --in from stage 4/5
+        wb_in			=> stage_4_out_wb,
+        reg_r_in		=> stage_4_out_reg_r,
+        data_in			=> alu_mem_mux_out,
+        --out to stage 1
+        pc_out			=> stage_2_out_pc,
+        flush_out		=> stage_2_out_flush,
+        branch_val_out	=> stage_2_out_branch_val,
+        --out to stage 3
+        func_out		=> stage_2_out_func,
+        alu_op_out		=> stage_2_out_alu_op,
+        
+        m_we_out		=> stage_2_out_m_we,
+        wb_out			=> stage_2_out_wb,
+        
+        reg_dst_out		=> stage_2_out_reg_dst,
+        alu_src_out		=> stage_2_out_alu_src,
+        
+        alu_reg_1_out	=> stage_2_out_alu_reg_1,
+        alu_reg_2_out	=> stage_2_out_alu_reg_2,
+        
+        imm_val_out		=> stage_2_out_imm_val,
+        
+        reg_rt_out		=> stage_2_out_reg_rt,
+        reg_rd_out		=> stage_2_out_reg_rd,
+        --out to forwarding unit
+        reg_rs_out		=> stage_2_out_fwd_rs,
+        reg_rt_out		=> stage_2_out_fwd_rt
+    );
 		
 	--STAGE 3
 	stage_3: pipe_stage3 
-		port map(
-			--in from stage 2
-			func_in			=> stage_2_out_func,
-			alu_op_in		=> stage_2_out_alu_op,
-			
-			m_we_in			=> stage_2_out_m_we,
-			wb_in			=> stage_2_out_wb,
-			
-			reg_dst_in		=> stage_2_out_reg_dst,
-			alu_src_in		=> stage_2_out_alu_src,
-			
-			alu_reg_in_1	=> stage_2_out_alu_reg_1,
-			alu_reg_in_2	=> stage_2_out_alu_reg_2,
-			
-			imm_val_in		=> stage_2_out_imm_val,
-			
-			reg_rt_in		=> stage_2_out_reg_rt,
-			reg_rd_in		=> stage_2_out_reg_rd,
-			--in from forwarding unit
-			
-			--out to stage 4
-			m_we_out		=> stage_3_out_m_we,
-			wb_out			=> stage_3_out_wb,
-			
-			dmem_address	=> dmem_address,
-			alu_result_out	=> stage_3_out_alu_result,
-			
-			reg_r_out		=> stage_3_out_reg_r
-		);
+    port map(
+        --in from stage 2
+        func_in			=> stage_2_out_func,
+        alu_op_in		=> stage_2_out_alu_op,
+        
+        m_we_in			=> stage_2_out_m_we,
+        wb_in			=> stage_2_out_wb,
+        
+        reg_dst_in		=> stage_2_out_reg_dst,
+        alu_src_in		=> stage_2_out_alu_src,
+        
+        alu_reg_in_1	=> stage_2_out_alu_reg_1,
+        alu_reg_in_2	=> stage_2_out_alu_reg_2,
+        
+        imm_val_in		=> stage_2_out_imm_val,
+        
+        reg_rt_in		=> stage_2_out_reg_rt,
+        reg_rd_in		=> stage_2_out_reg_rd,
+        --in from forwarding unit
+        mux_reg_1_in    => fw_reg_1_mux_control,
+        mux_reg_2_in    => fw_reg_2_mux_control,
+        --out to stage 4
+        m_we_out		=> stage_3_out_m_we,
+        wb_out			=> stage_3_out_wb,
+        
+        dmem_address	=> dmem_address,
+        alu_result_out	=> stage_3_out_alu_result,
+        
+        reg_r_out		=> stage_3_out_reg_r
+    );
+    fwu : forwarding_unit
+    port map(
+        ex_reg_addr_in_1        => stage_2_out_reg_rd,
+        ex_reg_addr_in_2        => stage_2_out_reg_rt,
+        mem_reg_addr_in         => stage_3_out_reg_r,
+        wb_reg_addr_in          => stage_4_out_reg_r,
+        
+        mem_reg_we              => stage_3_out_wb,
+        wb_reg_we               => stage_4_out_wb,
+        
+        reg_1_mux_control_out   => fw_reg_1_mux_control,
+        reg_2_mux_control_out   => fw_reg_1_mux_control
+    );
 	--STAGE 4
 	dmem_address_we		<= stage_3_out_m_we;
 	dmem_data_in		<= stage_3_out_alu_result;
 		
 	stage_4: pipe_stage4
-		port map(
-			--in from stage 3
-			wb_in			<= stage_3_out_wb,
-			
-			alu_result_in	<= stage_3_out_alu_result,
-			reg_r_in		<= stage_3_out_reg_r,
-			--out to stage 5/1
-			wb_out			<= stage_4_out_wb,
-			alu_result_out	<= stage_4_out_alu_result,
-			reg_r_out		<= stage_4_out_reg_r
-		);
+    port map(
+        --in from stage 3
+        wb_in			<= stage_3_out_wb,
+        
+        alu_result_in	<= stage_3_out_alu_result,
+        reg_r_in		<= stage_3_out_reg_r,
+        --out to stage 5/1
+        wb_out			<= stage_4_out_wb,
+        alu_result_out	<= stage_4_out_alu_result,
+        reg_r_out		<= stage_4_out_reg_r
+    );
 	
 	
 	--STAGE 5
