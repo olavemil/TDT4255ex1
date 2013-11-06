@@ -1,24 +1,28 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    11:45:21 10/19/2013 
--- Design Name: 
--- Module Name:    pipe_stage3 - behave 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+-- Company:
+-- Engineer:
 --
--- Dependencies: 
+-- Create Date:    11:45:21 10/19/2013
+-- Design Name:
+-- Module Name:    pipe_stage3 - behave
+-- Project Name:
+-- Target Devices:
+-- Tool versions:
+-- Description:
 --
--- Revision: 
+-- Dependencies:
+--
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments:
 --
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+
+library WORK;
+use WORK.MIPS_CONSTANT_PKG.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -30,6 +34,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity pipe_stage3 is
+	clk				: in	STD_LOGIC;
+	pipe2_wb		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+	pipe2_m			: in	STD_LOGIC_VECTOR(N-1 downto 0);
+	pipe2_ex		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+	pipe2_rs		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+	pipe2_rt		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+	pipe2_rd		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 end pipe_stage3;
 
 architecture behave of pipe_stage3 is
