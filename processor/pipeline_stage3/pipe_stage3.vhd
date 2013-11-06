@@ -60,6 +60,7 @@ architecture behaviour of pipe_stage3 is
 --ALU
     --ALU input
     signal mux_reg_1_data_out, mux_reg_2_data_out, mux_alu_src_out : STD_LOGIC_VECTOR(N-1 downto 0);
+    signal alu_op       : ALU_INPUT;
     --ALU component
     component alu
         port (
@@ -105,11 +106,41 @@ begin
         end if;
     end process;
     
+    
+    --THIS NEEDS WORK!
+    --Implemented using only ALU_OP.Op0 and ALU_OP.Op1,
+    --for instructions specified in fig 4.12, page 317.
+    alu_control : process(imm_val_in, alu_op_in)
+    begin
+        if alu_op_in.Op0 = '1' then
+            --branch
+            alu_op <= ('0', '1', '1', '0');
+        else
+            if alu_op_in.Op1 = '0' then
+                alu_op <= ('0', '0', '1', '0');
+            else
+                case imm_value_in is
+                    when "100000" => --ADD
+                        alu_op <= ('0', '0', '1', '0');
+                    when "100010" => --SUB
+                        alu_op <= ('0', '1', '1', '0');
+                    when "100100" => --AND
+                        alu_op <= ('0', '0', '0', '0');
+                    when "100101" => --OR
+                        alu_op <= ('0', '0', '0', '1');
+                    when "101010" => --SLT
+                        alu_op <= ('0', '1', '1', '1');
+                    when others =>
+                        alu_op <= ('1', '1', '1', '1');
+                end case;
+            end if;
+        end if;
+    end process;
     alu_unit : alu
     port map (
         X       => mux_reg_1_data_out,
         Y       => mux_alu_src_out,
-        ALU_IN  => op_alu_in,
+        ALU_IN  => alu_op,
         R       => alu_result,
         FLAGS   => alu_flags_out
     );
