@@ -34,20 +34,24 @@ entity pipe_stage2 is
 		clk				: in	STD_LOGIC;
 		--in from stage 1
 		instruction_in	: in	STD_LOGIC_VECTOR(MEM_DATA_BUS-1 downto 0);
-		pc_in			: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
-		--in from stage 4/5
-		wb_in			: in	STD_LOGIC;
-		reg_r_in		: in	STD_LOGIC_VECTOR(31 downto 0);
+		pc_in				: in	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+		--in from stage 4/5   
+		reg_r_in			: in	STD_LOGIC_VECTOR(31 downto 0);
 		data_in			: in	STD_LOGIC_VECTOR(31 downto 0);--alu_result/dmem_out
+		reg_w_e			: in  STD_LOGIC;
+		--in from stage 3
+		hz
+		hz
+		
 		--out to stage 1
-		pc_out			: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
+		branch_adr		: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 		flush_out		: out	STD_LOGIC;
 		branch_val_out	: out	STD_LOGIC_VECTOR(MEM_ADDR_BUS-1 downto 0);
 		--out to stage 3
-		func_out		: out	STD_LOGIC_VECTOR(5 downto 0);
+		func_out			: out	STD_LOGIC_VECTOR(5 downto 0);
 		alu_op_out		: out	ALU_OP_INPUT;
 		
-		m_we_out		: out	STD_LOGIC;
+		m_we_out			: out	STD_LOGIC;
 		wb_out			: out	STD_LOGIC;
 		
 		reg_dst_out		: out	STD_LOGIC;
