@@ -1,14 +1,9 @@
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 
 library WORK;
 use WORK.MIPS_CONSTANT_PKG.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
 
 entity pipe_stage3 is
 	port (
@@ -166,4 +161,3 @@ begin
 		end if;
 	end process;
 end behaviour;
-

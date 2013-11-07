@@ -1,17 +1,14 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library work;
 use WORK.MIPS_CONSTANT_PKG.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
 
 entity forwarding_unit is
     port(
         ex_reg_addr_in_1,
         ex_reg_addr_in_2,
         mem_reg_addr_in,
-        wb_reg_addr_in          : in std_logic_vector(N-1 downto 0);
+        wb_reg_addr_in          : in std_logic_vector(RADDR_BUS-1 downto 0);
         
         mem_reg_we,
         wb_reg_we               : in std_logic;
@@ -21,10 +18,10 @@ entity forwarding_unit is
     );
 end forwarding_unit;
 
-architecture behavaviour of forwarding_unit is
+architecture behaviour of forwarding_unit is
 
 begin
-    forward : process(mem_reg_wb, wb_reg_we)
+    forward : process(mem_reg_we, wb_reg_we)
     begin
         if (mem_reg_addr_in = ex_reg_addr_in_1) and (mem_reg_we = '1') then
             reg_1_mux_control_out <= "10";
@@ -42,6 +39,5 @@ begin
             reg_2_mux_control_out <= "00";
         end if;
     end process;
-
 end behaviour;
 
