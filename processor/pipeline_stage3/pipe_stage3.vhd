@@ -40,7 +40,7 @@ entity pipe_stage3 is
         
         --Out to stage 4
         alu_result_out,
-        dmem_address		: out	STD_LOGIC_VECTOR(N-1 downto 0);
+        dmem_data			: out	STD_LOGIC_VECTOR(N-1 downto 0);
         
         alu_flags_out       : out   ALU_FLAGS;
         
@@ -59,6 +59,7 @@ architecture behaviour of pipe_stage3 is
 	signal func			: ALU_FUNC;
     --ALU component
     component alu
+		generic(N : natural);
         port (
             X			: in STD_LOGIC_VECTOR(N-1 downto 0);
             Y			: in STD_LOGIC_VECTOR(N-1 downto 0);
@@ -139,16 +140,19 @@ begin
                     when f_SLT => --SLT
                         alu_op <= ('0', '1', '1', '1');
                 end case;
+			when ALUOP_LDI =>
+				alu_op <= ('0', '0', '1', '0');
 		end case;
 	end process;
 
     alu_unit : alu
+	generic map(N => 32)
     port map (
         X       => mux_reg_1_data_out,
         Y       => mux_alu_src_out,
         ALU_IN  => alu_op,
         R       => alu_result,
-        FLAGS   => alu_flags_out
+        FLAGS   => alu_flags
     );
     
     mux_reg_dst : process(reg_dst_in)
@@ -167,7 +171,7 @@ begin
             m_we_out        <= m_we_in;
             alu_result_out  <= alu_result;
             alu_flags_out   <= alu_flags;
-            dmem_address    <= mux_reg_2_data_out;
+            dmem_data    	<= mux_reg_2_data_out;
             reg_r_out       <= reg_r;
         end if;
     end process;

@@ -52,76 +52,77 @@ end pipe_stage2;
 
 architecture behave of pipe_stage2 is
 
-component register_file is
-	port(
-		CLK 			:	in	STD_LOGIC;				
-		RESET			:	in	STD_LOGIC;				
-		RW				:	in	STD_LOGIC;				
-		RS_ADDR 		:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
-		RT_ADDR 		:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
-		RD_ADDR 		:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
-		WRITE_DATA		:	in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0); 
-		RS				:	out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
-		RT				:	out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0)
-	);
-end component;
-component control_unit is
-	port(
-		CLK 			: in 	STD_LOGIC;
-		RESET			: in 	STD_LOGIC;
-		OpCode			: in	STD_LOGIC_VECTOR (31 downto 26);
-		ALUOp			: out	ALU_OP;
-		RegDst			: out	STD_LOGIC;
-		Branch			: out 	STD_LOGIC;
-		MemtoReg		: out 	STD_LOGIC;
-		MemWrite		: out 	STD_LOGIC;
-		ALUSrc			: out 	STD_LOGIC;
-		RegWrite		: out 	STD_LOGIC;
-		Jump			: out 	STD_LOGIC;
-		PCWriteEnb		: out 	STD_LOGIC;
-		SRWriteEnb		: out 	STD_LOGIC;
-		if_flush		: out 	STD_LOGIC
-	);
-end component;
+	component register_file is
+		port(
+			CLK 			:	in	STD_LOGIC;				
+			RESET			:	in	STD_LOGIC;				
+			RW				:	in	STD_LOGIC;				
+			RS_ADDR 		:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
+			RT_ADDR 		:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0); 
+			RD_ADDR 		:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
+			WRITE_DATA		:	in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0); 
+			RS				:	out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+			RT				:	out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0)
+		);
+	end component;
+	component control_unit is
+		port(
+			CLK 			: in 	STD_LOGIC;
+			RESET			: in 	STD_LOGIC;
+			OpCode			: in	STD_LOGIC_VECTOR (31 downto 26);
+			ALUOp			: out	ALU_OP;
+			RegDst			: out	STD_LOGIC;
+			Branch			: out 	STD_LOGIC;
+			MemtoReg		: out 	STD_LOGIC;
+			MemWrite		: out 	STD_LOGIC;
+			ALUSrc			: out 	STD_LOGIC;
+			RegWrite		: out 	STD_LOGIC;
+			Jump			: out 	STD_LOGIC;
+			PCWriteEnb		: out 	STD_LOGIC;
+			SRWriteEnb		: out 	STD_LOGIC;
+			if_flush		: out 	STD_LOGIC
+		);
+	end component;
 
-component hazard_detection_unit is
-	port(
-		id_ex_reg_rt	: in STD_LOGIC_VECTOR(4 downto 0);
-		if_id_reg_rs	: in STD_LOGIC_VECTOR(4 downto 0);
-		if_id_reg_rt	: in STD_LOGIC_VECTOR(4 downto 0);
-		id_ex_mem_rd	: in STD_LOGIC;
-		nops_activate	: out STD_LOGIC;
-		pc_wr_enb		: out STD_LOGIC;
-		if_id_wr_enb	: out STD_LOGIC
-	);
-end component;
+	component hazard_detection_unit is
+		port(
+			id_ex_reg_rt	: in STD_LOGIC_VECTOR(4 downto 0);
+			if_id_reg_rs	: in STD_LOGIC_VECTOR(4 downto 0);
+			if_id_reg_rt	: in STD_LOGIC_VECTOR(4 downto 0);
+			id_ex_mem_rd	: in STD_LOGIC;
+			nops_activate	: out STD_LOGIC;
+			pc_wr_enb		: out STD_LOGIC;
+			if_id_wr_enb	: out STD_LOGIC
+		);
+	end component;
 
-component adder is
-	port(
-		X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-		Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-		CIN		: in	STD_LOGIC;
-		COUT	: out	STD_LOGIC;
-		R		: out	STD_LOGIC_VECTOR(N-1 downto 0)
-	);
-end component;
+	component adder is
+	generic (N: natural);    
+		port(
+			X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			CIN		: in	STD_LOGIC;
+			COUT	: out	STD_LOGIC;
+			R		: out	STD_LOGIC_VECTOR(N-1 downto 0)
+		);
+	end component;
 
---Register file signals
-signal reg_rs_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
-signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+	--Register file signals
+	signal reg_rs_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
 
---control signals
-signal alu_op_internal	: ALU_OP;
-signal reg_dst_internal :STD_LOGIC;
-signal mem_to_reg_internal : STD_LOGIC;
-signal mem_wr_internal :STD_LOGIC;
-signal alu_src_internal : STD_LOGIC;
-signal reg_wr_internal : STD_LOGIC;
-signal jump_enable	: std_logic;
+	--control signals
+	signal alu_op_internal	: ALU_OP;
+	signal reg_dst_internal :STD_LOGIC;
+	signal mem_to_reg_internal : STD_LOGIC;
+	signal mem_wr_internal :STD_LOGIC;
+	signal alu_src_internal : STD_LOGIC;
+	signal reg_wr_internal : STD_LOGIC;
+	signal jump_enable	: std_logic;
 
---hazard signals
-signal nops : STD_LOGIC;
+	--hazard signals
+	signal nops : STD_LOGIC;
 
 begin
 
@@ -139,7 +140,7 @@ begin
 	);
 
 	branch_adder: adder
-	generic (N: natural);
+	generic map(N => 32)
 	port map(
 		X		=> SXT(instruction_in(15 downto 0), 32),
 		Y		=> pc_in,

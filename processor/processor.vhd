@@ -57,13 +57,17 @@ architecture behave of processor is
 		port(
 			clk					: in	STD_LOGIC;
 			reset				: in	STD_LOGIC;
+			
+			--stuff
+			if_stall			: in	STD_LOGIC;
+			if_flush_sig		: in	STD_LOGIC;
 			--From stage 2
 			branch_target		: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			branch_enable		: in	STD_LOGIC;
-			if_flush_sig		: in	STD_LOGIC;
 			pc_we				: in	STD_LOGIC;
 			--To stage 2
-			pc_out				: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0)
+			pc_inc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+			pc_reg_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0)
 		);
 	end component;
 
@@ -74,6 +78,7 @@ architecture behave of processor is
 	component pipe_stage2
 		port(
 			clk				: in	STD_LOGIC;
+			reset			: in	std_logic;
 			--in from stage 1
 			instruction_in	: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 			pc_in			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -81,6 +86,9 @@ architecture behave of processor is
 			wb_in			: in	STD_LOGIC;
 			reg_r_in		: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 			data_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);--alu_result/dmem_out
+			--in from stage 3
+			id_ex_reg_rt_in : in	STD_LOGIC_VECTOR(4 downto 0);
+			id_ex_mem_rd	: in	STD_LOGIC;
 			--out to stage 1
 			pc_we			: out	STD_LOGIC;
 			flush_out		: out	STD_LOGIC;
@@ -129,6 +137,7 @@ architecture behave of processor is
 --	Definition and signals for pipe_stage3
 	component pipe_stage3
 		port(
+			clk					: in	STD_LOGIC;
 			--In from stage 2
             func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
             alu_op_in			: in	ALU_OP;
@@ -188,8 +197,8 @@ architecture behave of processor is
 			alu_result_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 			alu_result_out		: out	STD_LOGIC_VECTOR(N-1 downto 0);
 			
-			reg_r_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			reg_r_out			: out	STD_LOGIC_VECTOR(N-1 downto 0)
+			reg_r_in			: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
+			reg_r_out			: out	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0)
 		);
 	end component;
 	signal stage_4_out_wb			: STD_LOGIC;
@@ -202,7 +211,7 @@ architecture behave of processor is
         ex_reg_addr_in_1,
         ex_reg_addr_in_2,
         mem_reg_addr_in,
-        wb_reg_addr_in          : in std_logic_vector(N-1 downto 0);
+        wb_reg_addr_in          : in std_logic_vector(RADDR_BUS-1 downto 0);
         
         mem_reg_we,
         wb_reg_we               : in std_logic;
@@ -224,13 +233,16 @@ begin
     port map(
         clk					=> clk,
 		reset				=> reset,
+		--
+		if_stall			=> '0',
+        if_flush_sig		=> stage_2_out_flush,
         --in from stage 2
         branch_enable		=> stage_2_out_branch_enable,
-        if_flush_sig		=> stage_2_out_flush,
         branch_target		=> stage_2_out_branch_target,
 		pc_we				=> stage_2_out_pc_we,
         --out to stage 2
-		pc_out				=> imem_address
+		pc_reg_out			=> imem_address,
+		pc_inc_out			=> stage_1_out_pc
     );
     stage_1_out_instruction <= imem_data_in;
 		
@@ -238,6 +250,7 @@ begin
 	stage_2: pipe_stage2
     port map(
         clk				=> clk,
+		reset			=> reset,
         --in from stage 1
         instruction_in	=> stage_1_out_instruction,
         pc_in			=> stage_1_out_pc,
@@ -245,6 +258,9 @@ begin
         wb_in			=> stage_4_out_wb,
         reg_r_in		=> stage_4_out_reg_r,
         data_in			=> alu_mem_mux_out,
+		--in from stage 3
+		id_ex_reg_rt_in	=> stage_2_out_reg_rt,
+		id_ex_mem_rd	=> stage_2_out_m_we,
         --out to stage 1
         pc_we			=> stage_2_out_pc_we,
         flush_out		=> stage_2_out_flush,
@@ -274,6 +290,7 @@ begin
 	--STAGE 3
 	stage_3: pipe_stage3 
     port map(
+		clk				=> clk,
         --in from stage 2
         func_in			=> stage_2_out_func,
         alu_op_in		=> stage_2_out_alu_op,
@@ -326,7 +343,7 @@ begin
         wb_reg_we               => stage_4_out_wb,
         
         reg_1_mux_control_out   => fw_reg_1_mux_control,
-        reg_2_mux_control_out   => fw_reg_1_mux_control
+        reg_2_mux_control_out   => fw_reg_2_mux_control
     );
 	--STAGE 4
 	dmem_address_wr		<= stage_3_out_dmem_data;
