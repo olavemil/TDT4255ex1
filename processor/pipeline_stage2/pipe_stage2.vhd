@@ -13,9 +13,9 @@ entity pipe_stage2 is
 		instruction_in	: in STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 		pc_in			: in STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		--in from stage 4/5   
-		reg_r_in		: in STD_LOGIC_VECTOR(31 downto 0);
+		reg_r_in		: in STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 		data_in			: in STD_LOGIC_VECTOR(31 downto 0);--alu_result/dmem_out
-		reg_w_e			: in STD_LOGIC;
+		wb_in			: in STD_LOGIC;
 		--in from stage 3
 		id_ex_reg_rt_in : in STD_LOGIC_VECTOR(4 downto 0);
 		id_ex_mem_rd	: in STD_LOGIC;
@@ -129,7 +129,7 @@ begin
 	port map(
 		CLK 		=> clk,				
 		RESET		=> reset,				
-		RW			=>	reg_w_e,
+		RW			=>	wb_in,
 		RS_ADDR 	=>	instruction_in(25 downto 21), 
 		RT_ADDR 	=> instruction_in(20 downto 16), 
 		RD_ADDR 	=>	reg_r_in,
@@ -139,11 +139,11 @@ begin
 	);
 
 	branch_adder: adder
+	generic (N: natural);
 	port map(
 		X		=> SXT(instruction_in(15 downto 0), 32),
 		Y		=> pc_in,
 		CIN		=> '0',
-		COUT	=> '-',
 		R		=> branch_target
 	);
 	

@@ -23,6 +23,7 @@ architecture behave of pipe_stage1 is
 	-- Program counter signals
 	signal pc_inc, pc_reg, pc_mux	: STD_LOGIC_VECTOR(N-1 downto 0);
 	component adder
+	generic (N: natural)   
 		port(
 			X		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 			Y		: in	STD_LOGIC_VECTOR(N-1 downto 0);
@@ -33,6 +34,7 @@ architecture behave of pipe_stage1 is
 	end component;
 begin
 	pc_incrementer : adder
+	generic (N: natural)    
 	port map(
 		X	=> pc_reg,
 		Y 	=> ZERO32b,

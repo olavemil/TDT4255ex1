@@ -79,7 +79,7 @@ architecture behave of processor is
 			pc_in			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			--in from stage 4/5
 			wb_in			: in	STD_LOGIC;
-			reg_r_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			reg_r_in		: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 			data_in			: in	STD_LOGIC_VECTOR(N-1 downto 0);--alu_result/dmem_out
 			--out to stage 1
 			pc_we			: out	STD_LOGIC;
@@ -87,8 +87,8 @@ architecture behave of processor is
 			branch_target	: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			branch_enable	: out	STD_LOGIC;
 			--out to stage 3
-			func_out	: out	STD_LOGIC_VECTOR(5 downto 0);
-			alu_op_out		: out	ALU_OP_INPUT;
+			func_out		: out	STD_LOGIC_VECTOR(5 downto 0);
+			alu_op_out		: out	ALU_OP;
 			
 			m_we_out		: out	STD_LOGIC;
 			wb_out			: out	STD_LOGIC;
@@ -101,10 +101,10 @@ architecture behave of processor is
 			
 			imm_val_out 	: out	STD_LOGIC_VECTOR(N-1 downto 0);
 			
-			reg_rt_out 		: out	STD_LOGIC_VECTOR(4 downto 0);
-			reg_rd_out 		: out	STD_LOGIC_VECTOR(4 downto 0);
+			reg_rt_out 		: out	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
+			reg_rd_out 		: out	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 			--out to forwarding unit
-			reg_rs_out 		: out	STD_LOGIC_VECTOR(4 downto 0)
+			reg_rs_out 		: out	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0)
 		);
 	end component;
 	signal stage_2_out_pc_src		: STD_LOGIC;
@@ -114,7 +114,7 @@ architecture behave of processor is
 	signal stage_2_out_branch_enable: STD_LOGIC;
 	signal stage_2_out_pc_we		: STD_LOGIC;
 	signal stage_2_out_func			: STD_LOGIC_VECTOR(5 downto 0);
-	signal stage_2_out_alu_op		: ALU_OP_INPUT;
+	signal stage_2_out_alu_op		: ALU_OP;
 	signal stage_2_out_m_we			: STD_LOGIC;
 	signal stage_2_out_wb			: STD_LOGIC;
 	signal stage_2_out_reg_dst		: STD_LOGIC;
@@ -122,16 +122,16 @@ architecture behave of processor is
 	signal stage_2_out_alu_reg_1	: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal stage_2_out_alu_reg_2	: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal stage_2_out_imm_val		: STD_LOGIC_VECTOR(N-1 downto 0);
-	signal stage_2_out_reg_rt		: STD_LOGIC_VECTOR(4 downto 0);
-	signal stage_2_out_reg_rd		: STD_LOGIC_VECTOR(4 downto 0);
-	signal stage_2_out_reg_rs		: STD_LOGIC_VECTOR(4 downto 0);
+	signal stage_2_out_reg_rt		: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
+	signal stage_2_out_reg_rd		: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
+	signal stage_2_out_reg_rs		: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 	
 --	Definition and signals for pipe_stage3
 	component pipe_stage3
 		port(
 			--In from stage 2
             func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
-            alu_op_in			: in	ALU_OP_INPUT;
+            alu_op_in			: in	ALU_OP;
             
             m_we_in,
             wb_in				: in	STD_LOGIC;
@@ -176,11 +176,12 @@ architecture behave of processor is
 	signal stage_3_out_wb			: STD_LOGIC;
 	signal stage_3_out_alu_result	: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal stage_3_out_alu_flags	: alu_flags;
-	signal stage_3_out_reg_r		: STD_LOGIC_VECTOR(4 downto 0);
+	signal stage_3_out_reg_r		: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 
 --	Definition and signals for pipe_stage4
 	component pipe_stage4
 		port(
+			clk					: in	STD_LOGIC;
 			wb_in				: in	STD_LOGIC;
 			wb_out				: out	STD_LOGIC;
 			
@@ -193,9 +194,7 @@ architecture behave of processor is
 	end component;
 	signal stage_4_out_wb			: STD_LOGIC;
 	signal stage_4_out_alu_result	: STD_LOGIC_VECTOR(N-1 downto 0);
-	signal stage_4_out_reg_r		: STD_LOGIC_VECTOR(4 downto 0);
-	
-	signal alu_mem_mux_out			: std_logic_vector(N-1 downto 0);
+	signal stage_4_out_reg_r		: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 
 --  Definition and signals for forwarding unit
 	component forwarding_unit
@@ -214,6 +213,10 @@ architecture behave of processor is
 	end component;
     signal fw_reg_1_mux_control : std_logic_vector(1 downto 0);
     signal fw_reg_2_mux_control : std_logic_vector(1 downto 0);
+	
+--	Other
+	signal alu_mem_mux_out	: std_logic_vector(N-1 downto 0);
+	signal alu_mem_select	: std_logic;
 begin
 	clk <= clk_in and processor_enable;
 	--STAGE 1
@@ -332,7 +335,7 @@ begin
 		
 	stage_4: pipe_stage4
     port map(
-		clk				=> clk
+		clk				=> clk,
         --in from stage 3
         wb_in			=> stage_3_out_wb,
         
@@ -348,7 +351,7 @@ begin
 		if alu_mem_select = '1' then
 			alu_mem_mux_out <= stage_4_out_alu_result;
 		else
-			alu_mem_muc_out <= dmem_data_in;
+			alu_mem_mux_out <= dmem_data_in;
 		end if;
 	end process;
 	--STAGE 5
