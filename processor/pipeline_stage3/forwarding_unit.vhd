@@ -8,7 +8,7 @@ entity forwarding_unit is
         ex_reg_addr_in_1,
         ex_reg_addr_in_2,
         mem_reg_addr_in,
-        wb_reg_addr_in          : in std_logic_vector(N-1 downto 0);
+        wb_reg_addr_in          : in std_logic_vector(RADDR_BUS-1 downto 0);
         
         mem_reg_we,
         wb_reg_we               : in std_logic;

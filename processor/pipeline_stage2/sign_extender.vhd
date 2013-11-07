@@ -18,4 +18,4 @@ architecture Behavioral of sign_extender is
 begin
 	IMMIDIATE32 <= resize(signed(IMMIDIATE16), 32);
 end Behavioral;
-	
+

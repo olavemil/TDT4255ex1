@@ -7,8 +7,8 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 
 entity control_unit is
 	port(
-		CLK			: in	STD_LOGIC;
-		RESET		: in	STD_LOGIC;
+		CLK 		: in 	STD_LOGIC;
+		RESET		: in 	STD_LOGIC;
 		proc_enable	: in	STD_LOGIC;
 		OpCode		: in	STD_LOGIC_VECTOR (31 downto 26);
 		ALUOp		: out	ALU_OP;

@@ -7,10 +7,10 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 
 entity pipe_stage3 is
 	port (
-		clk					: in	STD_LOGIC;
+		clk				 : in	STD_LOGIC;
 		--In from stage 2
 		func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
-		alu_op_in			: in	ALU_OP_INPUT;
+		alu_op_in			: in	ALU_OP;
 
 		m_we_in,
 		wb_in				: in	STD_LOGIC;
@@ -40,7 +40,7 @@ entity pipe_stage3 is
 
 		--Out to stage 4
 		alu_result_out,
-		dmem_address		: out	STD_LOGIC_VECTOR(N-1 downto 0);
+		dmem_data			: out	STD_LOGIC_VECTOR(N-1 downto 0);
 
 		alu_flags_out		: out	ALU_FLAGS;
 
@@ -56,8 +56,10 @@ architecture behaviour of pipe_stage3 is
 	--ALU input
 	signal mux_reg_1_data_out, mux_reg_2_data_out, mux_alu_src_out : STD_LOGIC_VECTOR(N-1 downto 0);
 	signal alu_op		: ALU_INPUT;
+	signal func			: ALU_FUNC;
 	--ALU component
 	component alu
+		generic(N : natural);
 		port (
 			X			: in STD_LOGIC_VECTOR(N-1 downto 0);
 			Y			: in STD_LOGIC_VECTOR(N-1 downto 0);
@@ -82,6 +84,7 @@ begin
 			mux_reg_1_data_out <= mem_data_1_in;
 		end if;
 	end process;
+
 	mux_reg_data_2 : process(mux_reg_2_in)
 	begin
 		if mux_reg_1_in = "00" then
@@ -92,6 +95,7 @@ begin
 			mux_reg_1_data_out <= mem_data_1_in;
 		end if;
 	end process;
+
 	mux_alu_src : process(alu_src_in)
 	begin
 		if alu_src_in = '1' then
@@ -101,43 +105,54 @@ begin
 		end if;
 	end process;
 
-
-	--THIS NEEDS WORK!
-	--Implemented using only ALU_OP.Op0 and ALU_OP.Op1,
-	--for instructions specified in fig 4.12, page 317.
-	alu_control : process(imm_val_in, alu_op_in)
+	func_decoder : process(func_in)
 	begin
-		if alu_op_in.Op0 = '1' then
-			--branch
-			alu_op <= ('0', '1', '1', '0');
+		if func_in = "100000" then
+			func <= f_ADD;
+		elsif func_in = "100010" then
+			func <= f_SUB;
+		elsif func_in = "100100" then
+			func <= f_AND;
+		elsif func_in = "100101" then
+			func <= f_OR;
 		else
-			if alu_op_in.Op1 = '0' then
-				alu_op <= ('0', '0', '1', '0');
-			else
-				case imm_val_in is
-					when "100000" => --ADD
-						alu_op <= ('0', '0', '1', '0');
-					when "100010" => --SUB
-						alu_op <= ('0', '1', '1', '0');
-					when "100100" => --AND
-						alu_op <= ('0', '0', '0', '0');
-					when "100101" => --OR
-						alu_op <= ('0', '0', '0', '1');
-					when "101010" => --SLT
-						alu_op <= ('0', '1', '1', '1');
-					when others =>
-						alu_op <= ('1', '1', '1', '1');
-				end case;
-			end if;
+			func <= f_SLT;
 		end if;
 	end process;
+
+	alu_control : process(func, alu_op_in)
+	begin
+		case alu_op_in is
+			when ALUOP_BRANCH =>
+				alu_op <= ('0', '1', '1', '0');
+			when ALUOP_LOAD_STORE =>
+				alu_op <= ('0', '0', '1', '0');
+			when ALUOP_FUNC =>
+				case func is
+					when f_ADD => --ADD
+						alu_op <= ('0', '0', '1', '0');
+					when f_SUB => --SUB
+						alu_op <= ('0', '1', '1', '0');
+					when f_AND => --AND
+						alu_op <= ('0', '0', '0', '0');
+					when f_OR => --OR
+						alu_op <= ('0', '0', '0', '1');
+					when f_SLT => --SLT
+						alu_op <= ('0', '1', '1', '1');
+				end case;
+			when ALUOP_LDI =>
+				alu_op <= ('0', '0', '1', '0');
+		end case;
+	end process;
+
 	alu_unit : alu
+	generic map(N => 32)
 	port map (
 		X		=> mux_reg_1_data_out,
 		Y		=> mux_alu_src_out,
 		ALU_IN	=> alu_op,
 		R		=> alu_result,
-		FLAGS	=> alu_flags_out
+		FLAGS	=> alu_flags
 	);
 
 	mux_reg_dst : process(reg_dst_in)
@@ -156,7 +171,7 @@ begin
 			m_we_out		<= m_we_in;
 			alu_result_out	<= alu_result;
 			alu_flags_out	<= alu_flags;
-			dmem_address	<= mux_reg_2_data_out;
+			dmem_data		<= mux_reg_2_data_out;
 			reg_r_out		<= reg_r;
 		end if;
 	end process;
