@@ -7,20 +7,20 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 
 entity control_unit is
 	port(
-		CLK 			: in 		STD_LOGIC;
-		RESET			: in 		STD_LOGIC;
-		proc_enable	: in		STD_LOGIC;
-		OpCode		: in		STD_LOGIC_VECTOR (31 downto 26);
-		ALUOp			: out		ALU_OP;
-		RegDst		: out		STD_LOGIC;
-		Branch		: out 	STD_LOGIC;
-		MemtoReg		: out 	STD_LOGIC;
-		MemWrite		: out 	STD_LOGIC;
-		ALUSrc		: out 	STD_LOGIC;
-		RegWrite		: out 	STD_LOGIC;
-		Jump			: out 	STD_LOGIC;
-		PCWriteEnb	: out 	STD_LOGIC;
-		SRWriteEnb	: out 	STD_LOGIC
+		CLK			: in	STD_LOGIC;
+		RESET		: in	STD_LOGIC;
+		proc_enable	: in	STD_LOGIC;
+		OpCode		: in	STD_LOGIC_VECTOR (31 downto 26);
+		ALUOp		: out	ALU_OP;
+		RegDst		: out	STD_LOGIC;
+		Branch		: out	STD_LOGIC;
+		MemtoReg	: out	STD_LOGIC;
+		MemWrite	: out	STD_LOGIC;
+		ALUSrc		: out	STD_LOGIC;
+		RegWrite	: out	STD_LOGIC;
+		Jump		: out	STD_LOGIC;
+		PCWriteEnb	: out	STD_LOGIC;
+		SRWriteEnb	: out	STD_LOGIC
 		--control write enable for register file is the same as RegWrite?
 	);
 end control_unit;
@@ -33,12 +33,12 @@ architecture Behavioral of control_unit is
 begin
 
 	ALU_STATE_MACHINE: process(CLK, RESET, OpCode, proc_enable)
-		
+
 	begin
 		if rising_edge(CLK) then
 			if reset = '1' then
-				state 		<= FETCH;
-				
+				state		<= FETCH;
+
 				RegDst		<= '0';
 				Branch		<= '0';
 				MemtoReg	<= '0';
@@ -51,7 +51,7 @@ begin
 			elsif proc_enable = '1' then
 				case state is
 					when FETCH =>
-						state 	<= ALU_EXE;
+						state	<= ALU_EXE;
 						PCWriteEnb	<= '0';
 
 					when ALU_EXE =>
@@ -68,9 +68,9 @@ begin
 								RegWrite	<= '1';
 								Jump		<= '0';
 								SRWriteEnb	<= '0';
-								PCWriteEnb 	<= '1';
-								state 		<= FETCH;
-							
+								PCWriteEnb	<= '1';
+								state		<= FETCH;
+
 							when "000100" =>	--Branch opcode
 								RegDst		<= '0';
 								Branch		<= '1';
@@ -83,8 +83,8 @@ begin
 								RegWrite	<= '0';
 								Jump		<= '0';
 								SRWriteEnb	<= '1';	--setting the zero flag if equal
-								PCWriteEnb 	<= '0';
-								state 		<= STALL;
+								PCWriteEnb	<= '0';
+								state		<= STALL;
 
 							when "100011" =>	--Load word
 								RegDst		<= '0';
@@ -95,11 +95,11 @@ begin
 
 								MemWrite	<= '0';
 								ALUSrc		<= '1';
-								RegWrite 	<= '1';
+								RegWrite	<= '1';
 								Jump		<= '0';
-								SRWriteEnb	<= '0';	
+								SRWriteEnb	<= '0';
 
-								state 		<= STALL;
+								state		<= STALL;
 							when "101011" =>	--Store word
 								RegDst		<= '0';
 								Branch		<= '0';
@@ -111,42 +111,42 @@ begin
 								ALUSrc		<= '1';
 								RegWrite	<= '0';
 								Jump		<= '0';
-								SRWriteEnb	<= '0';	
+								SRWriteEnb	<= '0';
 
-								state 		<= STALL;
+								state		<= STALL;
 							when "001000" =>	--Load immidiate. (Implemented as add immidiate where you add with the zero register)
 								RegDst		<= '0';
 								Branch		<= '0';
 								MemtoReg	<= '0';
-								
+
 								ALUOp		<= ALUOP_LDI;
 
 								MemWrite	<= '0';
 								ALUSrc		<= '1';
 								RegWrite	<= '1';
 								Jump		<= '0';
-								SRWriteEnb	<= '0';	
-								PCWriteEnb 	<= '1';
-								state 		<= FETCH;
+								SRWriteEnb	<= '0';
+								PCWriteEnb	<= '1';
+								state		<= FETCH;
 							when "000010" =>	--Jump
 								RegDst		<= '0';
 								Branch		<= '0';
 								MemtoReg	<= '0';
-								
+
 								MemWrite	<= '0';
 								ALUSrc		<= '0';
 								RegWrite	<= '0';
 								Jump		<= '1';
 								PCWriteEnb	<= '1';
-								SRWriteEnb	<= '0';	
-								
-								state 		<= FETCH;
+								SRWriteEnb	<= '0';
+
+								state		<= FETCH;
 							when others =>
 								state		<= FETCH;
 								PCWriteEnb	<= '1';
 						end case;
 					when STALL =>
-						state 		<= FETCH;
+						state		<= FETCH;
 						PCWriteEnb	<= '1';
 				end case;
 			end if;
