@@ -1,14 +1,9 @@
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 
 library WORK;
 use WORK.MIPS_CONSTANT_PKG.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
 
 entity pipe_stage3 is
     port (
@@ -77,7 +72,7 @@ architecture behaviour of pipe_stage3 is
     --Reg r
     signal reg_r        : STD_LOGIC_VECTOR(4 downto 0);
 begin
-    mux_reg_data : process(mux_reg_1_in)
+    mux_reg_data_1 : process(mux_reg_1_in)
     begin
         if mux_reg_1_in = "00" then
             mux_reg_1_data_out <= reg_data_1_in;
@@ -87,7 +82,7 @@ begin
             mux_reg_1_data_out <= mem_data_1_in;
         end if;
     end process;
-    mux_reg_data : process(mux_reg_2_in)
+    mux_reg_data_2 : process(mux_reg_2_in)
     begin 
         if mux_reg_1_in = "00" then
             mux_reg_1_data_out <= reg_data_1_in;
@@ -119,7 +114,7 @@ begin
             if alu_op_in.Op1 = '0' then
                 alu_op <= ('0', '0', '1', '0');
             else
-                case imm_value_in is
+                case imm_val_in is
                     when "100000" => --ADD
                         alu_op <= ('0', '0', '1', '0');
                     when "100010" => --SUB
@@ -147,7 +142,7 @@ begin
     
     mux_reg_dst : process(reg_dst_in)
     begin
-        if reg_dst = '1' then
+        if reg_dst_in = '1' then
             reg_r <= reg_rd_in;
         else
             reg_r <= reg_rt_in;
