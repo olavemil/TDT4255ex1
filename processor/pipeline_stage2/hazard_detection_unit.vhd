@@ -12,7 +12,7 @@ entity hazard_detection_unit is
 		stage1_rs			: in STD_LOGIC_VECTOR(4 downto 0);
 		stage1_rt			: in STD_LOGIC_VECTOR(4 downto 0);
 		stage2_rt			: in STD_LOGIC_VECTOR(4 downto 0);
-		mem_read			: in STD_LOGIC_VECTOR(5 downto 0);
+		mem_read			: in STD_LOGIC;
 		 --Also stage1 programcounter stall when equal to zero
 		pc_wr_enb			: out STD_LOGIC
 	);
