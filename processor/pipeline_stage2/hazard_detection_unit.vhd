@@ -42,7 +42,7 @@ begin
 				end case;
 
 				--Implementation of load stall logic
-				if mem_read = "1" and --Load opcode
+				if mem_read = '1' and  --Load opcode
 					((stage2_rt = stage1_rt) or (stage2_rt = stage1_rs)) then --Load uses same register in stage1 as stage3 is about to use
 					next_state <= STALL;
 				end if;
