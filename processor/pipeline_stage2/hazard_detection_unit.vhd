@@ -30,8 +30,6 @@ begin
 			if reset = '1' then
 				next_state			<= RUN;
 				pc_wr_enb			<= '0';
-				flush_activate		<= '0';
-				stage1_outpt_flush	<= '0';
 			else
 				state <= next_state;
 
@@ -45,7 +43,7 @@ begin
 
 				--Implementation of load stall logic
 				if mem_read = "1" and --Load opcode
-					(stage2_rt = stage1_rt) or (stage2_rt = stage1_rs) then --Load uses same register in stage1 as stage3 is about to use
+					((stage2_rt = stage1_rt) or (stage2_rt = stage1_rs)) then --Load uses same register in stage1 as stage3 is about to use
 					next_state <= STALL;
 				end if;
 			end if ;
