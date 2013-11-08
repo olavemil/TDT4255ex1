@@ -123,7 +123,7 @@ architecture behave of pipe_stage2 is
 	signal jump_enable	: std_logic;
 
 	--hazard detection unit signals
-	signal reset : STD_LOGIC;
+	signal hdu_reset : STD_LOGIC;
 
 begin
 
@@ -139,7 +139,7 @@ begin
 	registers: register_file
 	port map(
 		CLK			=> clk,
-		RESET		=> reset,
+		RESET		=> hdu_reset,
 		RW			=> wb_in,
 		RS_ADDR		=> instruction_in(25 downto 21),
 		RT_ADDR		=> instruction_in(20 downto 16),
@@ -165,7 +165,7 @@ begin
 		stage1_rs	=> instruction_in(25 downto 21),
 		stage1_rt	=> instruction_in(20 downto 16),
 		stage2_rt	=> reg_rt_out,
-		mem_read	=> mem_read,
+		mem_read	=> mem_to_reg,
 		 --Also stage1 programcounter stall when equal to zero
 		pc_wr_enb	=> pc_we
 	);
