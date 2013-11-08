@@ -12,9 +12,9 @@ entity hazard_detection_unit is
 		stage1_rs			: in STD_LOGIC_VECTOR(4 downto 0);
 		stage1_rt			: in STD_LOGIC_VECTOR(4 downto 0);
 		stage2_rt			: in STD_LOGIC_VECTOR(4 downto 0);
-		stage2_opcode		: in STD_LOGIC_VECTOR(IDATA_BUS-1 downto 26);
-		--How was this one intended to work?
-		nops_activate		: out STD_LOGIC;
+		mem_read			: in STD_LOGIC_VECTOR(5 downto 0);
+		--Flush the rest of the pipeline (failed branch situations)
+		flush_activate		: out STD_LOGIC;
 		 --Also stage1 programcounter stall when equal to zero
 		pc_wr_enb			: out STD_LOGIC;
 		--Stage1 output flush when 1 (AKA flush the incoming pc_value from the inpt of stage2)
@@ -34,10 +34,27 @@ begin
 			if reset = '1' then
 				next_state			<= RUN;
 				pc_wr_enb			<= '0';
-				nops_activate		<= '0';
+				flush_activate		<= '0';
 				stage1_outpt_flush	<= '0';
 			else
 				state <= next_state;
+
+				case state is
+					when RUN =>
+						pc_wr_enb			<= '1';
+						flush_activate		<= '0';
+						stage1_outpt_flush	<= '0';
+					when STALL =>
+						pc_wr_enb			<= '0';
+						flush_activate		<= '0';
+						stage1_outpt_flush	<= '1';
+						next_state			<= RUN;
+					when FLUSH => --TODO
+						--pc_wr_enb			<= '0';
+						--flush_activate		<= '1';.
+						--stage1_outpt_flush	<= 'U';
+						next_state			<= RUN;
+				end case;
 
 				--Implement branch logic to see if the next state should be a flush
 				--if 0 then
@@ -45,32 +62,10 @@ begin
 				--end if;
 
 				--Implementation of load stall logic
-				if stage2_opcode = "100011" then --Load opcode
-					if (stage2_rt = stage1_rt) or (stage2_rt = stage1_rs) then
-					--Load uses same register in stage1 as stage3 is about to use
-						next_state <= STALL;
-					end if;
+				if mem_read = "1" and --Load opcode
+					(stage2_rt = stage1_rt) or (stage2_rt = stage1_rs) then --Load uses same register in stage1 as stage3 is about to use
+					next_state <= STALL;
 				end if;
-
-				case state is
-					when RUN =>
-						pc_wr_enb			<= '1';
-						nops_activate		<= '0';
-						stage1_outpt_flush	<= '0';
-					when STALL =>
-						pc_wr_enb			<= '0';
-						--I assume here that pipelinestages 3 and 4 may continue to finish whatever work they're doing so stages 1&2 can use the same resources.
-						nops_activate		<= '0';
-						stage1_outpt_flush	<= '1';
-						next_state			<= RUN;
-					when FLUSH =>
-						pc_wr_enb			<= '0';
-						--I assume here that this nops signal tells pipeline stages > 2 to do nothing (BusyWait)
-						nops_activate		<= '1';
-						--It needs to be figured out what the below signals value should be.
-						stage1_outpt_flush	<= 'U';
-						next_state			<= RUN;
-				end case;
 			end if ;
 		end if;
 	end process;
