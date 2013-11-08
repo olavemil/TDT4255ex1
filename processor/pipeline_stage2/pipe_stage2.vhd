@@ -112,8 +112,8 @@ architecture behave of pipe_stage2 is
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
 	--Internal signals
-	signal sxt_signal_intrnl		: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
-	signal next_instruction_intrnl	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal reg_rt_reg			: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
+	signal sxt_signal_intrnl	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 
 	--control signals
 	signal alu_op_internal		: ALU_OP;
@@ -128,6 +128,7 @@ architecture behave of pipe_stage2 is
 	signal hdu_reset : STD_LOGIC;
 
 begin
+	sxt_signal_intrnl		<= SXT(instruction_in(15 downto 0), 32);
 
 	registers: register_file
 	port map(
@@ -157,8 +158,8 @@ begin
 		reset		=> reset,
 		stage1_rs	=> instruction_in(25 downto 21),
 		stage1_rt	=> instruction_in(20 downto 16),
-		stage2_rt	=> reg_rt_out,
-		mem_read	=> mem_to_reg,
+		stage2_rt	=> reg_rt_reg,
+		mem_read	=> mem_to_reg_internal,
 		 --Also stage1 programcounter stall when equal to zero
 		pc_wr_enb	=> pc_we
 	);
@@ -167,7 +168,7 @@ begin
 	port map(
 		CLK			=> clk,
 		RESET		=> reset,
-		OpCode		=> next_instruction_intrnl(31 downto 26),
+		OpCode		=> instruction_in(31 downto 26),
 		ALUOp		=> alu_op_internal,
 		RegDst		=> reg_dst_internal,
 		Branch		=> branch_enable,--TODO
@@ -184,11 +185,9 @@ begin
 	write_buffer_register: process(clk)
 	begin
 		if rising_edge(clk) then
-			sxt_signal_intrnl		<= SXT(instruction_in(15 downto 0), 32);
-			next_instruction_intrnl	<= instruction_in;
-			reg_rs_out				<= next_instruction_intrnl(25 downto 21);
-			reg_rt_out				<= next_instruction_intrnl(20 downto 16);
-			reg_rd_out				<= next_instruction_intrnl(15 downto 11);
+			reg_rs_out				<= instruction_in(25 downto 21);
+			reg_rt_reg				<= instruction_in(20 downto 16);
+			reg_rd_out				<= instruction_in(15 downto 11);
 			alu_reg_1_out			<= reg_rs_data;
 			alu_reg_2_out			<= reg_rt_data;
 			imm_val_out				<= sxt_signal_intrnl;
@@ -207,6 +206,7 @@ begin
 				reg_dst_out	<= '0';
 			end if;
 		end if;
+		reg_rt_out <= reg_rt_reg;
 	end process;
 
 end behave;
