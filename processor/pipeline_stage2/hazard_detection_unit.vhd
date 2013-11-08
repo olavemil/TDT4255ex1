@@ -13,17 +13,13 @@ entity hazard_detection_unit is
 		stage1_rt			: in STD_LOGIC_VECTOR(4 downto 0);
 		stage2_rt			: in STD_LOGIC_VECTOR(4 downto 0);
 		mem_read			: in STD_LOGIC_VECTOR(5 downto 0);
-		--Flush the rest of the pipeline (failed branch situations)
-		flush_activate		: out STD_LOGIC;
 		 --Also stage1 programcounter stall when equal to zero
-		pc_wr_enb			: out STD_LOGIC;
-		--Stage1 output flush when 1 (AKA flush the incoming pc_value from the inpt of stage2)
-		stage1_outpt_flush	: out STD_LOGIC
+		pc_wr_enb			: out STD_LOGIC
 	);
 end hazard_detection_unit;
 
 architecture behave of hazard_detection_unit is
-	type HDUstate is (STALL, FLUSH, RUN);
+	type HDUstate is (STALL, RUN);
 	signal state, next_state : HDUstate;
 
 begin
@@ -42,24 +38,10 @@ begin
 				case state is
 					when RUN =>
 						pc_wr_enb			<= '1';
-						flush_activate		<= '0';
-						stage1_outpt_flush	<= '0';
 					when STALL =>
 						pc_wr_enb			<= '0';
-						flush_activate		<= '0';
-						stage1_outpt_flush	<= '1';
-						next_state			<= RUN;
-					when FLUSH => --TODO
-						--pc_wr_enb			<= '0';
-						--flush_activate		<= '1';.
-						--stage1_outpt_flush	<= 'U';
 						next_state			<= RUN;
 				end case;
-
-				--Implement branch logic to see if the next state should be a flush
-				--if 0 then
-					--blabla
-				--end if;
 
 				--Implementation of load stall logic
 				if mem_read = "1" and --Load opcode
