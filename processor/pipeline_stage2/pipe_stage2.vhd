@@ -109,6 +109,8 @@ architecture behave of pipe_stage2 is
 	signal reg_rs_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
+	--Internal signals
+	signal sxt_signal	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 
 	--control signals
 	signal alu_op_internal	: ALU_OP;
@@ -123,6 +125,13 @@ architecture behave of pipe_stage2 is
 	signal reset, mem_read : STD_LOGIC;
 
 begin
+
+	SXT_PROC : process(clk)
+	begin
+		if rising_edge(clk) then
+			sxt_signal <= SXT(instruction_in(15 downto 0), 32);
+		end if ;
+	end process;
 
 	registers: register_file
 	port map(
@@ -140,7 +149,7 @@ begin
 	branch_adder: adder
 	generic map(N => 32)
 	port map(
-		X		=> SXT(instruction_in(15 downto 0), 32),
+		X		=> sxt_signal,
 		Y		=> pc_in,
 		CIN		=> '0',
 		R		=> branch_target
@@ -184,7 +193,7 @@ begin
 			reg_rd_out		<= instruction_in(15 downto 11);
 			alu_reg_1_out	<= reg_rs_data;
 			alu_reg_2_out	<= reg_rt_data;
-			imm_val_out		<= SXT(instruction_in(15 downto 0), 32);
+			imm_val_out		<= sxt_signal;
 			alu_op_out		<= alu_op_internal;
 			if nops = '0' then
 				wb_out		<= reg_wr_internal;
