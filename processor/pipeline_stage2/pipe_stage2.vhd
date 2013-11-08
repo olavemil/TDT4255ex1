@@ -78,8 +78,7 @@ architecture behave of pipe_stage2 is
 			RegWrite		: out	STD_LOGIC;
 			Jump			: out	STD_LOGIC;
 			PCWriteEnb		: out	STD_LOGIC;
-			SRWriteEnb		: out	STD_LOGIC;
-			if_flush		: out	STD_LOGIC
+			SRWriteEnb		: out	STD_LOGIC
 		);
 	end component;
 
@@ -112,6 +111,7 @@ architecture behave of pipe_stage2 is
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
 	--Internal signals
+	signal flush				: STD_LOGIC := '0';
 	signal reg_rt_reg			: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 	signal sxt_signal_intrnl	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 
@@ -125,7 +125,7 @@ architecture behave of pipe_stage2 is
 	signal jump_enable			: std_logic;
 
 	--hazard detection unit signals
-	signal hdu_reset : STD_LOGIC;
+	signal hdu_reset : STD_LOGIC := '0';
 
 begin
 	sxt_signal_intrnl		<= SXT(instruction_in(15 downto 0), 32);
@@ -178,8 +178,7 @@ begin
 		RegWrite	=> reg_wr_internal,
 		Jump		=> jump_enable,--TODO say whaaat? Har vi ikke jump?
 		PCWriteEnb	=> pc_we,--TODO
-		SRWriteEnb	=> sr_we,--TODO
-		if_flush	=> flush_out
+		SRWriteEnb	=> sr_we--TODO
 	);
 
 	write_buffer_register: process(clk)
@@ -192,7 +191,7 @@ begin
 			alu_reg_2_out			<= reg_rt_data;
 			imm_val_out				<= sxt_signal_intrnl;
 			alu_op_out				<= alu_op_internal;
-			if nops = '0' then
+			if flush = '0' then
 				wb_out		<= reg_wr_internal;
 				mem_to_reg	<= mem_to_reg_internal;
 				m_we_out	<= mem_wr_internal;
