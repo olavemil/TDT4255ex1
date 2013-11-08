@@ -13,8 +13,7 @@ entity pipe_stage1 is
 		if_stall			: in	STD_LOGIC;
 		if_flush_sig		: in	STD_LOGIC;
 		--From stage 2
-		branch_target		: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-		branch_enable		: in	STD_LOGIC;
+		pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		pc_we				: in	STD_LOGIC;
 		--To stage 2
 		pc_inc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -25,7 +24,7 @@ end pipe_stage1;
 
 architecture behave of pipe_stage1 is
 	-- Program counter signals
-	signal pc_inc, pc_inc_reg, pc_reg, pc_mux	: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal pc_inc, pc_inc_reg, pc_reg	: STD_LOGIC_VECTOR(N-1 downto 0);
 	component adder
 	generic (N: natural);
 		port(
@@ -46,20 +45,11 @@ begin
 		R 	=> pc_inc
 	);
 
-	PC_SRC_MUX : process(branch_enable, pc_inc, branch_target)
-	begin
-		if branch_enable = '1' then
-			pc_mux <= branch_target;
-		else
-			pc_mux <= pc_inc;
-		end if;
-	end process;
-
-	program_counter_register : process(clk, pc_mux, pc_reg)
+	program_counter_register : process(clk, pc_in, pc_reg)
 	begin
 		if rising_edge(clk) then
 			if pc_we = '1' then
-				pc_reg <= pc_mux;
+				pc_reg <= pc_in;
 			else
 				pc_reg <= pc_reg;
 			end if;

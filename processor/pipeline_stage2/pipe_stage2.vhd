@@ -24,8 +24,8 @@ entity pipe_stage2 is
 
 		--out to stage 1
 		pc_we			: out	STD_LOGIC;
-		branch_target	: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-		branch_enable	: out	STD_LOGIC;
+		pc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+		if_stall		: out	STD_LOGIC;
 
 		--out to stage 3
 			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
@@ -43,7 +43,9 @@ entity pipe_stage2 is
 		reg_rd_out		: out	STD_LOGIC_VECTOR(4 downto 0);
 
 		--out to forwarding unit
-		reg_rs_out		: out	STD_LOGIC_VECTOR(4 downto 0)
+		reg_rs_out		: out	STD_LOGIC_VECTOR(4 downto 0);
+		--Flush
+		flush_out		: out	STD_LOGIC
 	);
 end pipe_stage2;
 
@@ -75,9 +77,7 @@ architecture behave of pipe_stage2 is
 			MemWrite		: out	STD_LOGIC;
 			ALUSrc			: out	STD_LOGIC;
 			RegWrite		: out	STD_LOGIC;
-			Jump			: out	STD_LOGIC;
-			PCWriteEnb		: out	STD_LOGIC;
-			SRWriteEnb		: out	STD_LOGIC
+			Jump			: out	STD_LOGIC
 		);
 	end component;
 
@@ -106,14 +106,17 @@ architecture behave of pipe_stage2 is
 	end component;
 
 	--Register file signals
-	signal sr_write_enb	: STD_LOGIC := '1';
 	signal reg_rs_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
 	--Internal signals
-	signal flush				: STD_LOGIC := '0';
+	signal flush				: STD_LOGIC;
 	signal reg_rt_reg			: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 	signal sxt_signal_intrnl	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	
+	signal branch_enable		: STD_LOGIC;
+	signal branch_mux_out		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+	signal branch_target		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 
 	--control signals
 	signal alu_op_internal		: ALU_OP;
@@ -125,7 +128,7 @@ architecture behave of pipe_stage2 is
 	signal jump_enable			: std_logic;
 
 	--hazard detection unit signals
-	signal hdu_reset : STD_LOGIC := '0';
+	signal hdu_reset 			: STD_LOGIC := '0';
 
 begin
 	sxt_signal_intrnl		<= SXT(instruction_in(15 downto 0), 32);
@@ -133,7 +136,7 @@ begin
 	registers: register_file
 	port map(
 		CLK			=> clk,
-		RESET		=> hdu_reset,
+		RESET		=> reset, --hdu_reset, --this?
 		RW			=> wb_in,
 		RS_ADDR		=> instruction_in(25 downto 21),
 		RT_ADDR		=> instruction_in(20 downto 16),
@@ -151,6 +154,26 @@ begin
 		CIN		=> '0',
 		R		=> branch_target
 	);
+	
+	branch_mux: process(branch_enable, reg_rs_data, reg_rt_data, branch_target, pc_in)
+	begin
+		if branch_enable = '1' and reg_rs_data = reg_rt_data then
+			branch_mux_out <= branch_target;
+			flush <= '1';
+		else
+			branch_mux_out <= pc_in;
+			flush <= '0';
+		end if;
+	end process;
+	
+	jump_mux: process(jump_enable, pc_in, instruction_in, branch_mux_out)
+	begin
+		if jump_enable = '1' then
+			pc_out <= pc_in(31 downto 26) & instruction_in(25 downto 0);
+		else
+			pc_out <= branch_mux_out;
+		end if;
+	end process;
 
 	hazards: hazard_detection_unit
 	port map(
@@ -176,12 +199,10 @@ begin
 		MemWrite	=> mem_wr_internal,
 		ALUSrc		=> alu_src_internal,
 		RegWrite	=> reg_wr_internal,
-		Jump		=> jump_enable,--TODO say whaaat? Har vi ikke jump?
-		PCWriteEnb	=> pc_we,--TODO
-		SRWriteEnb	=> sr_write_enb--TODO
+		Jump		=> jump_enable--TODO say whaaat? Har vi ikke jump?
 	);
 
-	write_buffer_register: process(clk)
+	write_buffer_register: process(clk, reg_rt_reg)
 	begin
 		if rising_edge(clk) then
 			reg_rs_out				<= instruction_in(25 downto 21);
@@ -196,6 +217,7 @@ begin
 				mem_to_reg	<= mem_to_reg_internal;
 				m_we_out	<= mem_wr_internal;
 				alu_op_out	<= alu_op_internal;
+				alu_src_out	<= alu_src_internal;
 				reg_dst_out	<= reg_dst_internal;
 			else
 				wb_out		<= '0';

@@ -21,7 +21,7 @@ end forwarding_unit;
 architecture behaviour of forwarding_unit is
 
 begin
-    forward : process(mem_reg_we, wb_reg_we)
+    forward : process(mem_reg_addr_in, ex_reg_addr_in_1, wb_reg_addr_in, ex_reg_addr_in_2, mem_reg_we, wb_reg_we)
     begin
         if (mem_reg_addr_in = ex_reg_addr_in_1) and (mem_reg_we = '1') then
             reg_1_mux_control_out <= "10";

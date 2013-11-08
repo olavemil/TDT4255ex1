@@ -62,8 +62,7 @@ architecture behave of processor is
 			if_stall			: in	STD_LOGIC;
 			if_flush_sig		: in	STD_LOGIC;
 			--From stage 2
-			branch_target		: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-			branch_enable		: in	STD_LOGIC;
+			pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			pc_we				: in	STD_LOGIC;
 			--To stage 2
 			pc_inc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -94,8 +93,8 @@ architecture behave of processor is
 
 			--out to stage 1
 			pc_we			: out	STD_LOGIC;
-			branch_target	: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-			branch_enable	: out	STD_LOGIC;
+			pc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+			if_stall		: out	STD_LOGIC;
 
 			--out to stage 3
 				--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
@@ -113,14 +112,16 @@ architecture behave of processor is
 			reg_rd_out		: out	STD_LOGIC_VECTOR(4 downto 0);
 
 			--out to forwarding unit
-			reg_rs_out		: out	STD_LOGIC_VECTOR(4 downto 0)
+			reg_rs_out		: out	STD_LOGIC_VECTOR(4 downto 0);
+			--flush
+			flush_out			: out	STD_LOGIC
 		);
 	end component;
 	signal stage_2_out_pc_src		: STD_LOGIC;
 	signal stage_2_out_hazard		: std_logic;
+	signal stage_2_out_if_stall		: STD_LOGIC;
 	signal stage_2_out_flush		: STD_LOGIC;
-	signal stage_2_out_branch_target: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-	signal stage_2_out_branch_enable: STD_LOGIC;
+	signal stage_2_out_pc			: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 	signal stage_2_out_pc_we		: STD_LOGIC;
 	signal stage_2_out_func			: STD_LOGIC_VECTOR(5 downto 0);
 	signal stage_2_out_alu_op		: ALU_OP;
@@ -128,7 +129,7 @@ architecture behave of processor is
 	signal stage_2_out_wb			: STD_LOGIC;
 	signal stage_2_out_reg_dst		: STD_LOGIC;
 	signal stage_2_out_alu_src		: STD_LOGIC;
-	signal stage_2_out_mem_2_reg	: STD_LOGIC;
+	signal stage_2_out_mem_to_reg	: STD_LOGIC;
 	signal stage_2_out_alu_reg_1	: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal stage_2_out_alu_reg_2	: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal stage_2_out_imm_val		: STD_LOGIC_VECTOR(N-1 downto 0);
@@ -227,7 +228,6 @@ architecture behave of processor is
 
 --	Other
 	signal alu_mem_mux_out	: std_logic_vector(N-1 downto 0);
-	signal alu_mem_select	: std_logic;
 begin
 	clk <= clk_in and processor_enable;
 	--STAGE 1
@@ -235,12 +235,11 @@ begin
 	port map(
 		clk					=> clk,
 		reset				=> reset,
-		--
-		if_stall			=> '0',
+		--ctrl
+		if_stall			=> stage_2_out_if_stall,
 		if_flush_sig		=> stage_2_out_flush,
 		--in from stage 2
-		branch_enable		=> stage_2_out_branch_enable,
-		branch_target		=> stage_2_out_branch_target,
+		pc_in				=> stage_2_out_pc,
 		pc_we				=> stage_2_out_pc_we,
 		--out to stage 2
 		pc_reg_out			=> imem_address,
@@ -268,9 +267,8 @@ begin
 
 		--out to stage 1
 		pc_we			=> stage_2_out_pc_we,
-		branch_target	=> stage_2_out_branch_target,
-		branch_enable	=> stage_2_out_branch_enable,
-
+		pc_out			=> stage_2_out_pc,
+		if_stall		=> stage_2_out_if_stall,
 		--out to stage 3
 			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
 		func_out		=> stage_2_out_func,
@@ -279,14 +277,16 @@ begin
 		wb_out			=> stage_2_out_wb,
 		reg_dst_out		=> stage_2_out_reg_dst,
 		alu_src_out		=> stage_2_out_alu_src,
-		mem_to_reg		=> stage_2_out_mem_2_reg,
+		mem_to_reg		=> stage_2_out_mem_to_reg,
 		alu_reg_1_out	=> stage_2_out_alu_reg_1,
 		alu_reg_2_out	=> stage_2_out_alu_reg_2,
 		imm_val_out		=> stage_2_out_imm_val,
 		reg_rt_out		=> stage_2_out_reg_rt,
 		reg_rd_out		=> stage_2_out_reg_rd,
 		--out to forwarding unit
-		reg_rs_out		=> stage_2_out_reg_rs
+		reg_rs_out		=> stage_2_out_reg_rs,
+		--flush
+		flush_out			=> stage_2_out_flush
 	);
 
 	--STAGE 3
@@ -334,11 +334,13 @@ begin
 
 		reg_r_out		=> stage_3_out_reg_r
 	);
+	dmem_write_enable	<= stage_3_out_m_we;
+	
 	fwu : forwarding_unit
 	port map(
 		ex_reg_addr_in_1		=> stage_2_out_reg_rs,
 		ex_reg_addr_in_2		=> stage_2_out_reg_rt,
-		mem_reg_addr_in		 => stage_3_out_reg_r,
+		mem_reg_addr_in		 	=> stage_3_out_reg_r,
 		wb_reg_addr_in			=> stage_4_out_reg_r,
 
 		mem_reg_we				=> stage_3_out_wb,
@@ -365,9 +367,10 @@ begin
 		alu_result_out	=> stage_4_out_alu_result,
 		reg_r_out		=> stage_4_out_reg_r
 	);
-	alu_mem_mux : process(alu_mem_select)
+	
+	alu_mem_mux : process(stage_2_out_mem_to_reg, stage_4_out_alu_result, dmem_data_in)
 	begin
-		if alu_mem_select = '1' then
+		if stage_2_out_mem_to_reg = '1' then
 			alu_mem_mux_out <= stage_4_out_alu_result;
 		else
 			alu_mem_mux_out <= dmem_data_in;

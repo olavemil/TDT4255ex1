@@ -74,7 +74,7 @@ architecture behaviour of pipe_stage3 is
 	--Reg r
 	signal reg_r		: STD_LOGIC_VECTOR(4 downto 0);
 begin
-	mux_reg_data_1 : process(mux_reg_1_in)
+	mux_reg_data_1 : process(mux_reg_1_in, reg_data_1_in, alu_data_1_in, mem_data_1_in)
 	begin
 		if mux_reg_1_in = "00" then
 			mux_reg_1_data_out <= reg_data_1_in;
@@ -85,18 +85,18 @@ begin
 		end if;
 	end process;
 
-	mux_reg_data_2 : process(mux_reg_2_in)
+	mux_reg_data_2 : process(mux_reg_2_in, reg_data_2_in, alu_data_2_in, mem_data_2_in)
 	begin
-		if mux_reg_1_in = "00" then
-			mux_reg_1_data_out <= reg_data_1_in;
-		elsif mux_reg_1_in = "01" then
-			mux_reg_1_data_out <= alu_data_1_in;
+		if mux_reg_2_in = "00" then
+			mux_reg_2_data_out <= reg_data_2_in;
+		elsif mux_reg_2_in = "01" then
+			mux_reg_2_data_out <= alu_data_2_in;
 		else
-			mux_reg_1_data_out <= mem_data_1_in;
+			mux_reg_2_data_out <= mem_data_2_in;
 		end if;
 	end process;
 
-	mux_alu_src : process(alu_src_in)
+	mux_alu_src : process(alu_src_in, mux_reg_2_data_out, imm_val_in)
 	begin
 		if alu_src_in = '1' then
 			mux_alu_src_out <= mux_reg_2_data_out;
@@ -155,7 +155,7 @@ begin
 		FLAGS	=> alu_flags
 	);
 
-	mux_reg_dst : process(reg_dst_in)
+	mux_reg_dst : process(reg_dst_in, reg_rd_in, reg_rt_in)
 	begin
 		if reg_dst_in = '1' then
 			reg_r <= reg_rd_in;

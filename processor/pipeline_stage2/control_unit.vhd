@@ -9,7 +9,6 @@ entity control_unit is
 	port(
 		CLK 		: in 	STD_LOGIC;
 		RESET		: in 	STD_LOGIC;
-		proc_enable	: in	STD_LOGIC;
 		OpCode		: in	STD_LOGIC_VECTOR (31 downto 26);
 		ALUOp		: out	ALU_OP;
 		RegDst		: out	STD_LOGIC;
@@ -18,9 +17,7 @@ entity control_unit is
 		MemWrite	: out	STD_LOGIC;
 		ALUSrc		: out	STD_LOGIC;
 		RegWrite	: out	STD_LOGIC;
-		Jump		: out	STD_LOGIC;
-		PCWriteEnb	: out	STD_LOGIC;
-		SRWriteEnb	: out	STD_LOGIC
+		Jump		: out	STD_LOGIC
 		--control write enable for register file is the same as RegWrite?
 	);
 end control_unit;
@@ -32,7 +29,7 @@ architecture Behavioral of control_unit is
 
 begin
 
-	ALU_STATE_MACHINE: process(CLK, RESET, OpCode, proc_enable)
+	ALU_STATE_MACHINE: process(CLK, RESET, OpCode)
 
 	begin
 		if rising_edge(CLK) then
@@ -46,13 +43,10 @@ begin
 				ALUSrc		<= '0';
 				RegWrite	<= '0';
 				Jump		<= '0';
-				PCWriteEnb	<= '0';
-				SRWriteEnb	<= '0';
-			elsif proc_enable = '1' then
+			else
 				case state is
 					when FETCH =>
 						state	<= ALU_EXE;
-						PCWriteEnb	<= '0';
 
 					when ALU_EXE =>
 						case OpCode is
@@ -67,8 +61,6 @@ begin
 								ALUSrc		<= '0';
 								RegWrite	<= '1';
 								Jump		<= '0';
-								SRWriteEnb	<= '0';
-								PCWriteEnb	<= '1';
 								state		<= FETCH;
 
 							when "000100" =>	--Branch opcode
@@ -82,8 +74,6 @@ begin
 								ALUSrc		<= '0';
 								RegWrite	<= '0';
 								Jump		<= '0';
-								SRWriteEnb	<= '1';	--setting the zero flag if equal
-								PCWriteEnb	<= '0';
 								state		<= STALL;
 
 							when "100011" =>	--Load word
@@ -97,7 +87,6 @@ begin
 								ALUSrc		<= '1';
 								RegWrite	<= '1';
 								Jump		<= '0';
-								SRWriteEnb	<= '0';
 
 								state		<= STALL;
 							when "101011" =>	--Store word
@@ -111,7 +100,6 @@ begin
 								ALUSrc		<= '1';
 								RegWrite	<= '0';
 								Jump		<= '0';
-								SRWriteEnb	<= '0';
 
 								state		<= STALL;
 							when "001000" =>	--Load immidiate. (Implemented as add immidiate where you add with the zero register)
@@ -125,8 +113,6 @@ begin
 								ALUSrc		<= '1';
 								RegWrite	<= '1';
 								Jump		<= '0';
-								SRWriteEnb	<= '0';
-								PCWriteEnb	<= '1';
 								state		<= FETCH;
 							when "000010" =>	--Jump
 								RegDst		<= '0';
@@ -137,17 +123,13 @@ begin
 								ALUSrc		<= '0';
 								RegWrite	<= '0';
 								Jump		<= '1';
-								PCWriteEnb	<= '1';
-								SRWriteEnb	<= '0';
 
 								state		<= FETCH;
 							when others =>
 								state		<= FETCH;
-								PCWriteEnb	<= '1';
 						end case;
 					when STALL =>
 						state		<= FETCH;
-						PCWriteEnb	<= '1';
 				end case;
 			end if;
 		end if;
