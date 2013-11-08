@@ -1,0 +1,116 @@
+\documentclass{report}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+
+\setlength\parindent{0pt}
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT INFORMATION
+%----------------------------------------------------------------------------------------
+
+\title{Exercise 1 \\ Multi-cycle MIPS \\ TDT4255} % Title
+
+\author{Hanna Holler Kamperud \\ Olav Emil Eiksund} % Author name
+
+\date{\today} % Date for the report
+
+\begin{document}
+
+\maketitle % Insert the title, author and date
+
+\newpage
+\begin{abstract}
+\include{abstract}
+\end{abstract}
+
+\tableofcontents
+%\listoffigures
+
+%----------------------------------------------------------------------------------------
+%	INTRODUCTION
+%----------------------------------------------------------------------------------------
+
+\chapter{Introduction}
+\section{Description of the exercise}
+\include{introduction/descriptionoftheexercise}
+
+\section{Approach to the task}
+\include{introduction/approachtothetask}
+%----------------------------------------------------------------------------------------
+%	SOLUTION
+%----------------------------------------------------------------------------------------
+
+%\newpage
+\chapter{Solution}
+
+%ISA
+
+\section{Design}
+\include{solution/design}
+
+\section{Implementation}
+\include{solution/implementation}
+
+%----------------------------------------------------------------------------------------
+%	RESULTS
+%----------------------------------------------------------------------------------------
+\newpage
+\chapter{Results}
+\include{results/intro}
+
+\section{Testing methodology}
+\include{results/modelsim}
+
+\section{fpga}
+\include{results/fpgatesting}
+
+%----------------------------------------------------------------------------------------
+%	DISCUSSION
+%----------------------------------------------------------------------------------------
+\newpage
+\chapter{Discussion}
+\section{Design}
+\include{discussion/design}
+
+\section{Implementation}
+\include{discussion/implementation}
+
+\section{Simulation}
+\include{discussion/simulation}
+
+\section{Verification in FPGA}
+\include{discussion/verification}
+
+%----------------------------------------------------------------------------------------
+%	CONCLUSION
+%----------------------------------------------------------------------------------------
+\newpage
+\chapter{Conclusion}
+\include{conclusion}
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+\newpage
+\bibliographystyle{unsrt}
+\begin{thebibliography}{2}
+	\bibitem{patterson12}
+	David A. Patterson, John L.Hennessy,
+	\emph{Computer Organization and Design - The Hardware/Software Interface}
+	Morgan Kaufmann, USA,
+	4th Edition, revised printing,
+	2012.
+	\bibitem{compendium}
+	Author,
+	\emph{Lab Assignments in TDT4255 Computer Design}
+	NTNU, Norway,
+	Version 3,
+	2013
+\end{thebibliography}
+
+
+%----------------------------------------------------------------------------------------
+
+
+\end{document}
