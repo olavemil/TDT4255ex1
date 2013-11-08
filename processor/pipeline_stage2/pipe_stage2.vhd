@@ -35,6 +35,7 @@ entity pipe_stage2 is
 		wb_out			: out	STD_LOGIC;
 		reg_dst_out		: out	STD_LOGIC;
 		alu_src_out		: out	STD_LOGIC;
+		mem_to_reg		: out	STD_LOGIC;
 		alu_reg_1_out	: out	STD_LOGIC_VECTOR(31 downto 0);
 		alu_reg_2_out	: out	STD_LOGIC_VECTOR(31 downto 0);
 		imm_val_out		: out	STD_LOGIC_VECTOR(31 downto 0);
@@ -105,6 +106,7 @@ architecture behave of pipe_stage2 is
 	end component;
 
 	--Register file signals
+	signal sr_write_enb	: STD_LOGIC := '1';
 	signal reg_rs_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
@@ -176,7 +178,7 @@ begin
 		RegWrite	=> reg_wr_internal,
 		Jump		=> jump_enable,--TODO say whaaat? Har vi ikke jump?
 		PCWriteEnb	=> pc_we,--TODO
-		SRWriteEnb	=> sr_we--TODO
+		SRWriteEnb	=> sr_write_enb--TODO
 	);
 
 	write_buffer_register: process(clk)

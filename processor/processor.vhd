@@ -105,6 +105,7 @@ architecture behave of processor is
 			wb_out			: out	STD_LOGIC;
 			reg_dst_out		: out	STD_LOGIC;
 			alu_src_out		: out	STD_LOGIC;
+			mem_to_reg		: out	STD_LOGIC;
 			alu_reg_1_out	: out	STD_LOGIC_VECTOR(31 downto 0);
 			alu_reg_2_out	: out	STD_LOGIC_VECTOR(31 downto 0);
 			imm_val_out		: out	STD_LOGIC_VECTOR(31 downto 0);
@@ -127,6 +128,7 @@ architecture behave of processor is
 	signal stage_2_out_wb			: STD_LOGIC;
 	signal stage_2_out_reg_dst		: STD_LOGIC;
 	signal stage_2_out_alu_src		: STD_LOGIC;
+	signal stage_2_out_mem_2_reg	: STD_LOGIC;
 	signal stage_2_out_alu_reg_1	: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal stage_2_out_alu_reg_2	: STD_LOGIC_VECTOR(N-1 downto 0);
 	signal stage_2_out_imm_val		: STD_LOGIC_VECTOR(N-1 downto 0);
@@ -277,6 +279,7 @@ begin
 		wb_out			=> stage_2_out_wb,
 		reg_dst_out		=> stage_2_out_reg_dst,
 		alu_src_out		=> stage_2_out_alu_src,
+		mem_to_reg		=> stage_2_out_mem_2_reg,
 		alu_reg_1_out	=> stage_2_out_alu_reg_1,
 		alu_reg_2_out	=> stage_2_out_alu_reg_2,
 		imm_val_out		=> stage_2_out_imm_val,
