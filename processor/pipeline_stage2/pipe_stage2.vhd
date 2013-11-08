@@ -110,7 +110,8 @@ architecture behave of pipe_stage2 is
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
 	--Internal signals
-	signal sxt_signal	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal sxt_signal		: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal next_instruction	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 
 	--control signals
 	signal alu_op_internal	: ALU_OP;
@@ -122,14 +123,16 @@ architecture behave of pipe_stage2 is
 	signal jump_enable	: std_logic;
 
 	--hazard detection unit signals
-	signal reset, mem_read : STD_LOGIC;
+	signal reset : STD_LOGIC;
 
 begin
 
-	SXT_PROC : process(clk)
+
+	internal_signals_process : process(clk)
 	begin
 		if rising_edge(clk) then
-			sxt_signal <= SXT(instruction_in(15 downto 0), 32);
+			sxt_signal			<= SXT(instruction_in(15 downto 0), 32);
+			next_instruction	<= instruction_in;
 		end if ;
 	end process;
 
@@ -171,7 +174,7 @@ begin
 	port map(
 		CLK			=> clk,
 		RESET		=> reset,
-		OpCode		=> instruction_in(31 downto 26),
+		OpCode		=> next_instruction(31 downto 26),
 		ALUOp		=> alu_op_internal,
 		RegDst		=> reg_dst_internal,
 		Branch		=> branch_enable,--TODO
@@ -188,9 +191,9 @@ begin
 	write_buffer_register: process(clk)
 	begin
 		if rising_edge(clk) then
-			reg_rs_out		<= instruction_in(25 downto 21);
-			reg_rt_out		<= instruction_in(20 downto 16);
-			reg_rd_out		<= instruction_in(15 downto 11);
+			reg_rs_out		<= next_instruction(25 downto 21);
+			reg_rt_out		<= next_instruction(20 downto 16);
+			reg_rd_out		<= next_instruction(15 downto 11);
 			alu_reg_1_out	<= reg_rs_data;
 			alu_reg_2_out	<= reg_rt_data;
 			imm_val_out		<= sxt_signal;
