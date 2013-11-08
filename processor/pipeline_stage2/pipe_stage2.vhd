@@ -18,7 +18,8 @@ entity pipe_stage2 is
 
 		--in from stage 4/5
 		reg_r_in		: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
-		data_in			: in	STD_LOGIC_VECTOR(31 downto 0);--alu_result/dmem_out
+			--alu_result/dmem_out
+		data_in			: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 		wb_in			: in	STD_LOGIC;
 
 		--out to stage 1
@@ -27,7 +28,8 @@ entity pipe_stage2 is
 		branch_enable	: out	STD_LOGIC;
 
 		--out to stage 3
-		func_out		: out	STD_LOGIC_VECTOR(5 downto 0);	--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
+			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
+		func_out		: out	STD_LOGIC_VECTOR(5 downto 0);
 		alu_op_out		: out	ALU_OP;
 		sr_we			: out	std_logic;
 		m_we_out		: out	STD_LOGIC;
@@ -50,15 +52,15 @@ architecture behave of pipe_stage2 is
 
 	component register_file is
 		port(
-			CLK				:	in	STD_LOGIC;
-			RESET			:	in	STD_LOGIC;
-			RW				:	in	STD_LOGIC;
-			RS_ADDR			:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
-			RT_ADDR			:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
-			RD_ADDR			:	in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
-			WRITE_DATA		:	in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
-			RS				:	out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
-			RT				:	out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0)
+			CLK				: in	STD_LOGIC;
+			RESET			: in	STD_LOGIC;
+			RW				: in	STD_LOGIC;
+			RS_ADDR			: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
+			RT_ADDR			: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
+			RD_ADDR			: in	STD_LOGIC_VECTOR (RADDR_BUS-1 downto 0);
+			WRITE_DATA		: in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+			RS				: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+			RT				: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0)
 		);
 	end component;
 
@@ -110,31 +112,22 @@ architecture behave of pipe_stage2 is
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
 	--Internal signals
-	signal sxt_signal		: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
-	signal next_instruction	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal sxt_signal_intrnl		: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal next_instruction_intrnl	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 
 	--control signals
-	signal alu_op_internal	: ALU_OP;
-	signal reg_dst_internal :STD_LOGIC;
-	signal mem_to_reg_internal : STD_LOGIC;
-	signal mem_wr_internal :STD_LOGIC;
-	signal alu_src_internal : STD_LOGIC;
-	signal reg_wr_internal : STD_LOGIC;
-	signal jump_enable	: std_logic;
+	signal alu_op_internal		: ALU_OP;
+	signal reg_dst_internal		: STD_LOGIC;
+	signal mem_to_reg_internal	: STD_LOGIC;
+	signal mem_wr_internal		: STD_LOGIC;
+	signal alu_src_internal		: STD_LOGIC;
+	signal reg_wr_internal		: STD_LOGIC;
+	signal jump_enable			: std_logic;
 
 	--hazard detection unit signals
 	signal hdu_reset : STD_LOGIC;
 
 begin
-
-
-	internal_signals_process : process(clk)
-	begin
-		if rising_edge(clk) then
-			sxt_signal			<= SXT(instruction_in(15 downto 0), 32);
-			next_instruction	<= instruction_in;
-		end if ;
-	end process;
 
 	registers: register_file
 	port map(
@@ -152,7 +145,7 @@ begin
 	branch_adder: adder
 	generic map(N => 32)
 	port map(
-		X		=> sxt_signal,
+		X		=> sxt_signal_intrnl,
 		Y		=> pc_in,
 		CIN		=> '0',
 		R		=> branch_target
@@ -174,7 +167,7 @@ begin
 	port map(
 		CLK			=> clk,
 		RESET		=> reset,
-		OpCode		=> next_instruction(31 downto 26),
+		OpCode		=> next_instruction_intrnl(31 downto 26),
 		ALUOp		=> alu_op_internal,
 		RegDst		=> reg_dst_internal,
 		Branch		=> branch_enable,--TODO
@@ -191,13 +184,15 @@ begin
 	write_buffer_register: process(clk)
 	begin
 		if rising_edge(clk) then
-			reg_rs_out		<= next_instruction(25 downto 21);
-			reg_rt_out		<= next_instruction(20 downto 16);
-			reg_rd_out		<= next_instruction(15 downto 11);
-			alu_reg_1_out	<= reg_rs_data;
-			alu_reg_2_out	<= reg_rt_data;
-			imm_val_out		<= sxt_signal;
-			alu_op_out		<= alu_op_internal;
+			sxt_signal_intrnl		<= SXT(instruction_in(15 downto 0), 32);
+			next_instruction_intrnl	<= instruction_in;
+			reg_rs_out				<= next_instruction_intrnl(25 downto 21);
+			reg_rt_out				<= next_instruction_intrnl(20 downto 16);
+			reg_rd_out				<= next_instruction_intrnl(15 downto 11);
+			alu_reg_1_out			<= reg_rs_data;
+			alu_reg_2_out			<= reg_rt_data;
+			imm_val_out				<= sxt_signal_intrnl;
+			alu_op_out				<= alu_op_internal;
 			if nops = '0' then
 				wb_out		<= reg_wr_internal;
 				mem_to_reg	<= mem_to_reg_internal;
@@ -214,14 +209,4 @@ begin
 		end if;
 	end process;
 
-	STALL_OR_CTRL_MUX : process(clk)
-	begin
-		if rising_edge(clk) then
-			if flush = '1' then
-				--WB, M, and EX ctrl signals set to zero.
-			else
-				--WB, M, and EX ctrl signal vlaues propagated from CTRL_UNIT
-			end if ;
-		end if ;
-	end process;
 end behave;
