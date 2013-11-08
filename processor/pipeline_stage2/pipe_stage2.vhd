@@ -31,9 +31,7 @@ entity pipe_stage2 is
 			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
 		func_out		: out	STD_LOGIC_VECTOR(5 downto 0);
 		alu_op_out		: out	ALU_OP;
-		sr_we			: out	std_logic;
 		m_we_out		: out	STD_LOGIC;
-		mem_to_reg		: out	STD_LOGIC;
 		wb_out			: out	STD_LOGIC;
 		reg_dst_out		: out	STD_LOGIC;
 		alu_src_out		: out	STD_LOGIC;
