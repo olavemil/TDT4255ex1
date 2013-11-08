@@ -40,13 +40,13 @@ begin
 				state <= next_state;
 
 				--Implement branch logic to see if the next state should be a flush
-				if FLUSH_LOGIC then
+				--if 0 then
 					--blabla
-				end if;
+				--end if;
 
 				--Implementation of load stall logic
 				if stage2_opcode = "100011" then --Load opcode
-					if (stage2_rt = stage1_rt) or (stage2_rt stage1_rs) then
+					if (stage2_rt = stage1_rt) or (stage2_rt = stage1_rs) then
 					--Load uses same register in stage1 as stage3 is about to use
 						next_state <= STALL;
 					end if;
