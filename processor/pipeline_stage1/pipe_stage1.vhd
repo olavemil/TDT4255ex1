@@ -56,10 +56,11 @@ begin
 			if reset = '1' then
 				pc_reg	<= X"00000000";
 			elsif pc_we = '1' and processor_enable = '1' then
-				if expression then
-
-				end if ;
-				pc_reg	<= pc_in;
+				if branch_enable = '1' then
+					pc_reg	<= pc_in;
+				else
+					pc_reg	<= pc_inc;
+				end if;
 			else
 				pc_reg	<= pc_reg;
 			end if;
