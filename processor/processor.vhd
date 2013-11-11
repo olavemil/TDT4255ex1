@@ -35,14 +35,14 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 
 entity processor is
 	port(
-		clk				: in	STD_LOGIC;
-		reset				: in	STD_LOGIC;
+		clk					: in	STD_LOGIC;
+		reset					: in	STD_LOGIC;
 		processor_enable	: in	STD_LOGIC;
 		imem_address 		: out	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
 		imem_data_in 		: in	STD_LOGIC_VECTOR (IDATA_BUS-1 downto 0);
 		dmem_data_in 		: in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 		dmem_address 		: out	STD_LOGIC_VECTOR (DADDR_BUS-1 downto 0);
-		dmem_address_wr		: out	STD_LOGIC_VECTOR (DADDR_BUS-1 downto 0);
+		dmem_address_wr	: out	STD_LOGIC_VECTOR (DADDR_BUS-1 downto 0);
 		dmem_data_out		: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 		dmem_write_enable	: out	STD_LOGIC
 		);
