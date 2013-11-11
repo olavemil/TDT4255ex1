@@ -11,7 +11,7 @@ entity pipe_stage3 is
 		processor_enable	: in	STD_LOGIC;
 		--In from stage 2
 		func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
-		alu_op_in			: in	ALU_OP;
+		alu_ctrl_op_in		: in	ALU_OP;
 
 		m_we_in,
 		wb_in				: in	STD_LOGIC;
@@ -56,8 +56,15 @@ architecture behaviour of pipe_stage3 is
 --ALU
 	--ALU input
 	signal mux_reg_1_data_out, mux_reg_2_data_out, mux_alu_src_out : STD_LOGIC_VECTOR(N-1 downto 0);
-	signal alu_op		: ALU_INPUT;
-	signal func			: ALU_FUNC;
+--	signal func			: ALU_FUNC;
+	signal alu_ctrl_op	: alu_input;
+	component alu_control
+		port(
+			func_in			: in STD_LOGIC_VECTOR(5 downto 0);
+			alu_ctrl_op_in	: in ALU_OP;
+			alu_ctrl_op_out	: out alu_input
+		);
+	end component;
 	--ALU component
 	component alu
 		generic(N : natural);
@@ -106,52 +113,34 @@ begin
 		end if;
 	end process;
 
-	func_decoder : process(func_in)
-	begin
-		if func_in = "100000" then
-			func <= f_ADD;
-		elsif func_in = "100010" then
-			func <= f_SUB;
-		elsif func_in = "100100" then
-			func <= f_AND;
-		elsif func_in = "100101" then
-			func <= f_OR;
-		else
-			func <= f_SLT;
-		end if;
-	end process;
+--	func_decoder : process(func_in)
+--	begin
+--		if func_in = "100000" then
+--			func <= f_ADD;
+--		elsif func_in = "100010" then
+--			func <= f_SUB;
+--		elsif func_in = "100100" then
+--			func <= f_AND;
+--		elsif func_in = "100101" then
+--			func <= f_OR;
+--		else
+--			func <= f_SLT;
+--		end if;
+--	end process;
 
-	alu_control : process(func, alu_op_in)
-	begin
-		case alu_op_in is
-			when ALUOP_BRANCH =>
-				alu_op <= ('0', '1', '1', '0');
-			when ALUOP_LOAD_STORE =>
-				alu_op <= ('0', '0', '1', '0');
-			when ALUOP_FUNC =>
-				case func is
-					when f_ADD => --ADD
-						alu_op <= ('0', '0', '1', '0');
-					when f_SUB => --SUB
-						alu_op <= ('0', '1', '1', '0');
-					when f_AND => --AND
-						alu_op <= ('0', '0', '0', '0');
-					when f_OR => --OR
-						alu_op <= ('0', '0', '0', '1');
-					when f_SLT => --SLT
-						alu_op <= ('0', '1', '1', '1');
-				end case;
-			when ALUOP_LDI =>
-				alu_op <= ('0', '0', '1', '0');
-		end case;
-	end process;
+	alu_ctrl : alu_control
+	port map(
+		func_in			=> func_in,
+		alu_ctrl_op_in	=> alu_ctrl_op_in,
+		alu_ctrl_op_out	=> alu_ctrl_op
+		);
 
 	alu_unit : alu
 	generic map(N => 32)
 	port map (
 		X		=> mux_reg_1_data_out,
 		Y		=> mux_alu_src_out,
-		ALU_IN	=> alu_op,
+		ALU_IN	=> alu_ctrl_op,
 		R		=> alu_result,
 		FLAGS	=> alu_flags
 	);
