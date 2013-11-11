@@ -48,7 +48,7 @@ entity pipe_stage2 is
 end pipe_stage2;
 
 architecture behave of pipe_stage2 is
-
+	
 	component register_file is
 		port(
 			CLK				: in	STD_LOGIC;
@@ -88,6 +88,7 @@ architecture behave of pipe_stage2 is
 			stage2_rt			: in	STD_LOGIC_VECTOR(4 downto 0);
 			mem_read			: in	STD_LOGIC;
 			--Also stage1 programcounter stall when equal to zero
+			--if_stall			: out	STD_LOGIC;
 			pc_wr_enb			: out	STD_LOGIC
 		);
 	end component;
@@ -131,8 +132,8 @@ architecture behave of pipe_stage2 is
 
 begin
 	imm_val_reg		<= SXT(instruction_in(15 downto 0), DDATA_BUS);
-	branch_offset	<= EXT(instruction_in(15 downto 0), IADDR_BUS);
-	
+	branch_offset	<= SXT(instruction_in(15 downto 0), IADDR_BUS);
+	func_out		<= instruction_in(5 downto 0);
 
 	registers: register_file
 	port map(
@@ -143,8 +144,8 @@ begin
 		RT_ADDR		=> instruction_in(20 downto 16),
 		RD_ADDR		=> reg_r_in,
 		WRITE_DATA	=> data_in,
-		RS			=> reg_rs_data,
-		RT			=> reg_rt_data
+		RS			=> alu_reg_1_out,
+		RT			=> alu_reg_2_out
 	);
 
 	branch_adder: adder
@@ -184,7 +185,8 @@ begin
 		stage1_rt	=> instruction_in(20 downto 16),
 		stage2_rt	=> reg_rt_reg,
 		mem_read	=> mem_to_reg_internal,
-		 --Also stage1 programcounter stall when equal to zero
+		--Also stage1 programcounter stall when equal to zero
+		--if_stall	=> if_stall,
 		pc_wr_enb	=> pc_we
 	);
 
@@ -209,23 +211,17 @@ begin
 			reg_rs_out				<= instruction_in(25 downto 21);
 			reg_rt_reg				<= instruction_in(20 downto 16);
 			reg_rd_out				<= instruction_in(15 downto 11);
-			alu_reg_1_out			<= reg_rs_data;
-			alu_reg_2_out			<= reg_rt_data;
 			imm_val_out				<= imm_val_reg;
 			alu_op_out				<= alu_op_internal;
-			if flush = '0' then
+			alu_src_out				<= alu_src_internal;
+			reg_dst_out				<= reg_dst_internal;
+			mem_to_reg				<= mem_to_reg_internal;
+			if nops = '0' then
 				wb_out		<= reg_wr_internal;
-				mem_to_reg	<= mem_to_reg_internal;
 				m_we_out	<= mem_wr_internal;
-				alu_op_out	<= alu_op_internal;
-				alu_src_out	<= alu_src_internal;
-				reg_dst_out	<= reg_dst_internal;
 			else
 				wb_out		<= '0';
-				mem_to_reg	<= '0';
 				m_we_out	<= '0';
-				alu_src_out <= '0';
-				reg_dst_out	<= '0';
 			end if;
 		end if;
 		reg_rt_out <= reg_rt_reg;
