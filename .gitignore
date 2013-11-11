@@ -216,3 +216,11 @@ pip-log.txt
 
 #Sublime
 *_*.sublime-*
+
+#LaTeX
+*.toc
+*.aux
+*.log
+*.out
+*.synctex.gz
+TDT4255ex2.pdf

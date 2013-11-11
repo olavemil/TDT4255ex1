@@ -10,7 +10,7 @@
 %	DOCUMENT INFORMATION
 %----------------------------------------------------------------------------------------
 
-\title{Exercise 1 \\ Pipelined MIPS \\ TDT4255} % Title
+\title{Assignment 2 \\ Pipelined MIPS \\ TDT4255} % Title
 
 \author{Hanna Holler Kamperud \\ Olav Emil Eiksund \\ Christian Chavez} % Author name
 
@@ -22,7 +22,7 @@
 
 \newpage
 \begin{abstract}
-\include{abstract}
+\input{abstract}
 \end{abstract}
 
 \tableofcontents
@@ -33,11 +33,10 @@
 %----------------------------------------------------------------------------------------
 
 \chapter{Introduction}
-\section{Description of the exercise}
-\include{introduction/descriptionoftheexercise}
+\input{introduction/descriptionoftheexercise}
 
 \section{Approach to the task}
-\include{introduction/approachtothetask}
+\input{introduction/approachtothetask}
 %----------------------------------------------------------------------------------------
 %	SOLUTION
 %----------------------------------------------------------------------------------------
@@ -47,24 +46,23 @@
 
 %ISA
 
-\section{Design}
-\include{solution/design}
+\input{solution/design}
 
 \section{Implementation}
-\include{solution/implementation}
+\input{solution/implementation}
 
 %----------------------------------------------------------------------------------------
 %	RESULTS
 %----------------------------------------------------------------------------------------
 \newpage
 \chapter{Results}
-\include{results/intro}
+\input{results/intro}
 
 \section{Testing methodology}
-\include{results/modelsim}
+\input{results/modelsim}
 
 \section{fpga}
-\include{results/fpgatesting}
+\input{results/fpgatesting}
 
 %----------------------------------------------------------------------------------------
 %	DISCUSSION
@@ -72,41 +70,69 @@
 \newpage
 \chapter{Discussion}
 \section{Design}
-\include{discussion/design}
+\input{discussion/design}
 
 \section{Implementation}
-\include{discussion/implementation}
+\input{discussion/implementation}
 
 \section{Simulation}
-\include{discussion/simulation}
+\input{discussion/simulation}
 
 \section{Verification in FPGA}
-\include{discussion/verification}
+\input{discussion/verification}
 
 %----------------------------------------------------------------------------------------
 %	CONCLUSION
 %----------------------------------------------------------------------------------------
 \newpage
 \chapter{Conclusion}
-\include{conclusion}
+\input{conclusion}
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 \newpage
 \bibliographystyle{unsrt}
 \begin{thebibliography}{2}
+	\bibitem{xilinx-ise}
+	Xilinx,
+	\emph{ISE Design Suite}
+	Release Version: 12.4, Application Version: M.81d
+	Copyright (c) 1995-2010 Xilinx, Inc.
+	\bibitem{spartan-6}
+	Xilinx,
+	\emph{Spartan-6 FPGA Family}\newline
+	http://www.xilinx.com/products/silicon-devices/fpga/spartan-6/
 	\bibitem{patterson12}
-	David A. Patterson, John L.Hennessy,
+	David A. Patterson, John L.Hennessy, \newline
 	\emph{Computer Organization and Design - The Hardware/Software Interface}
 	Morgan Kaufmann, USA,
 	4th Edition, revised printing,
 	2012.
+	\bibitem{course}
+	TDT4255,
+	\emph{Computer Design}
+	Fall 2013,
+	NTNU, Norway
 	\bibitem{compendium}
-	Author,
+	Unknown Author(s),
 	\emph{Lab Assignments in TDT4255 Computer Design}
 	NTNU, Norway,
 	Version 3,
 	2013
+	\bibitem{slides-6}
+	Donn Morrison,
+	\emph{Lecture 6: Pipelining},\newline
+	http://www.idi.ntnu.no/emner/tdt4255/\_media/forelesning6-2013.pdf\newline
+	TDT4255 Computer Design,
+	NTNU, Norway,
+	Fall 2013
+	\bibitem{slides-7}
+	Donn Morrison,
+	\emph{Lecture 7: Hazards and exceptions},\newline
+	http://www.idi.ntnu.no/emner/tdt4255/\_media/forelesning7-2013.pdf\newline
+	TDT4255 Computer Design,
+	NTNU, Norway,
+	Fall 2013
 \end{thebibliography}
 
 
