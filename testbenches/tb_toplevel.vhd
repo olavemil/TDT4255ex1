@@ -98,6 +98,7 @@ ARCHITECTURE behavior OF tb_toplevel IS
 	constant ins1	: std_logic_vector(0 to 31) := X"8C020002"; --LW reg2 <- data2(10)
 	constant ins2	: std_logic_vector(0 to 31) := X"8C020002"; --LW reg2 <- data2(10)
 	constant ins3	: std_logic_vector(0 to 31) := X"00221820"; --ADD reg3 <- reg1 + reg2 (2 + 10)
+	
 	constant ins4	: std_logic_vector(0 to 31) := X"AC030005"; --SW addr5 <- reg3 (12)
 	constant ins5	: std_logic_vector(0 to 31) := X"10000002"; --BEQ 0==0, 2 forward
 	constant ins6	: std_logic_vector(0 to 31) := X"AC030003"; --SW addr3 <- reg3 (12)
@@ -115,7 +116,7 @@ ARCHITECTURE behavior OF tb_toplevel IS
 	constant ins17 : std_logic_vector(0 to 31) := X"0023102A"; --SLT reg2="FF..." if reg1<reg3, (2<8)
 	constant ins18 : std_logic_vector(0 to 31) := X"00232025"; --OR reg4 <- reg1 OR reg3 (10)
 	constant ins19 : std_logic_vector(0 to 31) := X"00242024"; --AND reg4 <- reg1 AND reg4 (2)
-	constant ins20 : std_logic_vector(0 to 31) := X"20040011"; --LDI reg4 <- "17"
+	constant ins20 : std_logic_vector(0 to 31) := X"20040011"; --LDI reg4  "17"
 	
 
 	-- Used to control the COM-module
@@ -235,192 +236,192 @@ BEGIN
 		bus_data_in <= zero;
 		wait for clk_period*3;
 
-		-- Add instruction 5
-		command <= CMD_WI;
-		bus_address_in <= addr5;
-		bus_data_in <= ins5;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 6
-		command <= CMD_WI;
-		bus_address_in <= addr6;
-		bus_data_in <= ins6;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 7
-		command <= CMD_WI;
-		bus_address_in <= addr7;
-		bus_data_in <= ins7;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 8
-		command <= CMD_WI;
-		bus_address_in <= addr8;
-		bus_data_in <= ins8;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 9
-		command <= CMD_WI;
-		bus_address_in <= addr9;
-		bus_data_in <= ins9;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 10
-		command <= CMD_WI;
-		bus_address_in <= addr10;
-		bus_data_in <= ins10;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 11
-		command <= CMD_WI;
-		bus_address_in <= addr11;
-		bus_data_in <= ins11;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 12
-		command <= CMD_WI;
-		bus_address_in <= addr12;
-		bus_data_in <= ins12;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 13
-		command <= CMD_WI;
-		bus_address_in <= addr13;
-		bus_data_in <= ins13;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 21
-		command <= CMD_WI;
-		bus_address_in <= addr14;
-		bus_data_in <= ins21;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 14
-		command <= CMD_WI;
-		bus_address_in <= addr15;
-		bus_data_in <= ins14;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 15
-		command <= CMD_WI;
-		bus_address_in <= addr16;
-		bus_data_in <= ins15;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 16
-		command <= CMD_WI;
-		bus_address_in <= addr17;
-		bus_data_in <= ins16;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 17
-		command <= CMD_WI;
-		bus_address_in <= addr18;
-		bus_data_in <= ins17;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 18
-		command <= CMD_WI;
-		bus_address_in <= addr19;
-		bus_data_in <= ins18;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 19
-		command <= CMD_WI;
-		bus_address_in <= addr20;
-		bus_data_in <= ins19;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-
-		-- Add instruction 20
-		command <= CMD_WI;
-		bus_address_in <= addr21;
-		bus_data_in <= ins20;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
+--		-- Add instruction 5
+--		command <= CMD_WI;
+--		bus_address_in <= addr5;
+--		bus_data_in <= ins5;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 6
+--		command <= CMD_WI;
+--		bus_address_in <= addr6;
+--		bus_data_in <= ins6;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 7
+--		command <= CMD_WI;
+--		bus_address_in <= addr7;
+--		bus_data_in <= ins7;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 8
+--		command <= CMD_WI;
+--		bus_address_in <= addr8;
+--		bus_data_in <= ins8;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 9
+--		command <= CMD_WI;
+--		bus_address_in <= addr9;
+--		bus_data_in <= ins9;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 10
+--		command <= CMD_WI;
+--		bus_address_in <= addr10;
+--		bus_data_in <= ins10;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 11
+--		command <= CMD_WI;
+--		bus_address_in <= addr11;
+--		bus_data_in <= ins11;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 12
+--		command <= CMD_WI;
+--		bus_address_in <= addr12;
+--		bus_data_in <= ins12;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 13
+--		command <= CMD_WI;
+--		bus_address_in <= addr13;
+--		bus_data_in <= ins13;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 21
+--		command <= CMD_WI;
+--		bus_address_in <= addr14;
+--		bus_data_in <= ins21;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 14
+--		command <= CMD_WI;
+--		bus_address_in <= addr15;
+--		bus_data_in <= ins14;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 15
+--		command <= CMD_WI;
+--		bus_address_in <= addr16;
+--		bus_data_in <= ins15;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 16
+--		command <= CMD_WI;
+--		bus_address_in <= addr17;
+--		bus_data_in <= ins16;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 17
+--		command <= CMD_WI;
+--		bus_address_in <= addr18;
+--		bus_data_in <= ins17;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 18
+--		command <= CMD_WI;
+--		bus_address_in <= addr19;
+--		bus_data_in <= ins18;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 19
+--		command <= CMD_WI;
+--		bus_address_in <= addr20;
+--		bus_data_in <= ins19;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--
+--		-- Add instruction 20
+--		command <= CMD_WI;
+--		bus_address_in <= addr21;
+--		bus_data_in <= ins20;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
 
 		-- Run CPU!
 		command <= CMD_RUN;
