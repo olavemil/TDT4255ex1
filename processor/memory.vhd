@@ -62,7 +62,7 @@ begin
 			--		MEM(i) <= (others => '0');
 			--	end loop;
 			--elsif MemWrite='1' then
-      if MemWrite='1' then
+			if MemWrite='1' then
 				MEM(to_integer(unsigned( W_ADDR((M-1) downto 0) ))) <= WRITE_DATA;
 			end if;
 			address_reg <= ADDR;

@@ -35,7 +35,7 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 
 entity processor is
 	port(
-		clk_in				: in	STD_LOGIC;
+		clk				: in	STD_LOGIC;
 		reset				: in	STD_LOGIC;
 		processor_enable	: in	STD_LOGIC;
 		imem_address 		: out	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
@@ -50,22 +50,24 @@ end processor;
 
 architecture behave of processor is
 
-	signal clk	: std_logic;
-
 --	Definition and signals for pipe_stage1
 	component pipe_stage1
 		port(
 			clk					: in	STD_LOGIC;
 			reset				: in	STD_LOGIC;
+			processor_enable	: in	STD_LOGIC;
 
 			--stuff
 			if_stall			: in	STD_LOGIC;
 			--From stage 2
 			pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			pc_we				: in	STD_LOGIC;
+			--to/from imem
+			instr_data			: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+			instr_addr			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			--To stage 2
 			pc_inc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-			pc_reg_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0)
+			instruction			: out	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0)
 		);
 	end component;
 
@@ -77,7 +79,8 @@ architecture behave of processor is
 		port(
 			clk				: in	STD_LOGIC;
 			reset			: in	STD_LOGIC;
-
+			processor_enable: in	STD_LOGIC;
+			
 			--in from stage 1
 			pc_in			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 
@@ -138,6 +141,7 @@ architecture behave of processor is
 	component pipe_stage3
 		port(
 			clk					: in	STD_LOGIC;
+			processor_enable	: in	STD_LOGIC;
 			--In from stage 2
 			func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
 			alu_op_in			: in	ALU_OP;
@@ -191,18 +195,22 @@ architecture behave of processor is
 	component pipe_stage4
 		port(
 			clk					: in	STD_LOGIC;
+			--from stage 3
 			wb_in				: in	STD_LOGIC;
-			wb_out				: out	STD_LOGIC;
-
-			alu_result_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			alu_result_out		: out	STD_LOGIC_VECTOR(N-1 downto 0);
-
 			reg_r_in			: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
-			reg_r_out			: out	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0)
+			dmem_data_in		: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+			alu_result_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			
+			--to stage 5
+			wb_out				: out	STD_LOGIC;
+			reg_r_out			: out	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
+			dmem_data_out		: out	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+			alu_result_out		: out	STD_LOGIC_VECTOR(N-1 downto 0)
 		);
 	end component;
 	signal stage_4_out_wb			: STD_LOGIC;
 	signal stage_4_out_alu_result	: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal stage_4_out_dmem_data	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 	signal stage_4_out_reg_r		: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 
 --	Definition and signals for forwarding unit
@@ -226,33 +234,34 @@ architecture behave of processor is
 --	Other
 	signal alu_mem_mux_out	: std_logic_vector(N-1 downto 0);
 begin
-	clk <= clk_in and processor_enable;
 	--STAGE 1
 	stage_1: pipe_stage1
 	port map(
 		clk					=> clk,
 		reset				=> reset,
+		processor_enable	=> processor_enable,
 		--ctrl
 		if_stall			=> stage_2_out_if_stall,
+		--to/from imem
+		instr_data			=> imem_data_in,
+		instr_addr			=> imem_address,
 		--in from stage 2
 		pc_in				=> stage_2_out_pc,
 		pc_we				=> stage_2_out_pc_we,
 		--out to stage 2
-		pc_reg_out			=> imem_address,
-		pc_inc_out			=> stage_1_out_pc
+		pc_inc_out			=> stage_1_out_pc,
+		instruction			=> stage_1_out_instruction
 	);
-	stage_1_out_instruction <= imem_data_in;
-
+	
 	--STAGE 2
 	stage_2: pipe_stage2
 	port map(
 		clk				=> clk,
 		reset			=> reset,
+		processor_enable=> processor_enable,
 
 		--in from stage 1
 		pc_in			=> stage_1_out_pc,
-
-		--in from instruction memory
 		instruction_in	=> stage_1_out_instruction,
 
 		--in from stage 4/5
@@ -287,6 +296,7 @@ begin
 	stage_3: pipe_stage3
 	port map(
 		clk				=> clk,
+		processor_enable=> processor_enable,
 		--in from stage 2
 		func_in			=> stage_2_out_func,
 		alu_op_in		=> stage_2_out_alu_op,
@@ -353,21 +363,22 @@ begin
 		clk				=> clk,
 		--in from stage 3
 		wb_in			=> stage_3_out_wb,
-
-		alu_result_in	=> stage_3_out_alu_result,
 		reg_r_in		=> stage_3_out_reg_r,
+		dmem_data_in	=> dmem_data_in,
+		alu_result_in	=> stage_3_out_alu_result,
 		--out to stage 5/1
 		wb_out			=> stage_4_out_wb,
-		alu_result_out	=> stage_4_out_alu_result,
-		reg_r_out		=> stage_4_out_reg_r
+		reg_r_out		=> stage_4_out_reg_r,
+		dmem_data_out	=> stage_4_out_dmem_data,
+		alu_result_out	=> stage_4_out_alu_result
 	);
 	
-	alu_mem_mux : process(stage_2_out_mem_to_reg, stage_4_out_alu_result, dmem_data_in)
+	alu_mem_mux : process(stage_2_out_mem_to_reg, stage_4_out_alu_result, stage_4_out_dmem_data)
 	begin
 		if stage_2_out_mem_to_reg = '1' then
 			alu_mem_mux_out <= stage_4_out_alu_result;
 		else
-			alu_mem_mux_out <= dmem_data_in;
+			alu_mem_mux_out <= stage_4_out_dmem_data;
 		end if;
 	end process;
 	--STAGE 5

@@ -9,21 +9,26 @@ entity pipe_stage1 is
 	port(
 		clk					: in	STD_LOGIC;
 		reset				: in	STD_LOGIC;
+		processor_enable	: in	STD_LOGIC;
 		--Horrible things
 		if_stall			: in	STD_LOGIC;
 		--From stage 2
 		pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		pc_we				: in	STD_LOGIC;
+		--to/from imem
+		instr_data			: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+		instr_addr			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		--To stage 2
 		pc_inc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-		--TO IMEM
-		pc_reg_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0)
+		instruction			: out	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0)
 	);
 end pipe_stage1;
 
 architecture behave of pipe_stage1 is
 	-- Program counter signals
 	signal pc_inc, pc_inc_reg, pc_reg	: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+	signal instr_reg	: STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+	
 	component adder
 	generic (N: natural);
 		port(
@@ -47,25 +52,30 @@ begin
 	program_counter_register : process(clk, pc_in, pc_reg)
 	begin
 		if rising_edge(clk) then
-			if pc_we = '1' then
+			if reset = '1' then
+				pc_reg <= ext("0", IADDR_BUS);
+			elsif pc_we = '1' and processor_enable = '1' then
 				pc_reg <= pc_in;
 			else
 				pc_reg <= pc_reg;
 			end if;
 		end if;
 	end process;
-	pc_reg_out	<= pc_reg;
+	instr_addr	<= pc_reg;
 
 
-	if_id_register : process(clk, if_stall)
+	if_id_register : process(clk, processor_enable, if_stall)
 	begin
-		if rising_edge(clk) then
-			if if_stall = '0' then
+		if rising_edge(clk) and processor_enable = '1' then
+			if if_stall = '0'  then
 				pc_inc_reg <= pc_inc;
+				instr_reg <= instr_data;
 			else
 				pc_inc_reg <= pc_inc_reg;
+				instr_reg <= instr_reg;
 			end if;
 		end if;
 	end process;
 	pc_inc_out	<= pc_inc_reg;
+	instruction <= instr_reg;
 end behave;

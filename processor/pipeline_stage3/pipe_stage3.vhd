@@ -7,7 +7,8 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 
 entity pipe_stage3 is
 	port (
-		clk				 : in	STD_LOGIC;
+		clk				 	: in	STD_LOGIC;
+		processor_enable	: in	STD_LOGIC;
 		--In from stage 2
 		func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
 		alu_op_in			: in	ALU_OP;
@@ -164,9 +165,9 @@ begin
 		end if;
 	end process;
 	--Pipeline registers for stage 3
-	pipeline_regz_yo : process(clk)
+	pipeline_regz_yo : process(clk, processor_enable)
 	begin
-		if rising_edge(clk) then
+		if rising_edge(clk) and processor_enable = '1'  then
 			wb_out			<= wb_in;
 			m_we_out		<= m_we_in;
 			alu_result_out	<= alu_result;

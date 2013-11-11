@@ -9,12 +9,13 @@ entity pipe_stage2 is
 	port(
 		clk				: in	STD_LOGIC;
 		reset			: in	STD_LOGIC;
+		processor_enable: in	STD_LOGIC;
 
 		--in from stage 1
 		pc_in			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 
 		--in from instruction memory
-		instruction_in	: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+		instruction_in		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 
 		--in from stage 4/5
 		reg_r_in		: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
@@ -88,7 +89,8 @@ architecture behave of pipe_stage2 is
 			stage2_rt			: in	STD_LOGIC_VECTOR(4 downto 0);
 			mem_read			: in	STD_LOGIC;
 			--Also stage1 programcounter stall when equal to zero
-			--if_stall			: out	STD_LOGIC;
+			nops				: out	STD_LOGIC;
+			if_id_stall			: out	STD_LOGIC;
 			pc_wr_enb			: out	STD_LOGIC
 		);
 	end component;
@@ -109,10 +111,12 @@ architecture behave of pipe_stage2 is
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 
 	--Internal signals
+	signal nops					: STD_LOGIC;
 	signal flush				: STD_LOGIC;
 	signal reg_rt_reg			: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 	signal imm_val_reg			: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 	signal branch_offset		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+	signal instruction			: STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 	
 	signal branch_enable		: STD_LOGIC;
 	signal branch_mux_out		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -131,21 +135,29 @@ architecture behave of pipe_stage2 is
 	signal hdu_reset 			: STD_LOGIC := '0';
 
 begin
-	imm_val_reg		<= SXT(instruction_in(15 downto 0), DDATA_BUS);
-	branch_offset	<= SXT(instruction_in(15 downto 0), IADDR_BUS);
-	func_out		<= instruction_in(5 downto 0);
+	if_id_flush	: process(flush, instruction_in)
+	begin
+		if flush = '1' then
+			instruction <= zero32b;
+		else
+			instruction <= instruction_in;
+		end if;
+	end process;
+	imm_val_reg		<= SXT(instruction(15 downto 0), DDATA_BUS);
+	branch_offset	<= SXT(instruction(15 downto 0), IADDR_BUS);
+	func_out		<= instruction(5 downto 0);
 
 	registers: register_file
 	port map(
 		CLK			=> clk,
 		RESET		=> reset, --hdu_reset, --this?
 		RW			=> wb_in,
-		RS_ADDR		=> instruction_in(25 downto 21),
-		RT_ADDR		=> instruction_in(20 downto 16),
+		RS_ADDR		=> instruction(25 downto 21),
+		RT_ADDR		=> instruction(20 downto 16),
 		RD_ADDR		=> reg_r_in,
 		WRITE_DATA	=> data_in,
-		RS			=> alu_reg_1_out,
-		RT			=> alu_reg_2_out
+		RS			=> reg_rs_data,
+		RT			=> reg_rt_data
 	);
 
 	branch_adder: adder
@@ -159,7 +171,7 @@ begin
 	
 	branch_mux: process(branch_enable, reg_rs_data, reg_rt_data, branch_target, pc_in)
 	begin
-		if branch_enable = '1' and reg_rs_data = reg_rt_data then
+		if branch_enable = '1' and (reg_rs_data = reg_rt_data) then
 			branch_mux_out <= branch_target;
 			flush <= '1';
 		else
@@ -168,10 +180,10 @@ begin
 		end if;
 	end process;
 	
-	jump_mux: process(jump_enable, pc_in, instruction_in, branch_mux_out)
+	jump_mux: process(jump_enable, pc_in, instruction, branch_mux_out)
 	begin
 		if jump_enable = '1' then
-			pc_out <= instruction_in(IADDR_BUS-1 downto 0);
+			pc_out <= instruction(IADDR_BUS-1 downto 0);
 		else
 			pc_out <= branch_mux_out;
 		end if;
@@ -181,12 +193,13 @@ begin
 	port map(
 		clk			=> clk,
 		reset		=> reset,
-		stage1_rs	=> instruction_in(25 downto 21),
-		stage1_rt	=> instruction_in(20 downto 16),
+		stage1_rs	=> instruction(25 downto 21),
+		stage1_rt	=> instruction(20 downto 16),
 		stage2_rt	=> reg_rt_reg,
 		mem_read	=> mem_to_reg_internal,
 		--Also stage1 programcounter stall when equal to zero
-		--if_stall	=> if_stall,
+		nops		=> nops,
+		if_id_stall	=> if_stall,
 		pc_wr_enb	=> pc_we
 	);
 
@@ -194,7 +207,7 @@ begin
 	port map(
 		CLK			=> clk,
 		RESET		=> reset,
-		OpCode		=> instruction_in(31 downto 26),
+		OpCode		=> instruction(31 downto 26),
 		ALUOp		=> alu_op_internal,
 		RegDst		=> reg_dst_internal,
 		Branch		=> branch_enable,--TODO
@@ -202,21 +215,24 @@ begin
 		MemWrite	=> mem_wr_internal,
 		ALUSrc		=> alu_src_internal,
 		RegWrite	=> reg_wr_internal,
-		Jump		=> jump_enable--TODO say whaaat? Har vi ikke jump?
+		Jump		=> jump_enable--TODO say whaaat? Har vi ikke jump? now we do.
 	);
 
-	write_buffer_register: process(clk, reg_rt_reg)
+	write_buffer_register: process(clk, processor_enable, reg_rt_reg, reg_rt_data, reg_rs_data)
 	begin
-		if rising_edge(clk) then
-			reg_rs_out				<= instruction_in(25 downto 21);
-			reg_rt_reg				<= instruction_in(20 downto 16);
-			reg_rd_out				<= instruction_in(15 downto 11);
+		if rising_edge(clk) and processor_enable = '1' then
+			reg_rs_out				<= instruction(25 downto 21);
+			reg_rt_reg				<= instruction(20 downto 16);
+			reg_rd_out				<= instruction(15 downto 11);
+			alu_reg_1_out 			<= reg_rt_data;
+			alu_reg_2_out 			<= reg_rs_data;
+			
 			imm_val_out				<= imm_val_reg;
 			alu_op_out				<= alu_op_internal;
 			alu_src_out				<= alu_src_internal;
 			reg_dst_out				<= reg_dst_internal;
 			mem_to_reg				<= mem_to_reg_internal;
-			if nops = '0' then
+			if nops = '0' and flush = '0' then
 				wb_out		<= reg_wr_internal;
 				m_we_out	<= mem_wr_internal;
 			else
