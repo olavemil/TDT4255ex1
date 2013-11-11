@@ -94,28 +94,29 @@ ARCHITECTURE behavior OF tb_toplevel IS
 
 	-- These are the instructions executed by the CPU (loaded to instruction-memory)
 	-- See ins.txt for what they actually mean (that is a file used when loading them to the FPGA)
-	constant ins0	: std_logic_vector(0 to 31) := X"8C010001";
-	constant ins1	: std_logic_vector(0 to 31) := X"8C020002";
-	constant ins2	: std_logic_vector(0 to 31) := X"8C020002";
-	constant ins3	: std_logic_vector(0 to 31) := X"00221820";
-	constant ins4	: std_logic_vector(0 to 31) := X"AC030005";
-	constant ins5	: std_logic_vector(0 to 31) := X"10000002";
-	constant ins6	: std_logic_vector(0 to 31) := X"AC030003";
-	constant ins7	: std_logic_vector(0 to 31) := X"AC030004";
-	constant ins8	: std_logic_vector(0 to 31) := X"AC030006";
-	constant ins9	: std_logic_vector(0 to 31) := X"AC030007";
-	constant ins10 : std_logic_vector(0 to 31) := X"3C030006";
-	constant ins11 : std_logic_vector(0 to 31) := X"AC030008";
-	constant ins12 : std_logic_vector(0 to 31) := X"00231820";
-	constant ins13 : std_logic_vector(0 to 31) := X"AC030009";
-	constant ins14 : std_logic_vector(0 to 31) := X"1000FFFD";
-	constant ins15 : std_logic_vector(0 to 31) := X"AC03000A";
-	constant ins16 : std_logic_vector(0 to 31) := X"00611822";--SUB
-	constant ins17 : std_logic_vector(0 to 31) := X"0023102A";--SLT
-	constant ins18 : std_logic_vector(0 to 31) := X"00232025";--OR
-	constant ins19 : std_logic_vector(0 to 31) := X"00242024";--AND
-	constant ins20 : std_logic_vector(0 to 31) := X"20040011";--LDI
-	constant ins21 : std_logic_vector(0 to 31) := X"08000010";--JMP
+	constant ins0	: std_logic_vector(0 to 31) := X"8C010001"; --LW reg1 <- data1(2)
+	constant ins1	: std_logic_vector(0 to 31) := X"8C020002"; --LW reg2 <- data2(10)
+	constant ins2	: std_logic_vector(0 to 31) := X"8C020002"; --LW reg2 <- data2(10)
+	constant ins3	: std_logic_vector(0 to 31) := X"00221820"; --ADD reg3 <- reg1 + reg2 (2 + 10)
+	constant ins4	: std_logic_vector(0 to 31) := X"AC030005"; --SW addr5 <- reg3 (12)
+	constant ins5	: std_logic_vector(0 to 31) := X"10000002"; --BEQ 0==0, 2 forward
+	constant ins6	: std_logic_vector(0 to 31) := X"AC030003"; --SW addr3 <- reg3 (12)
+	constant ins7	: std_logic_vector(0 to 31) := X"AC030004"; --SW addr4 <- reg3 (12)
+	constant ins8	: std_logic_vector(0 to 31) := X"AC030006"; --Branch here. SW addr6 <- reg3
+	constant ins9	: std_logic_vector(0 to 31) := X"AC030007"; --SW addr7 <- reg3 (12)
+	constant ins10 : std_logic_vector(0 to 31) := X"3C030006"; --LDI reg3 <- "6"
+	constant ins11 : std_logic_vector(0 to 31) := X"AC030008"; --SW addr8 <- reg3 (6)
+	constant ins12 : std_logic_vector(0 to 31) := X"00231820"; --ADD reg3 <- reg1 + reg3 (8), Branch here
+	constant ins13 : std_logic_vector(0 to 31) := X"AC030009"; --SW addr9 <- reg3 (6)
+	constant ins21 : std_logic_vector(0 to 31) := X"08000010"; --JMP to line 16 
+	constant ins14 : std_logic_vector(0 to 31) := X"1000FFFD"; --BEQ 0==0, -3
+	constant ins15 : std_logic_vector(0 to 31) := X"AC03000A"; --SW addr10 <- reg3 (6), JMP here
+	constant ins16 : std_logic_vector(0 to 31) := X"00611822"; --SUB reg3 <- reg3 - reg1
+	constant ins17 : std_logic_vector(0 to 31) := X"0023102A"; --SLT reg2="FF..." if reg1<reg3, (2<8)
+	constant ins18 : std_logic_vector(0 to 31) := X"00232025"; --OR reg4 <- reg1 OR reg3 (10)
+	constant ins19 : std_logic_vector(0 to 31) := X"00242024"; --AND reg4 <- reg1 AND reg4 (2)
+	constant ins20 : std_logic_vector(0 to 31) := X"20040011"; --LDI reg4 <- "17"
+	
 
 	-- Used to control the COM-module
 	constant CMD_IDLE	: std_logic_vector(0 to 31) := "00000000000000000000000000000000";

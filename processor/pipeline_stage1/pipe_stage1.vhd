@@ -65,13 +65,13 @@ begin
 	instr_addr	<= pc_reg;
 
 
-	if_id_register : process(clk, processor_enable, if_stall, if_flush)
+	if_id_register : process(clk, processor_enable, if_stall, if_flush, instr_reg, pc_inc_reg)
 	begin
 		if rising_edge(clk) and processor_enable = '1' then
 			if if_flush = '1' then
 				pc_inc_reg <= pc_inc_reg;
 				instr_reg <= ZERO32b(IDATA_BUS-1 downto 0);
-			elsif if_stall = '0'  then
+			elsif if_stall = '1'  then
 				pc_inc_reg <= pc_inc_reg;
 				instr_reg <= instr_reg;
 			else

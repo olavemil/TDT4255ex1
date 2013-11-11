@@ -27,6 +27,9 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+
+library WORK;
+use WORK.MIPS_CONSTANT_PKG.ALL;
  
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -40,18 +43,18 @@ ARCHITECTURE behavior OF tb_processor IS
     -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT processor
-    PORT(
-         clk : IN  std_logic;
-         reset : IN  std_logic;
-         processor_enable : IN  std_logic;
-         imem_address : OUT  std_logic_vector(31 downto 0);
-         imem_data_in : IN  std_logic_vector(31 downto 0);
-         dmem_data_in : IN  std_logic_vector(31 downto 0);
-         dmem_address : OUT  std_logic_vector(31 downto 0);
-         dmem_address_wr : OUT  std_logic_vector(31 downto 0);
-         dmem_data_out : OUT  std_logic_vector(31 downto 0);
-         dmem_write_enable : OUT  std_logic
-        );
+    port(
+		clk				: in	STD_LOGIC;
+		reset				: in	STD_LOGIC;
+		processor_enable	: in	STD_LOGIC;
+		imem_address 		: out	STD_LOGIC_VECTOR (IADDR_BUS-1 downto 0);
+		imem_data_in 		: in	STD_LOGIC_VECTOR (IDATA_BUS-1 downto 0);
+		dmem_data_in 		: in	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+		dmem_address 		: out	STD_LOGIC_VECTOR (DADDR_BUS-1 downto 0);
+		dmem_address_wr		: out	STD_LOGIC_VECTOR (DADDR_BUS-1 downto 0);
+		dmem_data_out		: out	STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+		dmem_write_enable	: out	STD_LOGIC
+		);
     END COMPONENT;
     
 
@@ -59,14 +62,14 @@ ARCHITECTURE behavior OF tb_processor IS
    signal clk : std_logic := '0';
    signal reset : std_logic := '0';
    signal processor_enable : std_logic := '0';
-   signal imem_data_in : std_logic_vector(31 downto 0) := (others => '0');
-   signal dmem_data_in : std_logic_vector(31 downto 0) := (others => '0');
+   signal imem_data_in : std_logic_vector(IDATA_BUS-1 downto 0) := (others => '0');
+   signal dmem_data_in : std_logic_vector(DDATA_BUS-1 downto 0) := (others => '0');
 
  	--Outputs
-   signal imem_address : std_logic_vector(31 downto 0);
-   signal dmem_address : std_logic_vector(31 downto 0);
-   signal dmem_address_wr : std_logic_vector(31 downto 0);
-   signal dmem_data_out : std_logic_vector(31 downto 0);
+   signal imem_address : std_logic_vector(IADDR_BUS-1 downto 0);
+   signal dmem_address : std_logic_vector(DADDR_BUS-1 downto 0);
+   signal dmem_address_wr : std_logic_vector(DADDR_BUS-1 downto 0);
+   signal dmem_data_out : std_logic_vector(DDATA_BUS-1 downto 0);
    signal dmem_write_enable : std_logic;
 
    -- Clock period definitions
@@ -106,11 +109,32 @@ BEGIN
 		reset <= '1';
 		wait for clk_period;
 		reset <= '0';
+		
 		wait for clk_period*3;
+		
+		
+		
 
 		-- insert stimulus here 
-		imem_data_in <= "001000"&"00000"&"00001"&"0000000000000010";
-	  
+		imem_data_in <= X"20010002"; --LDI reg1  "2"
+		wait for clk_period;
+		
+		imem_data_in <= X"2002000A"; --LDI reg2  "10"
+		wait for clk_period;
+		
+		
+		imem_data_in <= X"00221820"; --ADD reg3 <- reg1 + reg2 (2 + 10)
+		wait for clk_period;
+		assert dmem_address = x"02" report "LDI not working!"; 
+		
+		wait for clk_period;
+		assert dmem_address = x"0A" report "LDI not working!";
+		
+		wait for clk_period;
+		assert dmem_address = x"0C" report "ADD not working!";
+
+			
+		
 
       wait;
    end process;
