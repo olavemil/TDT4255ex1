@@ -20,6 +20,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
+library work;
+use work.mips_constant_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -33,7 +35,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity com is
     
   generic (
-    MEM_ADDR_BUS    : integer := 32;
+    MEM_ADDR_BUS    : integer := MEM_ADDR_COUNT;
     MEM_DATA_BUS    : integer := 32;
     INPUT_BUS_WIDTH : integer := 32);
 

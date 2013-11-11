@@ -36,7 +36,7 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 entity toplevel is
 
 	generic (
-		MEM_ADDR_BUS	: integer	:= 32;
+		MEM_ADDR_BUS	: integer	:= MEM_ADDR_COUNT;
 		MEM_DATA_BUS	: integer	:= 32 );
 
 	Port (
@@ -91,10 +91,10 @@ architecture Behavioral of toplevel is
 		port(
 			CLK			: in STD_LOGIC;
 			RESET		: in STD_LOGIC;
-			W_ADDR		: in STD_LOGIC_VECTOR (N-1 downto 0);	-- Address to write data
+			W_ADDR		: in STD_LOGIC_VECTOR (M-1 downto 0);	-- Address to write data
 			WRITE_DATA	: in STD_LOGIC_VECTOR (N-1 downto 0);	-- Data to be written
 			MemWrite	: in STD_LOGIC;									-- Write Signal
-			ADDR		: in STD_LOGIC_VECTOR (N-1 downto 0);	-- Address to access data
+			ADDR		: in STD_LOGIC_VECTOR (M-1 downto 0);	-- Address to access data
 			READ_DATA	: out STD_LOGIC_VECTOR (N-1 downto 0)		-- Data read from memory
 		);
 	end component MEMORY;

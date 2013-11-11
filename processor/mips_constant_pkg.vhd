@@ -10,14 +10,14 @@ use IEEE.STD_LOGIC_1164.all;
 package MIPS_CONSTANT_PKG is
 
 	-- CONSTANTS
+	constant MEM_ADDR_COUNT	: integer	:= 8;
+	
 	constant N			: integer	:= 32;
-	constant IADDR_BUS	: integer	:= 32;
+	constant IADDR_BUS	: integer	:= MEM_ADDR_COUNT;
 	constant IDATA_BUS	: integer	:= 32;
-	constant DADDR_BUS	: integer	:= 32;
+	constant DADDR_BUS	: integer	:= MEM_ADDR_COUNT;
 	constant DDATA_BUS	: integer	:= 32;
 	constant RADDR_BUS	: integer	:= 5;
-
-	constant MEM_ADDR_COUNT	: integer	:= 8;
 
 	constant ZERO1b		: STD_LOGIC						:=	'0';
 	constant ZERO32b	: STD_LOGIC_VECTOR(31 downto 0)	:=	"00000000000000000000000000000000";

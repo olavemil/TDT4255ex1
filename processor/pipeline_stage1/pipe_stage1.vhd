@@ -11,7 +11,6 @@ entity pipe_stage1 is
 		reset				: in	STD_LOGIC;
 		--Horrible things
 		if_stall			: in	STD_LOGIC;
-		if_flush_sig		: in	STD_LOGIC;
 		--From stage 2
 		pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		pc_we				: in	STD_LOGIC;
@@ -24,7 +23,7 @@ end pipe_stage1;
 
 architecture behave of pipe_stage1 is
 	-- Program counter signals
-	signal pc_inc, pc_inc_reg, pc_reg	: STD_LOGIC_VECTOR(N-1 downto 0);
+	signal pc_inc, pc_inc_reg, pc_reg	: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 	component adder
 	generic (N: natural);
 		port(
@@ -37,10 +36,10 @@ architecture behave of pipe_stage1 is
 	end component;
 begin
 	pc_incrementer : adder
-	generic map(N => 32)
+	generic map(N => IADDR_BUS)
 	port map(
 		X	=> pc_reg,
-		Y 	=> ZERO32b,
+		Y 	=> ZERO32b(IADDR_BUS-1 downto 0),
 		CIN	=> '1',
 		R 	=> pc_inc
 	);
@@ -58,7 +57,7 @@ begin
 	pc_reg_out	<= pc_reg;
 
 
-	if_id_register : process(clk, if_stall, if_flush_sig)
+	if_id_register : process(clk, if_stall)
 	begin
 		if rising_edge(clk) then
 			if if_stall = '0' then
