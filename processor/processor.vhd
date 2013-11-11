@@ -144,7 +144,7 @@ architecture behave of processor is
 			processor_enable	: in	STD_LOGIC;
 			--In from stage 2
 			func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
-			alu_op_in			: in	ALU_OP;
+			alu_ctrl_op_in			: in	ALU_OP;
 
 			m_we_in,
 			wb_in				: in	STD_LOGIC;
@@ -301,7 +301,7 @@ begin
 		processor_enable=> processor_enable,
 		--in from stage 2
 		func_in			=> stage_2_out_func,
-		alu_op_in		=> stage_2_out_alu_op,
+		alu_ctrl_op_in		=> stage_2_out_alu_op,
 
 		m_we_in			=> stage_2_out_m_we,
 		wb_in			=> stage_2_out_wb,
