@@ -50,7 +50,7 @@ entity pipe_stage2 is
 end pipe_stage2;
 
 architecture behave of pipe_stage2 is
-	
+
 	component register_file is
 		port(
 			CLK				: in	STD_LOGIC;
@@ -117,7 +117,7 @@ architecture behave of pipe_stage2 is
 	signal reg_rt_reg			: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 	signal imm_val_reg			: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 	signal branch_offset		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-	
+
 	signal branch_enable		: STD_LOGIC;
 	signal branch_mux_out		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 	signal branch_target		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -130,9 +130,6 @@ architecture behave of pipe_stage2 is
 	signal alu_src_internal		: STD_LOGIC;
 	signal reg_wr_internal		: STD_LOGIC;
 	signal jump_enable			: std_logic;
-
-	--hazard detection unit signals
-	signal hdu_reset 			: STD_LOGIC := '0';
 
 begin
 	imm_val_reg		<= SXT(instruction(15 downto 0), DDATA_BUS);
@@ -161,7 +158,7 @@ begin
 		CIN		=> '0',
 		R		=> branch_target
 	);
-	
+
 	branch_mux: process(branch_enable, reg_rs_data, reg_rt_data, branch_target, pc_in)
 	begin
 		if branch_enable = '1' and (reg_rs_data = reg_rt_data) then
@@ -172,7 +169,7 @@ begin
 			flush <= '0';
 		end if;
 	end process;
-	
+
 	jump_mux: process(jump_enable, pc_in, instruction, branch_mux_out)
 	begin
 		if jump_enable = '1' then
@@ -208,7 +205,7 @@ begin
 		MemWrite	=> mem_wr_internal,
 		ALUSrc		=> alu_src_internal,
 		RegWrite	=> reg_wr_internal,
-		Jump		=> jump_enable--TODO say whaaat? Har vi ikke jump? now we do.
+		Jump		=> jump_enable
 	);
 
 	write_buffer_register: process(clk, processor_enable, reg_rt_reg, reg_rt_data, reg_rs_data)
@@ -219,7 +216,7 @@ begin
 			reg_rd_out				<= instruction(15 downto 11);
 			alu_reg_1_out 			<= reg_rt_data;
 			alu_reg_2_out 			<= reg_rs_data;
-			
+
 			imm_val_out				<= imm_val_reg;
 			alu_op_out				<= alu_op_internal;
 			alu_src_out				<= alu_src_internal;
