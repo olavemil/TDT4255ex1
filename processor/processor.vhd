@@ -60,7 +60,6 @@ architecture behave of processor is
 
 			--stuff
 			if_stall			: in	STD_LOGIC;
-			if_flush_sig		: in	STD_LOGIC;
 			--From stage 2
 			pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			pc_we				: in	STD_LOGIC;
@@ -112,9 +111,7 @@ architecture behave of processor is
 			reg_rd_out		: out	STD_LOGIC_VECTOR(4 downto 0);
 
 			--out to forwarding unit
-			reg_rs_out		: out	STD_LOGIC_VECTOR(4 downto 0);
-			--flush
-			flush_out			: out	STD_LOGIC
+			reg_rs_out		: out	STD_LOGIC_VECTOR(4 downto 0)
 		);
 	end component;
 	signal stage_2_out_pc_src		: STD_LOGIC;
@@ -237,7 +234,6 @@ begin
 		reset				=> reset,
 		--ctrl
 		if_stall			=> stage_2_out_if_stall,
-		if_flush_sig		=> stage_2_out_flush,
 		--in from stage 2
 		pc_in				=> stage_2_out_pc,
 		pc_we				=> stage_2_out_pc_we,
@@ -284,9 +280,7 @@ begin
 		reg_rt_out		=> stage_2_out_reg_rt,
 		reg_rd_out		=> stage_2_out_reg_rd,
 		--out to forwarding unit
-		reg_rs_out		=> stage_2_out_reg_rs,
-		--flush
-		flush_out			=> stage_2_out_flush
+		reg_rs_out		=> stage_2_out_reg_rs
 	);
 
 	--STAGE 3
@@ -350,9 +344,9 @@ begin
 		reg_2_mux_control_out	=> fw_reg_2_mux_control
 	);
 	--STAGE 4
-	dmem_address_wr		<= stage_3_out_dmem_data;
-	dmem_address		<= stage_3_out_dmem_data;
-	dmem_data_out		<= stage_3_out_alu_result;
+	dmem_address_wr		<= stage_3_out_alu_result(DADDR_BUS-1 downto 0);
+	dmem_address		<= stage_3_out_alu_result(DADDR_BUS-1 downto 0);
+	dmem_data_out		<= stage_3_out_dmem_data;
 
 	stage_4: pipe_stage4
 	port map(

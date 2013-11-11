@@ -43,9 +43,7 @@ entity pipe_stage2 is
 		reg_rd_out		: out	STD_LOGIC_VECTOR(4 downto 0);
 
 		--out to forwarding unit
-		reg_rs_out		: out	STD_LOGIC_VECTOR(4 downto 0);
-		--Flush
-		flush_out		: out	STD_LOGIC
+		reg_rs_out		: out	STD_LOGIC_VECTOR(4 downto 0)
 	);
 end pipe_stage2;
 
@@ -112,7 +110,8 @@ architecture behave of pipe_stage2 is
 	--Internal signals
 	signal flush				: STD_LOGIC;
 	signal reg_rt_reg			: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
-	signal sxt_signal_intrnl	: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal imm_val_reg			: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal branch_offset		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 	
 	signal branch_enable		: STD_LOGIC;
 	signal branch_mux_out		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -131,7 +130,9 @@ architecture behave of pipe_stage2 is
 	signal hdu_reset 			: STD_LOGIC := '0';
 
 begin
-	sxt_signal_intrnl		<= SXT(instruction_in(15 downto 0), 32);
+	imm_val_reg		<= SXT(instruction_in(15 downto 0), DDATA_BUS);
+	branch_offset	<= EXT(instruction_in(15 downto 0), IADDR_BUS);
+	
 
 	registers: register_file
 	port map(
@@ -147,9 +148,9 @@ begin
 	);
 
 	branch_adder: adder
-	generic map(N => 32)
+	generic map(N => IADDR_BUS)
 	port map(
-		X		=> sxt_signal_intrnl,
+		X		=> branch_offset,
 		Y		=> pc_in,
 		CIN		=> '0',
 		R		=> branch_target
@@ -169,7 +170,7 @@ begin
 	jump_mux: process(jump_enable, pc_in, instruction_in, branch_mux_out)
 	begin
 		if jump_enable = '1' then
-			pc_out <= pc_in(31 downto 26) & instruction_in(25 downto 0);
+			pc_out <= instruction_in(IADDR_BUS-1 downto 0);
 		else
 			pc_out <= branch_mux_out;
 		end if;
@@ -210,7 +211,7 @@ begin
 			reg_rd_out				<= instruction_in(15 downto 11);
 			alu_reg_1_out			<= reg_rs_data;
 			alu_reg_2_out			<= reg_rt_data;
-			imm_val_out				<= sxt_signal_intrnl;
+			imm_val_out				<= imm_val_reg;
 			alu_op_out				<= alu_op_internal;
 			if flush = '0' then
 				wb_out		<= reg_wr_internal;
