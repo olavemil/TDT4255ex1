@@ -54,7 +54,7 @@ begin
 	begin
 		if rising_edge(clk) then
 			if reset = '1' then
-				pc_reg	<= X"00000000";
+				pc_reg	<= "00000000";
 			elsif pc_we = '1' and processor_enable = '1' then
 				if branch_enable = '1' then
 					pc_reg	<= pc_in;
