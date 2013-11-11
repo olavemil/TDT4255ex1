@@ -1,46 +1,23 @@
 \section{Description of the exercise}
 
-\subsection{Description introduction}
-
-In this second assignment, we have extended the processor from the previous
-assignment by changing the datapath into a pipeline. This had the consequence
-that pipelines had to be added to the design, as well as write a new control
-module to support the pipeline processing.
-\paragraph*{}
-Additionally, we have
-implemented a hazard detection unit and a forwarding unit to guard the
-processor from hazards by using correction techniques. The forwarding unit
-sends data yet to be written to memory to previous pipeline stages where later
-instructions need the current values. The hazard detection unit inserts
-``bubbles'' into the pipeline, stalling a selected stage for the duration of a
-pipeline clockcycle. It does this to stop a new instruction reading from a
-register which a previous instruction is currently writing to.
-\paragraph*{}
-Both these units have but one intention and consequence, and that is
-implementing a more efficient design of the pipelined processor by avoiding
-stalls and hazards.
+For this assignment, the design from the previous assignment was to be extended
+ with pipelining, hazard control and optimizations relating to this. These are all
+ steps that aim to improve the efficiency and throughput of the processor. While
+ much of the structure remained the same, many components had to be refined,
+ or written from scratch.
 
 \subsection{Assignment requirements}
-\emph{The below text has been copied from the Course Compendium
-\cite{compendium}.}\newline
+\emph{The task as stated in the compendium \cite{compendium}.}\newline
 ``The major requirement of this assignment is a simple 5-stage pipelined
 processor. In general, the processor has the same functional requirements as in
-the previous assignment. Additionally, you need to implement diﬀerent hazard
-detection and correction techniques. You will also use the same test set up. To
-help you on the way, we have made a suggestion from which you can work on. It is
-wise to make a processor which relies on the design from the previous assignment
-so that you can reuse the test benches and test programs.''
+the previous assignment. Additionally, you need to implement different hazard
+detection and correction techniques.''
 \paragraph*{}
-In consequence, we interpreted this to mean that we needed the following:
+The goals for this assignment has therefore been, in the following order:
 \begin{enumerate}
-	\item A pipelined processor.
-	\begin{enumerate}
-		\item With five pipeline stages.
-	\end{enumerate}
-	\item The processors functionality will be based on the functionality of a
-``MIPS'' processor.
-	\item A Forwarding unit to deal with some of the hazards a pipelined
-processor brings.
-	\item A Hazard Detection unit to deal with the hazards that occur when a
-processor reads and writes in two different pipeline stages.
+	\item Divide the processor into pipeline stages.
+	\item Reuse code that can be reused.
+	\item Implement forwarding.
+	\item Implement data hazard detection and correction with stalling.
+	\item Implement control hazard avoidance with improved branching and flushing.
 \end{enumerate}
