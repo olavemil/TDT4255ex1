@@ -62,6 +62,7 @@ architecture behave of processor is
 			if_flush			: in	STD_LOGIC;
 			--From stage 2
 			pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+			branch_enable		: in	STD_LOGIC;
 			pc_we				: in	STD_LOGIC;
 			--to/from imem
 			instr_data			: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
@@ -97,6 +98,7 @@ architecture behave of processor is
 			pc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			if_stall		: out	STD_LOGIC;
 			if_flush		: out	STD_LOGIC;
+			branch_out		: out	STD_LOGIC;
 
 			--out to stage 3
 				--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
