@@ -14,6 +14,7 @@ entity pipe_stage1 is
 		if_flush			: in	STD_LOGIC;
 		--From stage 2
 		pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+		branch_enable		: in	STD_LOGIC;
 		pc_we				: in	STD_LOGIC;
 		--To imem
 		instr_data			: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
@@ -55,6 +56,9 @@ begin
 			if reset = '1' then
 				pc_reg	<= X"00000000";
 			elsif pc_we = '1' and processor_enable = '1' then
+				if expression then
+
+				end if ;
 				pc_reg	<= pc_in;
 			else
 				pc_reg	<= pc_reg;

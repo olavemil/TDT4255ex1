@@ -28,6 +28,7 @@ entity pipe_stage2 is
 		pc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		if_stall		: out	STD_LOGIC;
 		if_flush		: out	STD_LOGIC;
+		branch_out		: out	STD_LOGIC;
 
 		--out to stage 3
 			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
@@ -140,7 +141,7 @@ begin
 	registers: register_file
 	port map(
 		CLK			=> clk,
-		RESET		=> reset, --hdu_reset, --this?
+		RESET		=> reset,
 		RW			=> wb_in,
 		RS_ADDR		=> instruction(25 downto 21),
 		RT_ADDR		=> instruction(20 downto 16),
@@ -162,11 +163,13 @@ begin
 	branch_mux: process(branch_enable, reg_rs_data, reg_rt_data, branch_target, pc_in)
 	begin
 		if branch_enable = '1' and (reg_rs_data = reg_rt_data) then
-			branch_mux_out <= branch_target;
-			flush <= '1';
+			branch_mux_out	<= branch_target;
+			flush			<= '1';
+			branch_out		<= '1';
 		else
-			branch_mux_out <= pc_in;
-			flush <= '0';
+			branch_mux_out	<= pc_in;
+			flush			<= '0';
+			branch_out		<= '0';
 		end if;
 	end process;
 

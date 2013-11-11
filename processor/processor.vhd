@@ -81,7 +81,7 @@ architecture behave of processor is
 			clk				: in	STD_LOGIC;
 			reset			: in	STD_LOGIC;
 			processor_enable: in	STD_LOGIC;
-			
+
 			--in from stage 1
 			pc_in			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			instruction		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
@@ -123,6 +123,7 @@ architecture behave of processor is
 	signal stage_2_out_if_flush		: STD_LOGIC;
 	signal stage_2_out_pc			: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 	signal stage_2_out_pc_we		: STD_LOGIC;
+	signal stage_2_out_branch		: STD_LOGIC;
 	signal stage_2_out_func			: STD_LOGIC_VECTOR(5 downto 0);
 	signal stage_2_out_alu_op		: ALU_OP;
 	signal stage_2_out_m_we			: STD_LOGIC;
@@ -200,7 +201,7 @@ architecture behave of processor is
 			reg_r_in			: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 			dmem_data_in		: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 			alu_result_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
-			
+
 			--to stage 5
 			wb_out				: out	STD_LOGIC;
 			reg_r_out			: out	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
@@ -248,12 +249,13 @@ begin
 		instr_addr			=> imem_address,
 		--in from stage 2
 		pc_in				=> stage_2_out_pc,
+		branch_enable		=> stage_2_out_branch,
 		pc_we				=> stage_2_out_pc_we,
 		--out to stage 2
 		pc_inc_out			=> stage_1_out_pc,
 		instruction			=> stage_1_out_instruction
 	);
-	
+
 	--STAGE 2
 	stage_2: pipe_stage2
 	port map(
@@ -276,6 +278,7 @@ begin
 		pc_out			=> stage_2_out_pc,
 		if_stall		=> stage_2_out_if_stall,
 		if_flush		=> stage_2_out_if_flush,
+		branch_out		=> stage_2_out_branch,
 		--out to stage 3
 			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
 		func_out		=> stage_2_out_func,
@@ -341,7 +344,7 @@ begin
 		reg_r_out		=> stage_3_out_reg_r
 	);
 	dmem_write_enable	<= stage_3_out_m_we;
-	
+
 	fwu : forwarding_unit
 	port map(
 		ex_reg_addr_in_1		=> stage_2_out_reg_rs,
@@ -374,7 +377,7 @@ begin
 		dmem_data_out	=> stage_4_out_dmem_data,
 		alu_result_out	=> stage_4_out_alu_result
 	);
-	
+
 	alu_mem_mux : process(stage_2_out_mem_to_reg, stage_4_out_alu_result, stage_4_out_dmem_data)
 	begin
 		if stage_2_out_mem_to_reg = '1' then
