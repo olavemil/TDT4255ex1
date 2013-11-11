@@ -12,6 +12,7 @@ entity pipe_stage1 is
 		processor_enable	: in	STD_LOGIC;
 		--Horrible things
 		if_stall			: in	STD_LOGIC;
+		if_flush			: in	STD_LOGIC;
 		--From stage 2
 		pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		pc_we				: in	STD_LOGIC;
@@ -64,15 +65,18 @@ begin
 	instr_addr	<= pc_reg;
 
 
-	if_id_register : process(clk, processor_enable, if_stall)
+	if_id_register : process(clk, processor_enable, if_stall, if_flush)
 	begin
 		if rising_edge(clk) and processor_enable = '1' then
-			if if_stall = '0'  then
-				pc_inc_reg <= pc_inc;
-				instr_reg <= instr_data;
-			else
+			if if_flush = '1' then
+				pc_inc_reg <= pc_inc_reg;
+				instr_reg <= ZERO32b(IDATA_BUS-1 downto 0);
+			elsif if_stall = '0'  then
 				pc_inc_reg <= pc_inc_reg;
 				instr_reg <= instr_reg;
+			else
+				pc_inc_reg <= pc_inc;
+				instr_reg <= instr_data;
 			end if;
 		end if;
 	end process;

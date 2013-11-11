@@ -25,44 +25,49 @@ architecture behave of hazard_detection_unit is
 	signal state, next_state : HDUstate;
 
 begin
-	hdu : process(mem_read, stage2_rt, stage1_rt, stage1_rs)
-	begin
-		if (mem_read = '1') and ((stage2_rt = stage1_rt) or (stage2_rt = stage1_rs)) then --Load uses same register in stage2 as stage3 is about to use
-			pc_wr_enb	<= '0';
-			if_id_stall	<= '1';
-			nops		<= '1';
-		else
-			pc_wr_enb	<= '1';
-			if_id_stall	<= '0';
-			nops		<= '0';
-		end if;
-	end process;
-	
---	HDU_STATE_MACHINE : process(clk)
+--	hdu : process(mem_read, stage2_rt, stage1_rt, stage1_rs)
 --	begin
---		if rising_edge(clk) then
---			if reset = '1' then
---				next_state	<= RUN;
---				pc_wr_enb	<= '0';
---				if_id_stall	<= '0';
---				nops		<= '0';
---			else
---				state <= next_state;
---
---				case state is
---					when RUN =>
---						pc_wr_enb			<= '1';
---					when STALL =>
---						pc_wr_enb			<= '0';
---						next_state			<= RUN;
---				end case;
---
---				--Implementation of load stall logic
---				if mem_read = '1' and  --Load opcode
---					((stage2_rt = stage1_rt) or (stage2_rt = stage1_rs)) then --Load uses same register in stage2 as stage3 is about to use
---					next_state <= STALL;
---				end if;
---			end if ;
+--		if (mem_read = '1') and ((stage2_rt = stage1_rt) or (stage2_rt = stage1_rs)) then --Load uses same register in stage2 as stage3 is about to use
+--			pc_wr_enb	<= '0';
+--			if_id_stall	<= '1';
+--			nops		<= '1';
+--		else
+--			pc_wr_enb	<= '1';
+--			if_id_stall	<= '0';
+--			nops		<= '0';
 --		end if;
 --	end process;
+	
+	HDU_STATE_MACHINE : process(clk)
+	begin
+		if rising_edge(clk) then
+			if reset = '1' then
+				next_state	<= RUN;
+				pc_wr_enb	<= '0';
+				if_id_stall	<= '0';
+				nops		<= '0';
+			else
+				state <= next_state;
+
+				case state is
+					when RUN =>
+						pc_wr_enb		<= '1';
+						if_id_stall		<= '0';
+						nops			<= '0';
+					when STALL =>
+						pc_wr_enb		<= '0';
+						if_id_stall		<= '1';
+						nops			<= '1';
+
+						next_state		<= RUN;
+				end case;
+
+				--Implementation of load stall logic
+				if mem_read = '1' and  --Load opcode
+					((stage2_rt = stage1_rt) or (stage2_rt = stage1_rs)) then --Load uses same register in stage2 as stage3 is about to use
+					next_state <= STALL;
+				end if;
+			end if ;
+		end if;
+	end process;
 end behave;

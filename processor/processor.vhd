@@ -59,6 +59,7 @@ architecture behave of processor is
 
 			--stuff
 			if_stall			: in	STD_LOGIC;
+			if_flush			: in	STD_LOGIC;
 			--From stage 2
 			pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			pc_we				: in	STD_LOGIC;
@@ -83,9 +84,7 @@ architecture behave of processor is
 			
 			--in from stage 1
 			pc_in			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-
-			--in from instruction memory
-			instruction_in	: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+			instruction		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 
 			--in from stage 4/5
 			reg_r_in		: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
@@ -97,6 +96,7 @@ architecture behave of processor is
 			pc_we			: out	STD_LOGIC;
 			pc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			if_stall		: out	STD_LOGIC;
+			if_flush		: out	STD_LOGIC;
 
 			--out to stage 3
 				--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
@@ -120,7 +120,7 @@ architecture behave of processor is
 	signal stage_2_out_pc_src		: STD_LOGIC;
 	signal stage_2_out_hazard		: std_logic;
 	signal stage_2_out_if_stall		: STD_LOGIC;
-	signal stage_2_out_flush		: STD_LOGIC;
+	signal stage_2_out_if_flush		: STD_LOGIC;
 	signal stage_2_out_pc			: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 	signal stage_2_out_pc_we		: STD_LOGIC;
 	signal stage_2_out_func			: STD_LOGIC_VECTOR(5 downto 0);
@@ -242,6 +242,7 @@ begin
 		processor_enable	=> processor_enable,
 		--ctrl
 		if_stall			=> stage_2_out_if_stall,
+		if_flush			=> stage_2_out_if_flush,
 		--to/from imem
 		instr_data			=> imem_data_in,
 		instr_addr			=> imem_address,
@@ -262,7 +263,7 @@ begin
 
 		--in from stage 1
 		pc_in			=> stage_1_out_pc,
-		instruction_in	=> stage_1_out_instruction,
+		instruction		=> stage_1_out_instruction,
 
 		--in from stage 4/5
 		reg_r_in		=> stage_4_out_reg_r,
@@ -274,6 +275,7 @@ begin
 		pc_we			=> stage_2_out_pc_we,
 		pc_out			=> stage_2_out_pc,
 		if_stall		=> stage_2_out_if_stall,
+		if_flush		=> stage_2_out_if_flush,
 		--out to stage 3
 			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
 		func_out		=> stage_2_out_func,

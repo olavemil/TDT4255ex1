@@ -15,7 +15,7 @@ entity pipe_stage2 is
 		pc_in			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 
 		--in from instruction memory
-		instruction_in		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+		instruction		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 
 		--in from stage 4/5
 		reg_r_in		: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
@@ -27,6 +27,7 @@ entity pipe_stage2 is
 		pc_we			: out	STD_LOGIC;
 		pc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		if_stall		: out	STD_LOGIC;
+		if_flush		: out	STD_LOGIC;
 
 		--out to stage 3
 			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
@@ -116,7 +117,6 @@ architecture behave of pipe_stage2 is
 	signal reg_rt_reg			: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 	signal imm_val_reg			: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 	signal branch_offset		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-	signal instruction			: STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 	
 	signal branch_enable		: STD_LOGIC;
 	signal branch_mux_out		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -135,17 +135,10 @@ architecture behave of pipe_stage2 is
 	signal hdu_reset 			: STD_LOGIC := '0';
 
 begin
-	if_id_flush	: process(flush, instruction_in)
-	begin
-		if flush = '1' then
-			instruction <= zero32b;
-		else
-			instruction <= instruction_in;
-		end if;
-	end process;
 	imm_val_reg		<= SXT(instruction(15 downto 0), DDATA_BUS);
 	branch_offset	<= SXT(instruction(15 downto 0), IADDR_BUS);
 	func_out		<= instruction(5 downto 0);
+	if_flush		<= flush;
 
 	registers: register_file
 	port map(
