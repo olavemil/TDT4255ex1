@@ -10,26 +10,24 @@ entity pipe_stage1 is
 		clk					: in	STD_LOGIC;
 		reset				: in	STD_LOGIC;
 		processor_enable	: in	STD_LOGIC;
-		--Horrible things
 		if_stall			: in	STD_LOGIC;
 		if_flush			: in	STD_LOGIC;
 		--From stage 2
 		pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		pc_we				: in	STD_LOGIC;
-		--to/from imem
+		--To imem
 		instr_data			: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
-		instr_addr			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		--To stage 2
+		instr_addr			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		pc_inc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		instruction			: out	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0)
 	);
 end pipe_stage1;
 
 architecture behave of pipe_stage1 is
-	-- Program counter signals
 	signal pc_inc, pc_inc_reg, pc_reg	: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-	signal instr_reg	: STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
-	
+	signal instr_reg					: STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+
 	component adder
 	generic (N: natural);
 		port(
@@ -41,6 +39,7 @@ architecture behave of pipe_stage1 is
 		);
 	end component;
 begin
+
 	pc_incrementer : adder
 	generic map(N => IADDR_BUS)
 	port map(
@@ -54,32 +53,32 @@ begin
 	begin
 		if rising_edge(clk) then
 			if reset = '1' then
-				pc_reg <= ext("0", IADDR_BUS);
+				pc_reg	<= X"00000000";
 			elsif pc_we = '1' and processor_enable = '1' then
-				pc_reg <= pc_in;
+				pc_reg	<= pc_in;
 			else
-				pc_reg <= pc_reg;
+				pc_reg	<= pc_reg;
 			end if;
 		end if;
 	end process;
-	instr_addr	<= pc_reg;
-
 
 	if_id_register : process(clk, processor_enable, if_stall, if_flush, instr_reg, pc_inc_reg)
 	begin
 		if rising_edge(clk) and processor_enable = '1' then
 			if if_flush = '1' then
-				pc_inc_reg <= pc_inc_reg;
-				instr_reg <= ZERO32b(IDATA_BUS-1 downto 0);
-			elsif if_stall = '1'  then
-				pc_inc_reg <= pc_inc_reg;
-				instr_reg <= instr_reg;
+				pc_inc_reg	<= pc_inc_reg;
+				instr_reg	<= ZERO32b(IDATA_BUS-1 downto 0);
+			elsif if_stall = '1' then
+				pc_inc_reg	<= pc_inc_reg;
+				instr_reg	<= instr_reg;
 			else
-				pc_inc_reg <= pc_inc;
-				instr_reg <= instr_data;
+				pc_inc_reg	<= pc_inc;
+				instr_reg	<= instr_data;
 			end if;
 		end if;
 	end process;
+
+	instr_addr	<= pc_reg;
 	pc_inc_out	<= pc_inc_reg;
-	instruction <= instr_reg;
+	instruction	<= instr_reg;
 end behave;
