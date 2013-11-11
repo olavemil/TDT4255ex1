@@ -21,9 +21,7 @@
 \maketitle % Insert the title, author and date
 
 \newpage
-\begin{abstract}
-\input{abstract}
-\end{abstract}
+\include{abstract}
 
 \tableofcontents
 %\listoffigures
@@ -32,61 +30,32 @@
 %	INTRODUCTION
 %----------------------------------------------------------------------------------------
 
-\chapter{Introduction}
-\input{introduction/descriptionoftheexercise}
+\input{chapters/introduction}
 
-\section{Approach to the task}
-\input{introduction/approachtothetask}
 %----------------------------------------------------------------------------------------
 %	SOLUTION
 %----------------------------------------------------------------------------------------
 
-%\newpage
-\chapter{Solution}
-
-%ISA
-
-\input{solution/design}
-
-\section{Implementation}
-\input{solution/implementation}
+\input{chapters/solution}
 
 %----------------------------------------------------------------------------------------
 %	RESULTS
 %----------------------------------------------------------------------------------------
-\newpage
-\chapter{Results}
-\input{results/intro}
 
-\section{Testing methodology}
-\input{results/modelsim}
-
-\section{fpga}
-\input{results/fpgatesting}
+\input{chapters/results}
 
 %----------------------------------------------------------------------------------------
 %	DISCUSSION
 %----------------------------------------------------------------------------------------
-\newpage
-\chapter{Discussion}
-\section{Design}
-\input{discussion/design}
 
-\section{Implementation}
-\input{discussion/implementation}
-
-\section{Simulation}
-\input{discussion/simulation}
-
-\section{Verification in FPGA}
-\input{discussion/verification}
+\input{chapters/discussion}
 
 %----------------------------------------------------------------------------------------
 %	CONCLUSION
 %----------------------------------------------------------------------------------------
-\newpage
-\chapter{Conclusion}
-\input{conclusion}
+
+\input{chapters/conclusion}
+
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
