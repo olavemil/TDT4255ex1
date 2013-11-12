@@ -1,4 +1,26 @@
-Some thought was put into the implementation of the design, regarding how to split the design into components. A natural division, which allowed for a parallell work flow was to implement each stage of the pipeline in its own stage. Another idea was to implement the pipeline registers in their own components, but this was dismissed due to the increased complexity this would have caused the processor component.\\
-Another way to do this would be to place the pipeline registers in their own files, and include those in the stage components, but this would also introduce a lot of signals into the stage components themselves. A final option would be to only have the processor components including pipeline registers as separate units, and the rest as one file, but it would not let everyone work at once.\\
-It is harder to advocate the specific implementation of the design, since it seems not to work perfectly. Most ideas that were implemented worked as intended, and problems mostly related to the unkown behaviour of the DMEM, IMEM and register file components.\\
-Not knowing whether these would be implemented as registers or not, since the components described behaved differently than the ones synthesizing to BRAM, provided confusion and problems in accessing the data from these. Access to DMEM and IMEM worked as intended in the final product, but a problem persisted where the register file (or possibly the forwarding units) only returned zero, instead of the value in the register. This problem made it hard to test further functionality or the implementation.
+Some thought was put into the implementation of the design, especially regarding
+how to split the design into its final components. A natural division, which
+allowed for a parallell work flow, was to implement each stage of the pipeline
+in its own VHDL component. Another idea was to implement the pipeline
+registers/buffers in their own VHDL components, but this was dismissed due to
+the increased complexity this would have caused the VHDL design.
+\paragraph*{}
+Another way to implement this design would be to place the pipeline registers in
+their own VHDL files, and to include those inside the stage components, but this
+would also introduce a lot of unnecessary signals into the stage components
+themselves. A final option would be to only have the processor component include
+the pipeline registers as separate units, and the rest as one file, but it would not
+let all of our group members work at once.
+\paragraph*{}
+It is harder to advocate the specific implementation of the design, since it
+seems to not work perfectly. Most implemented ideas worked as intended, and
+the problems are mostly related to some unkown behaviour of the DMEM, IMEM and
+register file components.
+\paragraph*{}
+Not knowing whether these would be implemented as registers or not, the
+abovementioned components described behaved differently than the ones
+synthesizing as BRAM, provided confusion and problems when accessing the data
+in these. Access to DMEM and IMEM worked as intended in the final product, but a
+problem persisted where the register file (or possibly the forwarding units)
+only returned zero, instead of the value in the register. This problem made it
+hard to test further functionality or the rest of the implementation.
