@@ -69,25 +69,19 @@ begin
 		if rising_edge(clk)then
 			if reset = '1' then --RESET
 				pc_inc_reg <= (others => '0');
-				instr_reg	<= ZERO32b(IDATA_BUS-1 downto 0);
 			elsif processor_enable = '1' then
 				if if_flush = '1' then --FLUSH
 					pc_inc_reg	<= pc_inc_reg;
-					instr_reg	<= ZERO32b(IDATA_BUS-1 downto 0);
 				elsif if_stall = '1' then --STALL
 					pc_inc_reg	<= pc_inc_reg;
-					instr_reg	<= instr_reg;
 				else --NORMAL OPERATION
 					pc_inc_reg	<= pc_inc;
-					instr_reg	<= instr_data;
 				end if;
 			else
 				pc_inc_reg	<= pc_inc_reg;
-				instr_reg	<= instr_reg;
 			end if;
 		end if;
 	end process;
 	pc_inc_out	<= pc_inc_reg;
 	
-		--instruction	<= instr_data_in;
 end behave;

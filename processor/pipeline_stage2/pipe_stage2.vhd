@@ -31,10 +31,9 @@ entity pipe_stage2 is
 		branch_out		: out	STD_LOGIC;
 
 		--out to stage 3
-			--TODO, why is the function going out? ANSWER: Alu_ctrl needs it.
-		func_out		: out	STD_LOGIC_VECTOR(5 downto 0);
+		func_out			: out	STD_LOGIC_VECTOR(5 downto 0);
 		alu_op_out		: out	ALU_OP;
-		m_we_out		: out	STD_LOGIC;
+		m_we_out			: out	STD_LOGIC;
 		wb_out			: out	STD_LOGIC;
 		reg_dst_out		: out	STD_LOGIC;
 		alu_src_out		: out	STD_LOGIC;
@@ -136,7 +135,6 @@ architecture behave of pipe_stage2 is
 begin
 	imm_val_reg		<= SXT(instruction(15 downto 0), DDATA_BUS);
 	branch_offset	<= SXT(instruction(15 downto 0), IADDR_BUS);
-	func_out		<= instruction(5 downto 0);
 	if_flush		<= flush;
 
 	registers: register_file
@@ -218,6 +216,7 @@ begin
 			reg_rs_out				<= instruction(25 downto 21);
 			reg_rt_reg				<= instruction(20 downto 16);
 			reg_rd_out				<= instruction(15 downto 11);
+			func_out					<= instruction(5 downto 0);
 			alu_reg_1_out 			<= reg_rt_data;
 			alu_reg_2_out 			<= reg_rs_data;
 

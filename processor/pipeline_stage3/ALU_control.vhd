@@ -21,22 +21,22 @@ begin
 			when ALUOP_BRANCH =>
 				alu_ctrl_op_out <= ('0', '1', '1', '0');
 			when ALUOP_LOAD_STORE =>
-				alu_ctrl_op_out <= ('0', '0', '1', '0');
+				alu_ctrl_op_out <= ('0', '1', '0', '0');
 			when ALUOP_FUNC =>
 				case func_in is
 					when "100000" => --ADD
-						alu_ctrl_op_out <= ('0', '0', '1', '0');
+						alu_ctrl_op_out <= ('0', '1', '0', '0');
 					when "100010" => --SUB
 						alu_ctrl_op_out <= ('0', '1', '1', '0');
 					when "100100" => --AND
 						alu_ctrl_op_out <= ('0', '0', '0', '0');
 					when "100101" => --OR
-						alu_ctrl_op_out <= ('0', '0', '0', '1');
+						alu_ctrl_op_out <= ('1', '0', '0', '0');
 					when others => --SLT
-						alu_ctrl_op_out <= ('0', '1', '1', '1');
+						alu_ctrl_op_out <= ('1', '1', '1', '0');
 				end case;
 			when ALUOP_LDI =>
-				alu_ctrl_op_out <= ('0', '0', '1', '0');
+				alu_ctrl_op_out <= ('0', '1', '0', '0');
 		end case;
 	end process;
 end Behavioral;
