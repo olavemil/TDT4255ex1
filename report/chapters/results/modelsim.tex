@@ -25,8 +25,7 @@ consequence is that garbage is written back to the registers in
 \emph{pipeline\_stage2}.
 \input{figures/wb_writing_garbage_text}
 \paragraph*{}
-This was resolved by\newline
-\textbf{FYLL INN HER!!! JEG VET IKKE! -x10}
+This was never resolved. It was deemed to be a minor issue at first since it only occured during the first few cycles of the simulation. Then it was discovered that it was probably a symptom of a larger timing issue where the write back signal was set too early. There was also a correct value that only appeared for half a clock cycle before disappearing which was never written back to registers. This points to a larger timing issue which we were not able to resolve.
 
 \subsection{First test}
 \input{figures/test_1_text}
