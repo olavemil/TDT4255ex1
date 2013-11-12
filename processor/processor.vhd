@@ -54,16 +54,16 @@ architecture behave of processor is
 	component pipe_stage1
 		port(
 			clk					: in	STD_LOGIC;
-			reset				: in	STD_LOGIC;
+			reset					: in	STD_LOGIC;
 			processor_enable	: in	STD_LOGIC;
 
 			--stuff
-			if_stall			: in	STD_LOGIC;
-			if_flush			: in	STD_LOGIC;
+			if_stall				: in	STD_LOGIC;
+			if_flush				: in	STD_LOGIC;
 			--From stage 2
-			pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+			pc_in					: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			branch_enable		: in	STD_LOGIC;
-			pc_we				: in	STD_LOGIC;
+			pc_we					: in	STD_LOGIC;
 			--to/from imem
 			instr_data_in		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 			instr_addr			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -79,19 +79,19 @@ architecture behave of processor is
 --	Definition and signals for pipe_stage2
 	component pipe_stage2
 		port(
-			clk				: in	STD_LOGIC;
-			reset			: in	STD_LOGIC;
-			processor_enable: in	STD_LOGIC;
+			clk					: in	STD_LOGIC;
+			reset					: in	STD_LOGIC;
+			processor_enable	: in	STD_LOGIC;
 
 			--in from stage 1
-			pc_in			: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
-			instruction		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+			pc_in					: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+			instruction			: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 
 			--in from stage 4/5
-			reg_r_in		: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
+			reg_r_in				: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 				--alu_result/dmem_out
-			data_in			: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
-			wb_in			: in	STD_LOGIC;
+			data_in				: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+			wb_in					: in	STD_LOGIC;
 
 			--out to stage 1
 			pc_we			: out	STD_LOGIC;
@@ -147,10 +147,10 @@ architecture behave of processor is
 			processor_enable	: in	STD_LOGIC;
 			--In from stage 2
 			func_in				: in	STD_LOGIC_VECTOR(5 downto 0);
-			alu_ctrl_op_in			: in	ALU_OP;
+			alu_ctrl_op_in		: in	ALU_OP;
 
 			m_we_in,
-			wb_in				: in	STD_LOGIC;
+			wb_in					: in	STD_LOGIC;
 
 			reg_dst_in			: in	STD_LOGIC;
 			alu_src_in			: in	STD_LOGIC;

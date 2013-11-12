@@ -200,16 +200,16 @@ begin
 	CTRL: control_unit
 	port map(
 		CLK			=> clk,
-		RESET		=> reset,
+		RESET			=> reset,
 		OpCode		=> instruction(31 downto 26),
-		ALUOp		=> alu_op_internal,
+		ALUOp			=> alu_op_internal,
 		RegDst		=> reg_dst_internal,
 		Branch		=> branch_enable,--TODO
-		MemtoReg	=> mem_to_reg_internal,
-		MemWrite	=> mem_wr_internal,
+		MemtoReg		=> mem_to_reg_internal,
+		MemWrite		=> mem_wr_internal,
 		ALUSrc		=> alu_src_internal,
-		RegWrite	=> reg_wr_internal,
-		Jump		=> jump_enable
+		RegWrite		=> reg_wr_internal,
+		Jump			=> jump_enable
 	);
 
 	write_buffer_register: process(clk, processor_enable, reg_rt_reg, reg_rt_data, reg_rs_data, mem_to_reg)

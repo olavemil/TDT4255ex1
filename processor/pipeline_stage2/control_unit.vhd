@@ -24,17 +24,12 @@ end control_unit;
 
 architecture Behavioral of control_unit is
 
-	type ALUstate is (FETCH, ALU_EXE, STALL);
-	Signal state : ALUstate;
-
 begin
 
 	ALU_STATE_MACHINE: process(CLK, RESET, OpCode)
 
 	begin
-		if rising_edge(CLK) then
 			if reset = '1' then
-				state		<= FETCH;
 
 				RegDst		<= '0';
 				Branch		<= '0';
@@ -44,94 +39,76 @@ begin
 				RegWrite	<= '0';
 				Jump		<= '0';
 			else
-				case state is
-					when FETCH =>
-						state	<= ALU_EXE;
+				case OpCode is
+					when "000000" =>	--R-instruction
+						RegDst		<= '1';
+						Branch		<= '0';
+						MemtoReg	<= '0';
 
-					when ALU_EXE =>
-						case OpCode is
-							when "000000" =>	--R-instruction
-								RegDst		<= '1';
-								Branch		<= '0';
-								MemtoReg	<= '0';
+						ALUOp		<= ALUOP_FUNC;
 
-								ALUOp		<= ALUOP_FUNC;
+						MemWrite	<= '0';
+						ALUSrc		<= '0';
+						RegWrite	<= '1';
+						Jump		<= '0';
 
-								MemWrite	<= '0';
-								ALUSrc		<= '0';
-								RegWrite	<= '1';
-								Jump		<= '0';
-								state		<= FETCH;
+					when "000100" =>	--Branch opcode
+						RegDst		<= '0';
+						Branch		<= '1';
+						MemtoReg	<= '0';
 
-							when "000100" =>	--Branch opcode
-								RegDst		<= '0';
-								Branch		<= '1';
-								MemtoReg	<= '0';
+						ALUOp		<= ALUOP_BRANCH;
 
-								ALUOp		<= ALUOP_BRANCH;
+						MemWrite	<= '0';
+						ALUSrc		<= '0';
+						RegWrite	<= '0';
+						Jump		<= '0';
 
-								MemWrite	<= '0';
-								ALUSrc		<= '0';
-								RegWrite	<= '0';
-								Jump		<= '0';
-								state		<= STALL;
+					when "100011" =>	--Load word
+						RegDst		<= '0';
+						Branch		<= '0';
+						MemtoReg	<= '1';
 
-							when "100011" =>	--Load word
-								RegDst		<= '0';
-								Branch		<= '0';
-								MemtoReg	<= '1';
+						ALUOp		<= ALUOP_LOAD_STORE;
 
-								ALUOp		<= ALUOP_LOAD_STORE;
+						MemWrite	<= '0';
+						ALUSrc		<= '1';
+						RegWrite	<= '1';
+						Jump		<= '0';
+					when "101011" =>	--Store word
+						RegDst		<= '0';
+						Branch		<= '0';
+						MemtoReg	<= '0';
 
-								MemWrite	<= '0';
-								ALUSrc		<= '1';
-								RegWrite	<= '1';
-								Jump		<= '0';
+						ALUOp		<= ALUOP_LOAD_STORE;
 
-								state		<= STALL;
-							when "101011" =>	--Store word
-								RegDst		<= '0';
-								Branch		<= '0';
-								MemtoReg	<= '0';
+						MemWrite	<= '1';
+						ALUSrc		<= '1';
+						RegWrite	<= '0';
+						Jump		<= '0';
 
-								ALUOp		<= ALUOP_LOAD_STORE;
+					when "001000" =>	--Load immidiate. (Implemented as add immidiate where you add with the zero register)
+						RegDst		<= '0';
+						Branch		<= '0';
+						MemtoReg	<= '0';
 
-								MemWrite	<= '1';
-								ALUSrc		<= '1';
-								RegWrite	<= '0';
-								Jump		<= '0';
+						ALUOp		<= ALUOP_LDI;
 
-								state		<= STALL;
-							when "001000" =>	--Load immidiate. (Implemented as add immidiate where you add with the zero register)
-								RegDst		<= '0';
-								Branch		<= '0';
-								MemtoReg	<= '0';
+						MemWrite	<= '0';
+						ALUSrc		<= '1';
+						RegWrite	<= '1';
+						Jump		<= '0';
+					when "000010" =>	--Jump
+						RegDst		<= '0';
+						Branch		<= '0';
+						MemtoReg	<= '0';
 
-								ALUOp		<= ALUOP_LDI;
-
-								MemWrite	<= '0';
-								ALUSrc		<= '1';
-								RegWrite	<= '1';
-								Jump		<= '0';
-								state		<= FETCH;
-							when "000010" =>	--Jump
-								RegDst		<= '0';
-								Branch		<= '0';
-								MemtoReg	<= '0';
-
-								MemWrite	<= '0';
-								ALUSrc		<= '0';
-								RegWrite	<= '0';
-								Jump		<= '1';
-
-								state		<= FETCH;
-							when others =>
-								state		<= FETCH;
-						end case;
-					when STALL =>
-						state		<= FETCH;
+						MemWrite	<= '0';
+						ALUSrc		<= '0';
+						RegWrite	<= '0';
+						Jump		<= '1';
+					when others =>
 				end case;
-			end if;
 		end if;
 	end process;
 end Behavioral;
