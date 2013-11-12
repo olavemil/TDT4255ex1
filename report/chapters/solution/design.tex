@@ -1,1 +1,9 @@
 \section{Design}
+The design is based on, and almost equivalent with the design described in the book. The focus of this section is to highlight and explain the differences between the two, rather than describing it in detail. For further details on the design see \ref{book}.
+\subsection{Memory address space}
+Since the memory is synthesized with 2\^8 addresses, constants were redefined throughout the project to reflect this, thus avoiding a large number of synthesize warnings regarding unused address bits. The only functional change this implies is a simplification of the jump instruction, where it only needs the eight least significant bits of the immediate value. Given that the design should be implemented on an FPGA it seemed reasonable to reduce the address space from 512 MiB to 256 bit.
+
+\subsection{Pipeline registers}
+Since the DMEM, IMEM and register file components synthesize into block ram, the need for additional pipeline registers storing these values dissappear, and including these would introduce a delay in the propagation of the corresponding signals. These registers have therefore been removed, and some steps had to be taken to keep the functionality. For instance, flushing the IF/ID instruction register has to happen dynamically, in a process operating on the instruction data signal from stage 1.
+
+\subsection{Other}

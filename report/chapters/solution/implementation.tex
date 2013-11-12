@@ -25,14 +25,9 @@ desired signal.\newline
 \subsection{Control unit}
 \textbf{TODO: changes to the control unit from last time}
 \subsection{Hazards}
-\textbf{TODO: choices regarding implementation of hazard control, including, but not limited to, forwarding, stalling, flushing and branching.}
-\emph{Forwarding data from MEM to EX with the forwarding should fix most issues.
-\\
-We have implemented the simple branch prediction described in the book
-(assume it will fall through), and the optimization moving the branch logic to
-stage 2 (ID). We do not currently forward values to the branching check!
-\\
-Hazard detection unit should stall the pipeline necessary. More info on this
-when it is confirmed or fixed.}
+A hazard detection system including forwarding, stalling and flushing was attempted implemented. The forwarding unit is based on the description given in section 4.7 of \ref{book}. A process that forwards values through the register file was also implemented, as is mentionen briefly on page  378.\\
+Dynamic branch prediction was postponed to give more time for testing, and branches are assumed to fall through. If this fails the pipeline is stalled, but the optimization moving the branch check to stage 2 has been implemented. Flushing the current instruction base on this branch value leads to a combinatorial loop, and although it can probably be easily fixed, this flushing was commented out during testing.\\
+A hazard detection unit also takes care of data hazards relating to loads. \textbf{TODO:CC}
+Hazard detection unit should stall the pipeline necessary. More info on this when it is confirmed or fixed.
 
 \subsection{????}
