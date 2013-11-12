@@ -25,7 +25,13 @@ consequence is that garbage is written back to the registers in
 \emph{pipeline\_stage2}.
 \input{figures/wb_writing_garbage_text}
 \paragraph*{}
-This was never resolved. It was deemed to be a minor issue at first since it only occured during the first few cycles of the simulation. Then it was discovered that it was probably a symptom of a larger timing issue where the write back signal was set too early. There was also a correct value that only appeared for half a clock cycle before disappearing which was never written back to registers. This points to a larger timing issue which we were not able to resolve.
+This was never resolved. It was deemed to be a minor issue at first since it
+only occured during the first few cycles of the simulation. Then it was
+discovered that it was related to the abovementioned signal delay, and was
+probably a symptom of a larger timing issue when the write back signal was set
+too early. A correct value also only appeared for half of a clock cycle before
+disappearing again, while never getting written back to the registers. This
+points to a larger timing issue which we were not able to resolve.
 
 \subsection{First test}
 \input{figures/test_1_text}
@@ -40,5 +46,5 @@ signal ``pc\_wr\_enb'' turns off by becoming zero.
 The correct result of these actions are shown by the signals ``imem\_address''
 and ``stage\_1\_out\_pc''. You can see that before the stall signal turns on,
 these two aforementioned signal values increment on each clock cycle. Yet when
-the stall signals turns on, they keep their value, and only continue
-incrementing after it stall has been turned off again by reverting to zero.
+the stall signals turns on, they keep their values, and only continue
+incrementing after its stall has been turned off again by reverting to zero.
