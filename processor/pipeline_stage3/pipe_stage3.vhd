@@ -83,7 +83,7 @@ begin
 	begin
 		if mux_reg_1_in = "00" then
 			mux_reg_1_data_out <= reg_data_1_in;
-		elsif mux_reg_1_in = "01" then
+		elsif mux_reg_1_in = "10" then
 			mux_reg_1_data_out <= alu_data_1_in;
 		else
 			mux_reg_1_data_out <= mem_data_1_in;
@@ -94,7 +94,7 @@ begin
 	begin
 		if mux_reg_2_in = "00" then
 			mux_reg_2_data_out <= reg_data_2_in;
-		elsif mux_reg_2_in = "01" then
+		elsif mux_reg_2_in = "10" then
 			mux_reg_2_data_out <= alu_data_2_in;
 		else
 			mux_reg_2_data_out <= mem_data_2_in;

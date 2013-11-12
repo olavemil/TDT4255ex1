@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 library work;
 use WORK.MIPS_CONSTANT_PKG.ALL;
 
@@ -27,7 +28,7 @@ begin
 		--MUX 1
 		if (mem_reg_we = '1') and (mem_reg_addr_in /= "00000") and mem_reg_addr_in = ex_reg_addr_in_1 then
 			reg_1_mux_control_out <= "10";--FORWARD FROM MEM.
-		elsif (wb_reg_we = '1') and (wb_reg_addr_reg_addr_in /= "00000") and not (mem_reg_we = '1' and (mem_reg_addr_in /= 0)) and wb_reg_addr_in = mem_reg_addr_in_1 and mem_reg_addr_in /= ex_reg_addr_in_1 then
+		elsif (wb_reg_we = '1') and (wb_reg_addr_in /= "00000") and not (mem_reg_we = '1' and (mem_reg_addr_in /= "00000")) and mem_reg_addr_in = ex_reg_addr_in_1 and mem_reg_addr_in /= ex_reg_addr_in_1 then
 			reg_1_mux_control_out <= "01";--FORWARD FROM WB.
 		else
 			reg_1_mux_control_out <= "00";--FORWARD DO NOT.
@@ -36,7 +37,7 @@ begin
 		--MUX 2
 		if (mem_reg_we = '1') and (mem_reg_addr_in /= "00000") and mem_reg_addr_in = ex_reg_addr_in_2 then
 			reg_2_mux_control_out <= "10";--FORWARD FROM MEM.
-		elsif (wb_reg_we = '1') and (wb_reg_addr_reg_addr_in /= "00000") and not (mem_reg_we = '1' and (mem_reg_addr_in /= 0)) and wb_reg_addr_in = mem_reg_addr_in_2 and mem_reg_addr_in /= ex_reg_addr_in_1 then
+		elsif (wb_reg_we = '1') and (wb_reg_addr_in /= "00000") and not (mem_reg_we = '1' and (mem_reg_addr_in /= "00000")) and mem_reg_addr_in = ex_reg_addr_in_2 and mem_reg_addr_in /= ex_reg_addr_in_1 then
 			reg_2_mux_control_out <= "01";--FORWARD FROM WB.
 		else
 			reg_2_mux_control_out <= "00";--FORWARD DO NOT.
