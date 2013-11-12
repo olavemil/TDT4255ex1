@@ -29,9 +29,9 @@ begin
 			if rising_edge(clk) then
 				wb_out			<= wb_in;
 				reg_r_out		<= reg_r_in;
-				dmem_data_out	<= dmem_data_in;
 				alu_result_out	<= alu_result_in;
 			end if;
+			dmem_data_out	<= dmem_data_in;
 		end process;
 end behave;
 
