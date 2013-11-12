@@ -15,11 +15,13 @@ avoid further complexity in the VHDL components.
 \subsection{Processor core}
 The processor core itself was implemented as a messenger between the pipeline
 stages, similarly to how toplevel works with respect to the core, com and mem
-units. To make it obvious where a signal came from each was prefixed with
-``\emph{stage\_\#\_out\_}'', since many of the signals had the same name in different
-stages. In addition, all component definitions and port maps were grouped and
-documented according to where they were connected, making it easy to locate a
-desired signal.\newline
+units.
+\paragraph*{}
+To make it obvious where a signal came from each was prefixed with
+``\emph{stage\_\#\_out\_}'', since many of the signals had the same name in
+different stages. In addition, all component definitions and port maps were
+grouped and documented according to where they were connected, making it easy to
+locate a desired signal.\newline
 \textbf{TODO: decide on whether mem access will belong to components and be registered, or belong to processor and go unregistered, base on testing/timing results.}
 
 \subsection{Control unit}
