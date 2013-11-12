@@ -29,14 +29,17 @@ Since it was unclear whether memory access would consume a processing cycle or
  need a pipeline register, IMEM was connected directly to stage one, and
  instructions were then sent from a port in stage 1 onward to stage 2. This made
  it easy to implement or bypass the pipeline register as needed.
+ 
 \subsection{Control unit}
 The control unit was changed quite a lot from the previous assignment. Since it was used to control the multi-cycle functionality of the previous exercise, it could now be implemented without any states. Since it no longer needed to account for states, the control unit was reduced down to a compnent that no longer depended on the internal clock. A process inside the control unit responds to a change in the opcode and outputs the correct control signals for the new instruction. These new values are stored in the pipeline registers and propagated through the core. 
+
 \subsection{Hazards}
 We made an attempt at implementing hazard detection system such as (and
 including) forwarding, stalling and flushing. The forwarding unit is based on
-the description given in section 4.7 of \cite{patterson12}. A process that
-forwards values through the register file was also implemented, as is mentionen
-briefly on page  378.
+the description given in section 4.7 of \cite{patterson12}. Initially only the
+forwarding unit given in the schematic was implemented, but recognizing the
+need to forward values to the branch check after the register file, an
+additional forwarding unit was instantiated.
 \paragraph*{}
 Dynamic branch prediction was postponed to give more time for testing, and
 branches are in the design assumed to fall through. If this fails, the pipeline
