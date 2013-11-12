@@ -25,3 +25,19 @@ registers in \emph{pipeline\_stage2}.
 \paragraph*{}
 This was resolved by\newline
 \textbf{FYLL INN HER!!! JEG VET IKKE! -x10}
+
+\subsection{First test}
+\input{figures/test_1_text}
+The first test we ran (opposed to errors we encountered), was to test if the
+stall functionality worked correctly with the program counter in
+\emph{pipeline\_stage1}.
+\paragraph*{}
+Figure \ref{fig:test-1-text} illustrates how when the stall signal
+``if\_id\_stall'' becomes one (logical high), the program counter's write-enable
+signal ``pc\_wr\_enb'' turns off by becoming zero.
+\paragraph*{}
+The correct result of these actions are shown by the signals ``imem\_address''
+and ``stage\_1\_out\_pc''. You can see that before the stall signal turns on,
+these two aforementioned signal values increment on each clock cycle. Yet when
+the stall signals turns on, they keep their value, and only continue
+incrementing after it stall has been turned off again by reverting to zero.
