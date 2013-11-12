@@ -21,23 +21,26 @@ end forwarding_unit;
 architecture behaviour of forwarding_unit is
 
 begin
-    forward : process(mem_reg_addr_in, ex_reg_addr_in_1, wb_reg_addr_in, ex_reg_addr_in_2, mem_reg_we, wb_reg_we)
-    begin
-        if (mem_reg_addr_in = ex_reg_addr_in_1) and (mem_reg_we = '1') then
-            reg_1_mux_control_out <= "10";
-        elsif (wb_reg_addr_in = ex_reg_addr_in_1) and (wb_reg_we = '1') then
-            reg_1_mux_control_out <= "01";
-        else
-            reg_1_mux_control_out <= "00";
-        end if;
-        
-        if (mem_reg_addr_in = ex_reg_addr_in_2) and (mem_reg_we = '1') then
-            reg_2_mux_control_out <= "10";
-        elsif (wb_reg_addr_in = ex_reg_addr_in_2) and (wb_reg_we = '1') then
-            reg_2_mux_control_out <= "01";
-        else
-            reg_2_mux_control_out <= "00";
-        end if;
-    end process;
+	forward : process(mem_reg_addr_in, ex_reg_addr_in_1, wb_reg_addr_in, ex_reg_addr_in_2, mem_reg_we, wb_reg_we)
+	begin
+		
+		--MUX 1
+		if (mem_reg_we = '1') and (mem_reg_addr_in /= "00000") and mem_reg_addr_in = ex_reg_addr_in_1 then
+			reg_1_mux_control_out <= "10";--FORWARD FROM MEM.
+		elsif (wb_reg_we = '1') and (wb_reg_addr_reg_addr_in /= "00000") and not (mem_reg_we = '1' and (mem_reg_addr_in /= 0)) and wb_reg_addr_in = mem_reg_addr_in_1 and mem_reg_addr_in /= ex_reg_addr_in_1 then
+			reg_1_mux_control_out <= "01";--FORWARD FROM WB.
+		else
+			reg_1_mux_control_out <= "00";--FORWARD DO NOT.
+		end if;
+		
+		--MUX 2
+		if (mem_reg_we = '1') and (mem_reg_addr_in /= "00000") and mem_reg_addr_in = ex_reg_addr_in_2 then
+			reg_2_mux_control_out <= "10";--FORWARD FROM MEM.
+		elsif (wb_reg_we = '1') and (wb_reg_addr_reg_addr_in /= "00000") and not (mem_reg_we = '1' and (mem_reg_addr_in /= 0)) and wb_reg_addr_in = mem_reg_addr_in_2 and mem_reg_addr_in /= ex_reg_addr_in_1 then
+			reg_2_mux_control_out <= "01";--FORWARD FROM WB.
+		else
+			reg_2_mux_control_out <= "00";--FORWARD DO NOT.
+		end if;
+	end process;
 end behaviour;
 
