@@ -3,14 +3,14 @@ The first error we encountered when simulating our processor design in ModelSim
 \cite{modelsim}, was an error where \emph{pipeline\_stage1} gives an undefined
 value as output every second clockcycle.
 \paragraph*{}
-Figure \ref{fig:error-1-text} below illustrates the problem:
 \input{figures/error_1_text}
-\paragraph*{}
 This problem was caused by the program counter's input in
 \emph{pipeline\_stage1} not being properly connected to the adder incrementing
 program counter's output. This problem was resolved by connecting the output
 from the adder correctly into the multiplexor choosing between the adder and
 branch values as inputs for the program counter.
+\paragraph*{}
+Figure \ref{fig:error-1-text} above illustrates this error.
 
 \subsection{Second error found}
 The second error encountered was when simulating the entire pipeline design as
