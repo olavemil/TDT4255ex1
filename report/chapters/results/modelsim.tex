@@ -1,0 +1,27 @@
+\subsection{First error found}
+The first error we encountered when simulating our processor design in ModelSim
+\cite{modelsim}, was an error where \emph{pipeline\_stage1} gives an undefined
+value as output every second clockcycle.
+\paragraph*{}
+Figure \ref{fig:error-1-text} below illustrates the problem:
+\input{figures/error_1_text}
+\paragraph*{}
+This problem was caused by the program counter's input in
+\emph{pipeline\_stage1} not being properly connected to the adder incrementing
+program counter's output. This problem was resolved by connecting the output
+from the adder correctly into the multiplexor choosing between the adder and
+branch values as inputs for the program counter.
+
+\subsection{Second error found}
+The second error encountered was when simulating the entire pipeline design as
+a whole to check whether instructions as a whole propagated correctly.
+\paragraph*{}
+It was discovered (as figure \ref{fig:error-2-text} illustrates) that due to the
+bottom signal ``stage\_4\_out\_wb'' being undeclared until the ALU operations unit
+sends the load/store command to the ALU. The consequence of this is that until
+the abovementioned signals stops being undefined, garbage is written back to the
+registers in \emph{pipeline\_stage2}.
+\input{figures/wb_writing_garbage_text}
+\paragraph*{}
+This was resolved by\newline
+\textbf{FYLL INN HER!!! JEG VET IKKE! -x10}
