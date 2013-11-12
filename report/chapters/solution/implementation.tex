@@ -7,22 +7,22 @@ was designed, but the hazard detection unit and control unit were placed in this
 stage, since most signals connecting to these units go to stage 2. Stage 5 did
 not get its own VHDL component, since the program counter was written into the
 stage 1 component. The rest of the stage5 logic fit better inside the processor
-component. The forwarding unit was also written into the processor component
-due to avoiding complexity in the VHDL components.
+component. The forwarding unit a component in the processor component due to
+avoiding complexity in the VHDL components.
 \subsection{Processor core}
 The processor core itself was implemented as a messenger between the pipeline
 stages, similarly to how toplevel works with respect to the core, com and mem
 units. To make it obvious where a signal came from each was prefixed with
-stage\_\#\_out\_, since many signals have the same name in different stages. In
+stage\_\#\_out\_, since many signals had the same name in different stages. In
 addition, all component definitions and port maps were grouped and documented
 according to where they were connected, making it easy to detect a desired
 signal.
-\bf{TODO: decide on whether mem access will belong to components and be registered, or belong to processor and go unregistered, base on testing/timing results.}
+\textbf{TODO: decide on whether mem access will belong to components and be registered, or belong to processor and go unregistered, base on testing/timing results.}
 
 \subsection{Control unit}
-\bf{TODO: changes to the control unit from last time}
+\textbf{TODO: changes to the control unit from last time}
 \subsection{Hazards}
-\bf{TODO: choices regarding implementation of hazard control, including, but not limited to, forwarding, stalling, flushing and branching.}
+\textbf{TODO: choices regarding implementation of hazard control, including, but not limited to, forwarding, stalling, flushing and branching.}
 \emph{Forwarding data from MEM to EX with the forwarding should fix most issues.
 \\
 We have implemented the simple branch prediction described in the book

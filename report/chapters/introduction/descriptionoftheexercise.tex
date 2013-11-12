@@ -3,20 +3,20 @@
 For this assignment, the design from the previous assignment was to be extended
 with pipelining, hazard control and related optimizations. These are all steps
 that aim to improve the efficiency and throughput of the processor. While much
-of the structure remained the same, many components had to be refined, or
-written from scratch.
+of the structure remained the same, many of the components had to be modified,
+or re-written entirely.
 
-\subsection{Assignment requirements}
+\subsection{Exercise requirements}
 \emph{The task as stated in the compendium \cite{compendium}.}\newline
-``The major requirement of this assignment is a simple 5-stage pipelined
-processor. In general, the processor has the same functional requirements as in
-the previous assignment. Additionally, you need to implement different hazard
-detection and correction techniques.''
+\textbf{\emph{``The major requirement of this assignment is a simple 5-stage
+pipelined processor. In general, the processor has the same functional
+requirements as in the previous assignment. Additionally, you need to implement
+different hazard detection and correction techniques.''}}
 \paragraph*{}
-The goals for this assignment has therefore been, in the following order:
+The following ordering of goals were:
 \begin{enumerate}
-	\item Divide the processor into pipeline stages.
-	\item Reuse code that can be reused.
+	\item Divide the processor into the five pipeline stages.
+	\item Re-use code that that is compatible with the new pipeline design.
 	\item Implement forwarding.
 	\item Implement data hazard detection and correction with stalling.
 	\item Implement control hazard avoidance with improved branching and
