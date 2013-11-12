@@ -55,15 +55,15 @@ begin
 	instr_addr	<= pc_reg;
 	end process;
 
-	flush_instruction : process(if_flush, instr_data_in)
-	begin
-		if if_flush = '1' then
-			instruction <= (others => '0');
-		else
-			instruction <= instr_data_in;
-		end if;
-	end process;
-	
+--	flush_instruction : process(if_flush, instr_data_in)
+--	begin
+--		if if_flush = '1' then
+--			instruction <= (others => '0');
+--		else
+--			instruction <= instr_data_in;
+--		end if;
+--	end process;
+	instruction <= instr_data_in;
 	if_id_register : process(clk, processor_enable, if_stall, if_flush, instr_reg, pc_inc_reg)
 	begin
 		if rising_edge(clk)then

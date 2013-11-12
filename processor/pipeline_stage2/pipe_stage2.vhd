@@ -16,11 +16,13 @@ entity pipe_stage2 is
 
 		--in from instruction memory
 		instruction		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
-
+		--in from forwarding unit
+		mux_reg_1_in	:STD_LOGIC_VECTOR(1 downto 0);
+		mux_reg_2_in	:STD_LOGIC_VECTOR(1 downto 0);
 		--in from stage 4/5
 		reg_r_in		: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
-			--alu_result/dmem_out
-		data_in			: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+		mem_data_in,
+		alu_data_in		: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 		wb_in			: in	STD_LOGIC;
 
 		--out to stage 1
@@ -110,6 +112,9 @@ architecture behave of pipe_stage2 is
 	--Register file signals
 	signal reg_rs_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
 	signal reg_rt_data	: STD_LOGIC_VECTOR (DDATA_BUS-1 downto 0);
+	
+	signal reg_rs_regfile_out : STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal reg_rt_regfile_out : STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 
 	--Internal signals
 	signal nops					: STD_LOGIC;
@@ -140,22 +145,42 @@ begin
 	registers: register_file
 	port map(
 		CLK			=> clk,
-		RESET		=> reset,
-		RW			=> wb_in,
+		RESET			=> reset,
+		RW				=> wb_in,
 		RS_ADDR		=> instruction(25 downto 21),
 		RT_ADDR		=> instruction(20 downto 16),
 		RD_ADDR		=> reg_r_in,
-		WRITE_DATA	=> data_in,
-		RS			=> reg_rs_data,
-		RT			=> reg_rt_data
+		WRITE_DATA	=> mem_data_in,
+		RS				=> reg_rs_regfile_out,
+		RT				=> reg_rt_regfile_out
 	);
-
+	mux_reg_data_1 : process(mux_reg_1_in, alu_data_in, mem_data_in, reg_rs_regfile_out)
+	begin
+		if mux_reg_1_in = "00" then
+			reg_rs_data <= reg_rs_regfile_out;
+		elsif mux_reg_1_in = "10" then
+			reg_rs_data <= alu_data_in;
+		else
+			reg_rs_data <= mem_data_in;
+		end if;
+	end process;
+	mux_reg_data_2 : process(mux_reg_2_in, alu_data_in, mem_data_in, reg_rt_regfile_out)
+	begin
+		if mux_reg_2_in = "00" then
+			reg_rt_data <= reg_rt_regfile_out;
+		elsif mux_reg_2_in = "10" then
+			reg_rt_data <= alu_data_in;
+		else
+			reg_rt_data <= mem_data_in;
+		end if;
+	end process;
+	
 	branch_adder: adder
 	generic map(N => IADDR_BUS)
 	port map(
 		X		=> branch_offset,
 		Y		=> pc_in,
-		CIN		=> '0',
+		CIN	=> '0',
 		R		=> branch_target
 	);
 

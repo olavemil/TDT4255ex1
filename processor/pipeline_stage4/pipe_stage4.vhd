@@ -24,7 +24,7 @@ end pipe_stage4;
 architecture behave of pipe_stage4 is
 
 begin
-	registers : process(clk)
+	registers : process(clk, dmem_data_in)
 		begin
 			if rising_edge(clk) then
 				wb_out			<= wb_in;

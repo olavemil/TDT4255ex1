@@ -225,31 +225,31 @@ BEGIN
 		bus_data_in <= zero;
 		wait for clk_period*3;
 		
-		-- Add instruction 3
-		command <= CMD_WI;
-		bus_address_in <= addr4;
-		bus_data_in <= ins3;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
-		
-		-- Add instruction 3
-		command <= CMD_WI;
-		bus_address_in <= addr5;
-		bus_data_in <= ins3;
-		wait for clk_period*3;
-
-		command <= CMD_IDLE;
-		bus_address_in <= zero;
-		bus_data_in <= zero;
-		wait for clk_period*3;
+--		-- Add instruction 3
+--		command <= CMD_WI;
+--		bus_address_in <= addr4;
+--		bus_data_in <= ins3;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
+--		
+--		-- Add instruction 3
+--		command <= CMD_WI;
+--		bus_address_in <= addr5;
+--		bus_data_in <= ins3;
+--		wait for clk_period*3;
+--
+--		command <= CMD_IDLE;
+--		bus_address_in <= zero;
+--		bus_data_in <= zero;
+--		wait for clk_period*3;
 
 		-- Add instruction 4
 		command <= CMD_WI;
-		bus_address_in <= addr6;
+		bus_address_in <= addr4;
 		bus_data_in <= ins4;
 		wait for clk_period*3;
 

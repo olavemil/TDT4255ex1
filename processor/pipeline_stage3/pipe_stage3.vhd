@@ -23,12 +23,10 @@ entity pipe_stage3 is
 		reg_rd_in			: in	STD_LOGIC_VECTOR(4 downto 0);
 
 		--In from stage 4
-		alu_data_1_in,
-		alu_data_2_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+		alu_data_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 
 		--In from stage 5
-		mem_data_1_in,
-		mem_data_2_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+		mem_data_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 
 		--From forwarding unit
 		mux_reg_1_in		: in	STD_LOGIC_VECTOR(1 downto 0);
@@ -79,25 +77,25 @@ architecture behaviour of pipe_stage3 is
 
 begin
 
-	mux_reg_data_1 : process(mux_reg_1_in, reg_data_1_in, alu_data_1_in, mem_data_1_in)
+	mux_reg_data_1 : process(mux_reg_1_in, reg_data_1_in, alu_data_in, mem_data_in)
 	begin
 		if mux_reg_1_in = "00" then
 			mux_reg_1_data_out <= reg_data_1_in;
 		elsif mux_reg_1_in = "10" then
-			mux_reg_1_data_out <= alu_data_1_in;
+			mux_reg_1_data_out <= alu_data_in;
 		else
-			mux_reg_1_data_out <= mem_data_1_in;
+			mux_reg_1_data_out <= mem_data_in;
 		end if;
 	end process;
 
-	mux_reg_data_2 : process(mux_reg_2_in, reg_data_2_in, alu_data_2_in, mem_data_2_in)
+	mux_reg_data_2 : process(mux_reg_2_in, reg_data_2_in, alu_data_in, mem_data_in)
 	begin
 		if mux_reg_2_in = "00" then
 			mux_reg_2_data_out <= reg_data_2_in;
 		elsif mux_reg_2_in = "10" then
-			mux_reg_2_data_out <= alu_data_2_in;
+			mux_reg_2_data_out <= alu_data_in;
 		else
-			mux_reg_2_data_out <= mem_data_2_in;
+			mux_reg_2_data_out <= mem_data_in;
 		end if;
 	end process;
 

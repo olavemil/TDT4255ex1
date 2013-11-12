@@ -86,11 +86,13 @@ architecture behave of processor is
 			--in from stage 1
 			pc_in					: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			instruction			: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
-
+			--in from fw				
+			mux_reg_1_in		:STD_LOGIC_VECTOR(1 downto 0);
+			mux_reg_2_in		:STD_LOGIC_VECTOR(1 downto 0);
 			--in from stage 4/5
 			reg_r_in				: in	STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
-				--alu_result/dmem_out
-			data_in				: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+			mem_data_in,
+			alu_data_in		: in	STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
 			wb_in					: in	STD_LOGIC;
 
 			--out to stage 1
@@ -164,12 +166,10 @@ architecture behave of processor is
 			reg_rd_in			: in	STD_LOGIC_VECTOR(4 downto 0);
 
 			--In from stage 4
-			alu_data_1_in,
-			alu_data_2_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			alu_data_in		: in	STD_LOGIC_VECTOR(N-1 downto 0);
 
 			--In from stage 5
-			mem_data_1_in,
-			mem_data_2_in	 	: in	STD_LOGIC_VECTOR(N-1 downto 0);
+			mem_data_in	 	: in	STD_LOGIC_VECTOR(N-1 downto 0);
 
 			--From forwarding unit
 			mux_reg_1_in		: in	STD_LOGIC_VECTOR(1 downto 0);
@@ -231,8 +231,12 @@ architecture behave of processor is
 		reg_2_mux_control_out	: out std_logic_vector(1 downto 0)
 	);
 	end component;
-	signal fw_reg_1_mux_control	: std_logic_vector(1 downto 0);
-	signal fw_reg_2_mux_control	: std_logic_vector(1 downto 0);
+	--fw_ex
+	signal fw_ex_reg_1_mux_control	: std_logic_vector(1 downto 0);
+	signal fw_ex_reg_2_mux_control	: std_logic_vector(1 downto 0);
+	--fw_id
+	signal fw_id_reg_1_mux_control	: std_logic_vector(1 downto 0);
+	signal fw_id_reg_2_mux_control	: std_logic_vector(1 downto 0);
 
 --	Other
 	signal alu_mem_mux_out	: std_logic_vector(N-1 downto 0);
@@ -271,9 +275,13 @@ begin
 
 		--in from stage 4/5
 		reg_r_in		=> stage_4_out_reg_r,
-			--alu_result/dmem_out
-		data_in			=> alu_mem_mux_out,
+		mem_data_in	=> alu_mem_mux_out,
+		alu_data_in	=> stage_3_out_alu_result,
 		wb_in			=> stage_4_out_wb,
+		
+		--in from forwarding unit
+		mux_reg_1_in	=> fw_id_reg_1_mux_control,
+		mux_reg_2_in	=> fw_id_reg_2_mux_control,
 
 		--out to stage 1
 		pc_we			=> stage_2_out_pc_we,
@@ -297,6 +305,21 @@ begin
 		reg_rd_out		=> stage_2_out_reg_rd,
 		--out to forwarding unit
 		reg_rs_out		=> stage_2_out_reg_rs
+	);
+	
+	--branch forwarding unit
+	id_fwu : forwarding_unit
+	port map(
+		ex_reg_addr_in_1		=> stage_1_out_instruction(25 downto 21),
+		ex_reg_addr_in_2		=> stage_1_out_instruction(20 downto 16),
+		mem_reg_addr_in		 	=> stage_3_out_reg_r,
+		wb_reg_addr_in			=> stage_4_out_reg_r,
+
+		mem_reg_we				=> stage_3_out_wb,
+		wb_reg_we				=> stage_4_out_wb,
+
+		reg_1_mux_control_out	=> fw_id_reg_1_mux_control,
+		reg_2_mux_control_out	=> fw_id_reg_2_mux_control
 	);
 
 	--STAGE 3
@@ -323,16 +346,14 @@ begin
 		reg_rd_in		=> stage_2_out_reg_rd,
 
 		--in from EX/MEM
-		alu_data_1_in	=> stage_3_out_alu_result,
-		alu_data_2_in	=> stage_3_out_alu_result,
+		alu_data_in	=> stage_3_out_alu_result,
 
 		--in from MEM/WB
-		mem_data_1_in	=> alu_mem_mux_out,
-		mem_data_2_in	=> alu_mem_mux_out,
+		mem_data_in	=> alu_mem_mux_out,
 
 		--in from forwarding unit
-		mux_reg_1_in	=> fw_reg_1_mux_control,
-		mux_reg_2_in	=> fw_reg_2_mux_control,
+		mux_reg_1_in	=> fw_ex_reg_1_mux_control,
+		mux_reg_2_in	=> fw_ex_reg_2_mux_control,
 
 		--out to stage 4
 		m_we_out		=> stage_3_out_m_we,
@@ -347,7 +368,7 @@ begin
 	);
 	dmem_write_enable	<= stage_3_out_m_we;
 
-	fwu : forwarding_unit
+	ex_fwu : forwarding_unit
 	port map(
 		ex_reg_addr_in_1		=> stage_2_out_reg_rs,
 		ex_reg_addr_in_2		=> stage_2_out_reg_rt,
@@ -357,13 +378,15 @@ begin
 		mem_reg_we				=> stage_3_out_wb,
 		wb_reg_we				=> stage_4_out_wb,
 
-		reg_1_mux_control_out	=> fw_reg_1_mux_control,
-		reg_2_mux_control_out	=> fw_reg_2_mux_control
+		reg_1_mux_control_out	=> fw_ex_reg_1_mux_control,
+		reg_2_mux_control_out	=> fw_ex_reg_2_mux_control
 	);
 	--STAGE 4
 	dmem_address_wr		<= stage_3_out_alu_result(DADDR_BUS-1 downto 0);
 	dmem_address		<= stage_3_out_alu_result(DADDR_BUS-1 downto 0);
 	dmem_data_out		<= stage_3_out_dmem_data;
+
+
 
 	stage_4: pipe_stage4
 	port map(
