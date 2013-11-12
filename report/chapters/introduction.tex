@@ -14,12 +14,12 @@ struggled mainly with the signals propagations, the pipeline stages
 interlocking, and the added hazard control logic.
 \paragraph*{}
 Since splitting the components into different pipelines (yet having said stages
-working in an interlocked fashion), results in having just as many, if note more
+working in an interlocked fashion), results in having just as many, if not more
 signals to keep in mind and under control than a Multi-Cycle processor. And due
 to the pipelines working in an interlocked fashion, another level of difficulty
 is introduced when making sure that all the signals propagate throughout the
 pipeline correctly.
 \paragraph*{}
-Implementing the added hazard control logic through the forwarding and hazard
-detection components also added more complexity to the processor design as a
-whole, instead of simply another component with complex insides.
+Implementing the added hazard control logic through the \emph{forwarding} and
+\emph{hazard detection} components also added more complexity to the processor
+design as a whole, instead of simply being new components with complex insides.
