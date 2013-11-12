@@ -27,9 +27,25 @@ locate a desired signal.\newline
 \subsection{Control unit}
 \textbf{TODO: changes to the control unit from last time}
 \subsection{Hazards}
-A hazard detection system including forwarding, stalling and flushing was attempted implemented. The forwarding unit is based on the description given in section 4.7 of \ref{book}. A process that forwards values through the register file was also implemented, as is mentionen briefly on page  378.\\
-Dynamic branch prediction was postponed to give more time for testing, and branches are assumed to fall through. If this fails the pipeline is stalled, but the optimization moving the branch check to stage 2 has been implemented. Flushing the current instruction base on this branch value leads to a combinatorial loop, and although it can probably be easily fixed, this flushing was commented out during testing.\\
-A hazard detection unit also takes care of data hazards relating to loads. \textbf{TODO:CC}
-Hazard detection unit should stall the pipeline necessary. More info on this when it is confirmed or fixed.
-
-\subsection{????}
+We made an attempt at implementing hazard detection system such as (and
+including) forwarding, stalling and flushing. The forwarding unit is based on
+the description given in section 4.7 of \cite{patterson12}. A process that
+forwards values through the register file was also implemented, as is mentionen
+briefly on page  378.
+\paragraph*{}
+Dynamic branch prediction was postponed to give more time for testing, and
+branches are in the design assumed to fall through. If this fails, the pipeline
+is stalled, but the optimization of moving the branch check to stage 2 has been
+implemented. Flushing the current instruction based on this branch value leads
+to a combinatorial loop, and although it can probably be easily fixed, this
+flushing was commented out during testing.
+\paragraph*{}
+A hazard detection unit also takes care of data hazards relating to reading
+values from registers in use at the ALU stage (stage 3, RAW-hazards). The
+hazard detection unit stalls the pipeline when the instruction passing from
+stage 2 and into stage 3 involves a register read. If this is the case, and said
+instruction reads from one of the two registers in use in stage 2, the unit will
+enable the stall signal passing into stage 1. If the stall signal in stage 1 is
+enables at clockcycle $n$, this has the consequence of all subsequent $n+1$
+stages repeating their action at clockcycle $n+1$, creating an instruction
+``bubble'' at stage $n+1$.

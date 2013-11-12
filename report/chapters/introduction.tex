@@ -10,7 +10,7 @@ Working on the design and implementation of a pipelined processor compared to a
 Multi-Cycle processor, differs mainly in its level of complexity.
 \paragraph*{}
 There are many reasons for why a pipelined processor is more complex, but we
-struggled mainly with the signals propagations, the pipeline stages
+struggled mostly with the signals propagations, the pipeline stages
 interlocking, and the added hazard control logic.
 \paragraph*{}
 Since splitting the components into different pipelines (yet having said stages
@@ -22,4 +22,5 @@ pipeline correctly.
 \paragraph*{}
 Implementing the added hazard control logic through the \emph{forwarding} and
 \emph{hazard detection} components also added more complexity to the processor
-design as a whole, instead of simply being new components with complex insides.
+design as a whole, instead of simply being new components containing complex
+circuitry and logic.
