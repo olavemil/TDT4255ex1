@@ -388,5 +388,5 @@ begin
 			alu_mem_mux_out <= stage_4_out_dmem_data;
 		end if;
 	end process;
-	--STAGE 5
+
 end behave;
