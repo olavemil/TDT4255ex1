@@ -26,6 +26,7 @@ locate a desired signal.\newline
 
 \subsection{Control unit}
 \textbf{TODO: changes to the control unit from last time}
+The control unit was changed quite a lot from the previous assignment. Since it was used to control the multi-cycle functionality of the previous exercise, it could now be implemented without any states. Since it no longer needed to account for states, the control unit was reduced down to a compnent that no longer depended on the internal clock. A process inside the control unit responds to a change in the opcode and outputs the correct control signals for the new instruction. These new values are stored in the pipeline registers and propagated through the core. 
 \subsection{Hazards}
 We made an attempt at implementing hazard detection system such as (and
 including) forwarding, stalling and flushing. The forwarding unit is based on
