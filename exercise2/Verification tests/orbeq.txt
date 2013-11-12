@@ -1,0 +1,8 @@
+00 8C010001 load address 1 into register 1
+01 8C020002 load address 2 into register 2
+02 0022182a slt 1, 2 => 3
+03 00232025 or 1, 3 => 4
+04 AC040003 store register 4 in address 3
+05 10430001 beq 2, 3 to +1
+06 AC030004 store register 3 in address 4
+07 AC030005 store register 3 in address 5

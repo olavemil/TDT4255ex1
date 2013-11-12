@@ -1,0 +1,5 @@
+00 8C010001 load address 1 into register 1
+01 8C020002 load address 2 into register 2
+02 08000004 jump to address 4
+03 AC01000b store register 1 in address b
+04 AC02000c store register 2 in address c

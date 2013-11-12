@@ -1,0 +1,2 @@
+00000000 20060011 load 17 into register 6
+00000005 AC060004 store register 1 in address 4

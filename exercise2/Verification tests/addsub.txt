@@ -1,0 +1,6 @@
+00000000 8C010001 load address 1 into register 1
+00000001 8C020002 load address 2 into register 2
+00000002 00221820 add register 1 and 2, and store result in register 3
+00000003 AC030005 store register 3 in address 5
+00000004 00611822 sub register 3-1 into register 3
+00000005 AC030006 store register 4 in address 6
