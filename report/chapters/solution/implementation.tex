@@ -26,12 +26,19 @@ locate a desired signal. These steps helped a great deal during development, but
 may have been neglected during testing/bugfixing.
 \paragraph*{}
 Since it was unclear whether memory access would consume a processing cycle or
- need a pipeline register, IMEM was connected directly to stage one, and
- instructions were then sent from a port in stage 1 onward to stage 2. This made
- it easy to implement or bypass the pipeline register as needed.
- 
+need a pipeline register, IMEM was connected directly to stage one, and
+instructions were then sent from a port in stage 1 onward to stage 2. This made
+it easy to implement or bypass the pipeline register as needed.
+
 \subsection{Control unit}
-The control unit was changed quite a lot from the previous assignment. Since it was used to control the multi-cycle functionality of the previous exercise, it could now be implemented without any states. Since it no longer needed to account for states, the control unit was reduced down to a compnent that no longer depended on the internal clock. A process inside the control unit responds to a change in the opcode and outputs the correct control signals for the new instruction. These new values are stored in the pipeline registers and propagated through the core. 
+The control unit was changed quite a lot from the previous assignment. Since it
+previously was used to control the multi-cycle functionality in the previous
+exercise, it could now be implemented without any state-machine. Since it no
+longer needed to account for states, the control unit was reduced down to a
+component that no longer depended on the internal clock. A process inside the
+control unit responds to a change in the opcode and outputs the correct control
+signals for the new instruction. These new values are stored in the pipeline
+registers and propagated through the core.
 
 \subsection{Hazards}
 We made an attempt at implementing hazard detection system such as (and
@@ -48,9 +55,9 @@ implemented. Flushing the current instruction based on this branch value leads
 to a combinatorial loop, and although it can probably be easily fixed, this
 flushing was commented out during testing.
 \paragraph*{}
-A hazard detection unit also takes care of data hazards relating to reading
-values from registers in use at the ALU stage (stage 3, RAW-hazards). The
-hazard detection unit stalls the pipeline when the instruction passing from
+A \emph{hazard\_detection\_unit} also takes care of data hazards relating to
+reading values from registers in use at the ALU stage (stage 3, RAW-hazards).
+The hazard detection unit stalls the pipeline when the instruction passing from
 stage 2 and into stage 3 involves a register read. If this is the case, and said
 instruction reads from one of the two registers in use in stage 2, the unit will
 enable the stall signal passing into stage 1. If the stall signal in stage 1 is
