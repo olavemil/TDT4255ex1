@@ -105,7 +105,7 @@ BEGIN
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
-		wait for 100 ns;	
+		--wait for 100 ns;	
 		reset <= '1';
 		wait for clk_period;
 		reset <= '0';
@@ -113,8 +113,9 @@ BEGIN
 		wait for clk_period*3;
 		
 		
+		processor_enable <= '1';
+		wait for clk_period;
 		
-
 		-- insert stimulus here 
 		imem_data_in <= X"20010002"; --LDI reg1  "2"
 		wait for clk_period;

@@ -38,7 +38,7 @@ entity pipe_stage2 is
 		wb_out			: out	STD_LOGIC;
 		reg_dst_out		: out	STD_LOGIC;
 		alu_src_out		: out	STD_LOGIC;
-		mem_to_reg		: out	STD_LOGIC;
+		mem_to_reg_out	: out	STD_LOGIC;
 		alu_reg_1_out	: out	STD_LOGIC_VECTOR(31 downto 0);
 		alu_reg_2_out	: out	STD_LOGIC_VECTOR(31 downto 0);
 		imm_val_out		: out	STD_LOGIC_VECTOR(31 downto 0);
@@ -117,6 +117,7 @@ architecture behave of pipe_stage2 is
 	signal flush				: STD_LOGIC;
 	signal reg_rt_reg			: STD_LOGIC_VECTOR(RADDR_BUS-1 downto 0);
 	signal imm_val_reg			: STD_LOGIC_VECTOR(DDATA_BUS-1 downto 0);
+	signal mem_to_reg			: STD_LOGIC;
 	signal branch_offset		: STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 
 	signal branch_enable		: STD_LOGIC;
@@ -189,7 +190,7 @@ begin
 		stage1_rs	=> instruction(25 downto 21),
 		stage1_rt	=> instruction(20 downto 16),
 		stage2_rt	=> reg_rt_reg,
-		mem_read	=> mem_to_reg_internal,
+		mem_read	=> mem_to_reg,
 		--Also stage1 programcounter stall when equal to zero
 		nops		=> nops,
 		if_id_stall	=> if_stall,
@@ -211,7 +212,7 @@ begin
 		Jump		=> jump_enable
 	);
 
-	write_buffer_register: process(clk, processor_enable, reg_rt_reg, reg_rt_data, reg_rs_data)
+	write_buffer_register: process(clk, processor_enable, reg_rt_reg, reg_rt_data, reg_rs_data, mem_to_reg)
 	begin
 		if rising_edge(clk) and processor_enable = '1' then
 			reg_rs_out				<= instruction(25 downto 21);
@@ -234,6 +235,7 @@ begin
 			end if;
 		end if;
 		reg_rt_out <= reg_rt_reg;
+		mem_to_reg_out <= mem_to_reg;
 	end process;
 
 end behave;

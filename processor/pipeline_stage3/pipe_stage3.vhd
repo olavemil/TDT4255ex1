@@ -103,7 +103,7 @@ begin
 
 	mux_alu_src : process(alu_src_in, mux_reg_2_data_out, imm_val_in)
 	begin
-		if alu_src_in = '1' then
+		if alu_src_in = '0' then
 			mux_alu_src_out <= mux_reg_2_data_out;
 		else
 			mux_alu_src_out <= imm_val_in;

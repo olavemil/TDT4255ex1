@@ -65,7 +65,7 @@ architecture behave of processor is
 			branch_enable		: in	STD_LOGIC;
 			pc_we				: in	STD_LOGIC;
 			--to/from imem
-			instr_data			: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
+			instr_data_in		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 			instr_addr			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 			--To stage 2
 			pc_inc_out			: out	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
@@ -108,7 +108,7 @@ architecture behave of processor is
 			wb_out			: out	STD_LOGIC;
 			reg_dst_out		: out	STD_LOGIC;
 			alu_src_out		: out	STD_LOGIC;
-			mem_to_reg		: out	STD_LOGIC;
+			mem_to_reg_out	: out	STD_LOGIC;
 			alu_reg_1_out	: out	STD_LOGIC_VECTOR(31 downto 0);
 			alu_reg_2_out	: out	STD_LOGIC_VECTOR(31 downto 0);
 			imm_val_out		: out	STD_LOGIC_VECTOR(31 downto 0);
@@ -247,7 +247,7 @@ begin
 		if_stall			=> stage_2_out_if_stall,
 		if_flush			=> stage_2_out_if_flush,
 		--to/from imem
-		instr_data			=> imem_data_in,
+		instr_data_in		=> imem_data_in,
 		instr_addr			=> imem_address,
 		--in from stage 2
 		pc_in				=> stage_2_out_pc,
@@ -289,7 +289,7 @@ begin
 		wb_out			=> stage_2_out_wb,
 		reg_dst_out		=> stage_2_out_reg_dst,
 		alu_src_out		=> stage_2_out_alu_src,
-		mem_to_reg		=> stage_2_out_mem_to_reg,
+		mem_to_reg_out	=> stage_2_out_mem_to_reg,
 		alu_reg_1_out	=> stage_2_out_alu_reg_1,
 		alu_reg_2_out	=> stage_2_out_alu_reg_2,
 		imm_val_out		=> stage_2_out_imm_val,
