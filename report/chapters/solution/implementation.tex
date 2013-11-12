@@ -26,7 +26,8 @@ locate a desired signal.\newline
 \textbf{TODO: decide on whether mem access will belong to components and be registered, or belong to processor and go unregistered, base on testing/timing results.}
 
 \subsection{Control unit}
-The control unit was changed quite a lot from the previous assignment. Since it was used to control the multi-cycle functionality of the previous exercise, it could now be implemented without any state-machine. Because it no longer needed to account for states, the control unit was reduced down to a compnent that no longer depended on the internal clock. A process inside the control unit responds to a change in the opcode and outputs the correct control signals for the new instruction. These new values are stored in the pipeline registers and propagated through the core. 
+The control unit was changed quite a lot from the previous assignment. Since it was used to control the multi-cycle functionality of the previous exercise, it could now be implemented without any state-machine. Because it no longer needed to account for states, the control unit was reduced to a compnent that no longer depended on the internal clock. A process inside the control unit responds to a change in the opcode and outputs the correct control signals for the new instruction. These new values are stored in the pipeline registers and propagated through the core.
+
 \subsection{Hazards}
 We made an attempt at implementing hazard detection system such as forwarding, stalling and flushing. The forwarding unit is based on
 the description given in section 4.7 of \cite{patterson12}. A process that
