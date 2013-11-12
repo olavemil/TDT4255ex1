@@ -1,2 +1,16 @@
-Testing was done in the same was as for the previous exercise, using the toplevel testbench while examining the signals in subcomponents, but with some component specific tests.\textbf{TODO: add more content}\\
-Much of the time was spent trying to find out why the values from the register file was wrong, and many bugs were found and fixed in the forwarding unit and stage 2 and 3 components. Despite this the values were still wrong. The tests run consisted of three load operations followed by one addition, using the values from the previous loads. When these tests performed correctly the rest of the program would be run, but since they never did, it would not be meaningful to check the result of the whole test. The testing itself was considered to be performed acceptably, but the main problem was that it was done to late. This was mostly due to schedule conflict with TDT4195 which consumed much time before the deadline.
+Testing was done in the same was as for the previous exercise, using the
+toplevel testbench while examining the signals in subcomponents, but with some
+component specific tests.\textbf{TODO: add more content}
+\paragraph*{}
+Much of the time was spent trying to find out why the values from the register
+file was wrong, and many bugs were found and fixed in the forwarding unit, the
+stage 2, and stage 3 components. Despite these bugfixes the values still came
+out wrong. The test run consisted of three load operations followed by one
+addition, using the values from the previous loads. When these tests performed
+correctly the rest of the program would be run, but since they never did, it
+was not be meaningful to check the result of the whole test. The test itself was
+considered to perform acceptably.
+\paragraph*{}
+But the main development problem was that the testing was done too late. This
+because of schedule conflicts with the course TDT4195 which consumed much of the
+time before the deadline.
