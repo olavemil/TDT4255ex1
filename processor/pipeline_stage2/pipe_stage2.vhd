@@ -217,8 +217,6 @@ begin
 			reg_rt_reg				<= instruction(20 downto 16);
 			reg_rd_out				<= instruction(15 downto 11);
 			func_out					<= instruction(5 downto 0);
-			alu_reg_1_out 			<= reg_rt_data;
-			alu_reg_2_out 			<= reg_rs_data;
 
 			imm_val_out				<= imm_val_reg;
 			alu_op_out				<= alu_op_internal;
@@ -235,6 +233,8 @@ begin
 		end if;
 		reg_rt_out <= reg_rt_reg;
 		mem_to_reg_out <= mem_to_reg;
+		alu_reg_1_out 			<= reg_rt_data;
+		alu_reg_2_out 			<= reg_rs_data;
 	end process;
 
 end behave;
