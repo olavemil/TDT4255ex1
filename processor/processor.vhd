@@ -304,7 +304,7 @@ begin
 	port map(
 		clk				=> clk,
 		processor_enable=> processor_enable,
-		--in from stage 2
+		--in from ID/EX
 		func_in			=> stage_2_out_func,
 		alu_ctrl_op_in		=> stage_2_out_alu_op,
 
@@ -322,13 +322,13 @@ begin
 		reg_rt_in		=> stage_2_out_reg_rt,
 		reg_rd_in		=> stage_2_out_reg_rd,
 
-		--in from stage 4
-		alu_data_1_in	=> stage_2_out_alu_reg_1,
-		alu_data_2_in	=> stage_2_out_alu_reg_2,
+		--in from EX/MEM
+		alu_data_1_in	=> stage_3_out_alu_result,
+		alu_data_2_in	=> stage_3_out_alu_result,
 
-		--in from stage 5
-		mem_data_1_in	=> stage_2_out_alu_reg_1,
-		mem_data_2_in	=> stage_2_out_alu_reg_2,
+		--in from MEM/WB
+		mem_data_1_in	=> alu_mem_mux_out,
+		mem_data_2_in	=> alu_mem_mux_out,
 
 		--in from forwarding unit
 		mux_reg_1_in	=> fw_reg_1_mux_control,
