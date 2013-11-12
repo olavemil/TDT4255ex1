@@ -9,14 +9,14 @@ use WORK.MIPS_CONSTANT_PKG.ALL;
 entity pipe_stage1 is
 	port(
 		clk					: in	STD_LOGIC;
-		reset				: in	STD_LOGIC;
+		reset					: in	STD_LOGIC;
 		processor_enable	: in	STD_LOGIC;
-		if_stall			: in	STD_LOGIC;
-		if_flush			: in	STD_LOGIC;
+		if_stall				: in	STD_LOGIC;
+		if_flush				: in	STD_LOGIC;
 		--From stage 2
-		pc_in				: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
+		pc_in					: in	STD_LOGIC_VECTOR(IADDR_BUS-1 downto 0);
 		branch_enable		: in	STD_LOGIC;
-		pc_we				: in	STD_LOGIC;
+		pc_we					: in	STD_LOGIC;
 		--To imem
 		instr_data_in		: in	STD_LOGIC_VECTOR(IDATA_BUS-1 downto 0);
 		--To stage 2
@@ -41,7 +41,7 @@ begin
 	begin
 		if rising_edge(clk) then
 			if reset = '1' then
-				pc_reg	<= (others => '0');
+				pc_reg	<= "11111111"; --setting this to minus 1 so thatit doesn't "head start" on the first instruction
 			elsif pc_we = '1' and processor_enable = '1' then
 				if branch_enable = '1' then
 					pc_reg	<= pc_in;
@@ -58,11 +58,12 @@ begin
 	flush_instruction : process(if_flush, instr_data_in)
 	begin
 		if if_flush = '1' then
-			instr_data <= (others => '0');
+			instruction <= (others => '0');
 		else
-			instr_data <= instr_data_in;
+			instruction <= instr_data_in;
 		end if;
 	end process;
+	
 	if_id_register : process(clk, processor_enable, if_stall, if_flush, instr_reg, pc_inc_reg)
 	begin
 		if rising_edge(clk)then
@@ -87,5 +88,6 @@ begin
 		end if;
 	end process;
 	pc_inc_out	<= pc_inc_reg;
-	instruction	<= instr_reg;
+	
+		--instruction	<= instr_data_in;
 end behave;

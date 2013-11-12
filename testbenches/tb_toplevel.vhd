@@ -96,7 +96,7 @@ ARCHITECTURE behavior OF tb_toplevel IS
 	-- See ins.txt for what they actually mean (that is a file used when loading them to the FPGA)
 	constant ins0	: std_logic_vector(0 to 31) := X"8C010001"; --LW reg1 <- data1(2)
 	constant ins1	: std_logic_vector(0 to 31) := X"8C020002"; --LW reg2 <- data2(10)
-	constant ins2	: std_logic_vector(0 to 31) := X"8C020002"; --LW reg2 <- data2(10)
+	constant ins2	: std_logic_vector(0 to 31) := X"8C040002"; --LW reg4 <- data2(10)
 	constant ins3	: std_logic_vector(0 to 31) := X"00221820"; --ADD reg3 <- reg1 + reg2 (2 + 10)
 	
 	constant ins4	: std_logic_vector(0 to 31) := X"AC030005"; --SW addr5 <- reg3 (12)
