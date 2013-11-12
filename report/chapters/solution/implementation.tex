@@ -4,14 +4,14 @@ as well as simplifying the implementation.
 \paragraph*{}
 The VHDL component called \emph{pipeline\_stage1} consists of the abstracted
 pipeline stages 0 and 1, since each of these are relatively small in their own
-right. Stage 2 was mostly implemented how it was designed, but the hazard
+right. Stage 2 was mostly implemented in the same manner it was designed, but the hazard
 detection unit and control unit were placed inside this stage. This was done
-since most signals connecting to these units go to stage 2.
-\paragraph*{}
-Stage 5 did not get its own VHDL component, since the program counter was
-written into the stage 1 component. The rest of the stage 5 logic fit better
-inside the processor component. The forwarding unit was placed as a component in the
-processor file to avoid further complexity in the VHDL components.
+since most signals connecting to these units go to stage 2. Stage 5 did not get
+its own VHDL component, since the program counter was written into the stage 1
+component.
+The rest of the stage 5 logic fit better inside the processor
+component. The forwarding unit is a component in the processor component to
+avoid further complexity in the VHDL components.  Stage 5 and stage 0 are in reality the same stage, since they have no pipelining registers which separate them.
 
 \subsection{Processor core}
 The processor core itself was implemented as a messenger between the pipeline
@@ -22,45 +22,30 @@ To make it obvious where a signal came from each was prefixed with
 ``\emph{stage\_\#\_out\_}'', since many of the signals had the same name in
 different stages. In addition, all component definitions and port maps were
 grouped and documented according to where they were connected, making it easy to
-locate a desired signal. These steps helped a great deal during development, but
-may have been neglected during testing/bugfixing.
-\paragraph*{}
-Since it was unclear whether memory access would consume a processing cycle or
-need a pipeline register, IMEM was connected directly to stage one, and
-instructions were then sent from a port in stage 1 onward to stage 2. This made
-it easy to implement or bypass the pipeline register as needed.
+locate a desired signal.\newline
+\textbf{TODO: decide on whether mem access will belong to components and be registered, or belong to processor and go unregistered, base on testing/timing results.}
 
 \subsection{Control unit}
-The control unit was changed quite a lot from the previous assignment. Since it
-previously was used to control the multi-cycle functionality in the previous
-exercise, it could now be implemented without any state-machine. Since it no
-longer needed to account for states, the control unit was reduced down to a
-component that no longer depended on the internal clock. A process inside the
-control unit responds to a change in the opcode and outputs the correct control
-signals for the new instruction. These new values are stored in the pipeline
-registers and propagated through the core.
-
+The control unit was changed quite a lot from the previous assignment. Since it was used to control the multi-cycle functionality of the previous exercise, it could now be implemented without any state-machine. Because it no longer needed to account for states, the control unit was reduced down to a compnent that no longer depended on the internal clock. A process inside the control unit responds to a change in the opcode and outputs the correct control signals for the new instruction. These new values are stored in the pipeline registers and propagated through the core. 
 \subsection{Hazards}
-We made an attempt at implementing hazard detection system such as (and
-including) forwarding, stalling and flushing. The forwarding unit is based on
-the description given in section 4.7 of \cite{patterson12}. Initially only the
-forwarding unit given in the schematic was implemented, but recognizing the
-need to forward values to the branch check after the register file, an
-additional forwarding unit was instantiated.
+We made an attempt at implementing hazard detection system such as forwarding, stalling and flushing. The forwarding unit is based on
+the description given in section 4.7 of \cite{patterson12}. A process that
+forwards values through the register file was also implemented, as is mentionen
+briefly on page  378.
 \paragraph*{}
 Dynamic branch prediction was postponed to give more time for testing, and
-branches are in the design assumed to fall through. If this fails, the pipeline
+branches are assumed to fall through. If this fails, the pipeline
 is stalled, but the optimization of moving the branch check to stage 2 has been
 implemented. Flushing the current instruction based on this branch value leads
 to a combinatorial loop, and although it can probably be easily fixed, this
 flushing was commented out during testing.
 \paragraph*{}
-A \emph{hazard\_detection\_unit} also takes care of data hazards relating to
-reading values from registers in use at the ALU stage (stage 3, RAW-hazards).
-The hazard detection unit stalls the pipeline when the instruction passing from
+A hazard detection unit also takes care of data hazards relating to reading
+values from registers in use at the ALU stage (stage 3, RAW-hazards). The
+hazard detection unit stalls the pipeline when the instruction passing from
 stage 2 and into stage 3 involves a register read. If this is the case, and said
 instruction reads from one of the two registers in use in stage 2, the unit will
 enable the stall signal passing into stage 1. If the stall signal in stage 1 is
-enables at clockcycle $n$, this has the consequence of all subsequent $n+1$
-stages repeating their action at clockcycle $n+1$, creating an instruction
+enabled at clock-cycle $n$ all subsequent $n+1$
+stages repeate their action at clock-cycle $n+1$, creating an instruction
 ``bubble'' at stage $n+1$.
