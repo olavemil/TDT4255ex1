@@ -18,9 +18,11 @@ a whole to check whether instructions as a whole propagated correctly.
 \paragraph*{}
 It was discovered (as figure \ref{fig:error-2-text} illustrates) that due to the
 bottom signal ``stage\_4\_out\_wb'' being undeclared until the ALU operations unit
-sends the load/store command to the ALU. The consequence of this is that until
-the abovementioned signals stops being undefined, garbage is written back to the
-registers in \emph{pipeline\_stage2}.
+sends the load/store command to the ALU. The ``stage\_4\_out\_wb'' should not
+have gotten the value 1 (logical high), before the signal ``alu\_mem\_mux\_out''
+gets the value 2. Since it becomes logical high before this point, the
+consequence is that garbage is written back to the registers in
+\emph{pipeline\_stage2}.
 \input{figures/wb_writing_garbage_text}
 \paragraph*{}
 This was resolved by\newline
@@ -28,9 +30,9 @@ This was resolved by\newline
 
 \subsection{First test}
 \input{figures/test_1_text}
-The first test we ran (opposed to errors we encountered), was to test if the
-stall functionality worked correctly with the program counter in
-\emph{pipeline\_stage1}.
+The first test we ran, as opposed to errors we encountered, was to test if the
+stall functionality worked correctly with the program counter in \emph{
+pipeline\_stage1}.
 \paragraph*{}
 Figure \ref{fig:test-1-text} illustrates how when the stall signal
 ``if\_id\_stall'' becomes one (logical high), the program counter's write-enable
